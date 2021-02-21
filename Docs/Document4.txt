@@ -1,0 +1,710 @@
+using Desing.Commands;
+using Desing.Services;
+using Desing.State;
+using Domain.Models;
+using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+
+namespace Desing.ViewModels
+{
+    public class BudgetVm : BaseVm
+    {
+        
+        #region Objetos Observaveis ( private )
+        private string _search;
+        
+        private ObservableCollection<Budget> _bdglist;
+        public string Search
+        {
+            get { return _search; }
+            set
+            {
+                _search = value;
+                OnPropertyChanged(nameof(Search));
+            }
+        }
+        #endregion
+
+        #region Objetos Observaveis (public )
+        private int _percentage;
+        public int Percentage
+        {
+            get { return _percentage; }
+            set { _percentage = value; 
+                  OnPropertyChanged(nameof(Percentage)); 
+            }
+        }
+
+
+
+        public ObservableCollection<Budget> BudgetList
+        {
+            get { return _bdglist; }
+            set
+            {
+                _bdglist = value;
+                OnPropertyChanged(nameof(BudgetList));
+            }
+        }
+        private Visibility _progressBarVisilibity;
+        public Visibility ProgressBarVisibility
+        {
+            get { return _progressBarVisilibity; }
+            set
+            {
+                _progressBarVisilibity = value;
+                OnPropertyChanged(nameof(ProgressBarVisibility));
+            }
+        }
+
+
+        private string _message = "";
+        public string Message
+        {
+            get { return _message; }
+            set { 
+                _message = value;
+                OnPropertyChanged(nameof(Message));
+            }
+        }
+
+        private Visibility _gridVisilibity;
+        public Visibility GridVisibility
+        {
+            get { return _gridVisilibity; }
+            set
+            {
+                _gridVisilibity = value;
+                OnPropertyChanged(nameof(GridVisibility));
+            }
+        }
+
+        private Visibility _refreshButtonVisibility;
+        public Visibility RefreshButtonVisibility
+        {
+            get { return _refreshButtonVisibility; }
+            set { _refreshButtonVisibility = value; OnPropertyChanged(nameof(RefreshButtonVisibility)); }
+        }
+
+        private Visibility _progressButtonVisibility;
+        public Visibility ProgressButtonVisibility
+        {
+            get { return _progressButtonVisibility; }
+            set { _progressButtonVisibility = value; OnPropertyChanged(nameof(ProgressButtonVisibility)); }
+        }
+
+
+        #endregion
+
+        #region Objetos privados
+        private List<SapBase> sapbase;
+        private List<Responsavel> resplist;
+        private List<GrupoConta> gruposcontalist;
+        private List<Budget> fullBudgetlist;
+
+        #endregion
+
+        public BudgetVm()
+        {
+           
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            HideProgressBar();
+            ConfiguraInstancia();
+           
+        }
+
+        #region Comandos para UI
+        /// <summary>
+        ///  Commands para o Binding no xaml
+        /// </summary>
+        public ICommand AtualizarListaCommand { get; private set; }
+        public ICommand SearchCommand { get; private set; }
+        public ICommand ConsolidateCommand { get; private set; }
+
+
+        #endregion
+
+        #region Metodos chamados pelos Commands e/ou contrutor
+        private void ConfiguraInstancia()
+        {
+
+            SearchCommand = new BudgetCommand(Pesquisar);
+            AtualizarListaCommand = new BudgetCommand(BuildWorkSheets);
+            ConsolidateCommand = new BudgetCommand(ConsolidateXlsxFiles);
+            Search = "";
+
+        }
+        public void GetLista() => BudgetList = new ObservableCollection<Budget>();
+        public void Pesquisar(string texto) => BudgetList = new ObservableCollection<Budget>();
+
+        #endregion
+
+
+        #region Monta todos os arquivos
+        private void BuildWorkSheets(string fake = null)
+        {
+
+            var worker = Utl.Bgw(DoWork, ProgressChanged, RunWorkerCompleted);
+            worker.RunWorkerAsync();
+
+        }
+        void DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            var w = sender as System.ComponentModel.BackgroundWorker;
+            
+            ShowProgressBar();
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            BuildBaseLists();
+            BuildFullExcelFile();
+            BuildResposaveisFiles();
+            w.ReportProgress(100);
+            HideProgressBar();
+
+        }
+        void ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e) => Percentage = e.ProgressPercentage;
+        void RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            Percentage = 0;
+            
+            Message = "Geração de arquivos concluida.";
+            Thread.Sleep(3000);
+            Message = "";
+            HideProgressBar();
+        }
+        #endregion
+
+
+        #region Methods to buid base lists
+        /// <summary>
+        /// Builds all Lists used to build de xlsx files
+        /// </summary>
+        private void BuildBaseLists()
+        {
+            sapbase = BuildSapBase();
+            resplist = BuilResponsaveisList();
+            gruposcontalist = BuildGrupoContaList();
+            BudgetList = BuildTemplate(sapbase, resplist, gruposcontalist);
+
+        }
+        /// <summary>
+        ///  Builds the SapBase List
+        /// </summary>
+        /// <returns></returns>
+        private List<SapBase> BuildSapBase()
+        {
+            var wk = new ExcelPackage(new FileInfo(Utl.SourceBaseSapExcellFile));
+            var sheet = wk.Workbook.Worksheets.First();
+            int lastRow = Utl.GetLastRow(sheet);
+            List<SapBase> sapbase = new List<SapBase>();
+
+            for (int i = 2; i <= lastRow; i++)
+            {
+                var r = sheet.Row(i);
+                var sbs = new SapBase();
+                var c1 = sheet.Cells[i, 1];
+                if (c1.Value != null)
+                {
+                    if (c1.ToString().Length > 0)
+                    {
+                        try
+                        {
+                            sbs = new SapBase
+                            {
+                                D = StringValue(sheet.Cells[i, 1]),
+                                DocRef = StringValue(sheet.Cells[i, 2]),
+                                Periodo = StringValue(sheet.Cells[i, 3]),
+                                DtLancamento = StringValue(sheet.Cells[i, 4]),
+                                CenLucro = StringValue(sheet.Cells[i, 5]),
+                                NumConta = StringValue(sheet.Cells[i, 6]),
+                                Denominacao = StringValue(sheet.Cells[i, 7]),
+                                EmMdiCenl = Decimal.Parse(sheet.Cells[i, 8].Value.ToString()),
+                                Texto = StringValue(sheet.Cells[i, 9]),
+                                Empr = StringValue(sheet.Cells[i, 10]),
+                                Ano = StringValue(sheet.Cells[i, 11]),
+                                DataDoc = StringValue(sheet.Cells[i, 12]),
+                                Usuario = StringValue(sheet.Cells[i, 13])
+                            };
+                        }
+                        catch (Exception x) { Console.WriteLine(x.Message); }
+
+                        sapbase.Add(sbs);
+                    }
+                }
+
+            }
+
+            sheet.Dispose();
+            wk.Dispose();
+            return sapbase;
+
+        }
+        /// <summary>
+        /// Builds Responsaveis List
+        /// </summary>
+        /// <returns></returns>
+        private List<Responsavel> BuilResponsaveisList()
+        {
+            var wk = new ExcelPackage(new FileInfo(Utl.SourceResponsaveisExcellFile));
+            var sheet = wk.Workbook.Worksheets.First();
+            int lastRow = Utl.GetLastRow(sheet);
+            List<Responsavel> responsaveis = new List<Responsavel>();
+            for (int i = 3; i <= lastRow; i++)
+            {
+                var rb = new Responsavel();
+                var c1 = sheet.Cells[i, 2];
+                if (c1.Value != null)
+                {
+                    if (c1.ToString().Length > 0)
+                    {
+                        try
+                        {
+                            rb = new Responsavel
+                            {
+                                Cr = StringValue(sheet.Cells[i, 2]),
+                                Descricao = StringValue(sheet.Cells[i, 3]),
+                                KeyManager = StringValue(sheet.Cells[i, 4]),
+                                ProjectManager = StringValue(sheet.Cells[i, 5]),
+                                Company = StringValue(sheet.Cells[i, 6]),
+                                Bf = StringValue(sheet.Cells[i, 7]),
+                                ConsInd = StringValue(sheet.Cells[i, 8]),
+                                ProjectStatus = StringValue(sheet.Cells[i, 9]),
+                                EmailKey = StringValue(sheet.Cells[i, 10]),
+                                EmailPm = StringValue(sheet.Cells[i, 11])
+                            };
+                        }
+                        catch (Exception x) { Console.WriteLine(x.Message); }
+                        responsaveis.Add(rb);
+                    }
+                }
+
+            }
+
+            sheet.Dispose();
+            wk.Dispose();
+
+            return responsaveis;
+        }
+        /// <summary>
+        /// Build GRupoConta List
+        /// </summary>
+        /// <returns></returns>
+        private List<GrupoConta> BuildGrupoContaList()
+        {
+            var wk = new ExcelPackage(new FileInfo(Utl.SourceGrupoContaExcellFile));
+            var sheet = wk.Workbook.Worksheets.First();
+            int lastRow = Utl.GetLastRow(sheet);
+            List<GrupoConta> gruposconta = new List<GrupoConta>();
+            for (int i = 2; i <= lastRow; i++)
+            {
+                var gc = new GrupoConta();
+                var c1 = sheet.Cells[i, 1];
+                if (c1.Value != null)
+                {
+                    if (c1.ToString().Length > 0)
+                    {
+                        try
+                        {
+                            gc = new GrupoConta
+                            {
+                                Nivel5 = StringValue(sheet.Cells[i, 1]),
+                                NivelDescricao = StringValue(sheet.Cells[i, 2]),
+                                Grupo = StringValue(sheet.Cells[i, 3]),
+                                Grupo1 = StringValue(sheet.Cells[i, 4]),
+                            };
+                        }
+                        catch (Exception x) { Console.WriteLine(x.Message.ToString()); }
+                        gruposconta.Add(gc);
+                    }
+                }
+
+            }
+
+            sheet.Dispose();
+            wk.Dispose();
+            return gruposconta;
+        }
+        private IEnumerable<string> ResponsavelsDistinctList(List<Responsavel> list)
+        {
+            var all = BuilResponsaveisList();
+            var r = from i in all where i.ProjectManager != "Vazio" orderby i.ProjectManager select i.ProjectManager;
+            return r.Distinct();
+        }
+        private ObservableCollection<Budget> BuildTemplate(List<SapBase> sapbase, List<Responsavel> responsaveis, List<GrupoConta> gruposcontas)
+        {
+
+            ObservableCollection<Budget> bl = new ObservableCollection<Budget>();
+            var tmp = from b in sapbase
+                      join r in responsaveis on b.CenLucro equals r.Cr
+                      join g in gruposcontas on b.NumConta equals g.Nivel5
+                      orderby b.Periodo
+                      select new { b, r, g };
+
+            //bl = new List<Budget>();
+            foreach (var item in tmp)
+            {
+                bl.Add(new Budget
+                {
+                    D = item.b.D,
+                    DocRef = item.b.DocRef,
+                    Periodo = item.b.Periodo,
+                    DtLancamento = item.b.DtLancamento,
+                    CenLucro = item.b.CenLucro,
+                    NumConta = item.b.NumConta,
+                    Denominacao = item.b.Denominacao,
+                    EmMdiCenl = item.b.EmMdiCenl,
+                    Texto = item.b.Texto,
+                    Empr = item.b.Empr,
+                    Ano = DateTime.Parse(item.b.DtLancamento).Year.ToString(),
+                    DataDoc = item.b.DataDoc,
+                    Usuario = item.b.Usuario,
+                    Report = "SAP/actual",
+                    Grupo = item.g.Grupo,
+                    Grupo1 = item.g.Grupo1,
+                    KeyDescricao = item.r.Descricao,
+                    ProjectManager = item.r.ProjectManager,
+                    KeyManager = item.r.KeyManager,
+                    Bf = item.r.Bf,
+                    NivelDescricao = item.g.NivelDescricao,
+                    Mes = DateTime.Parse(item.b.DtLancamento).Month.ToString()
+                });
+            };
+            return bl;
+        }
+        /// <summary>
+        ///  Buiks Base PO List 
+        /// </summary>
+        /// <returns></returns>
+        private List<Budget> MontaListaBasePO()
+        {
+            var wkPo = new ExcelPackage(new FileInfo(Utl.SourceBasePoExcellFile));
+            var spo = wkPo.Workbook.Worksheets.First();
+            int lastPoRow = Utl.GetLastRow(spo);
+            List<Budget> basePo = new List<Budget>();
+            for (int i = 2; i <= lastPoRow; i++)
+            {
+                var r = spo.Row(i);
+                var po = new Budget();
+                var c3 = spo.Cells[i, 3];
+                if (c3.Value != null)
+                {
+                    if (c3.ToString().Length > 0)
+                    {
+                        try
+                        {
+                            po = new Budget
+                            {
+                                D = StringValue(spo.Cells[i, 1]),
+                                DocRef = StringValue(spo.Cells[i, 2]),
+                                Periodo = StringValue(spo.Cells[i, 3]),
+                                DtLancamento = StringValue(spo.Cells[i, 4]),
+                                CenLucro = StringValue(spo.Cells[i, 5]),
+                                NumConta = StringValue(spo.Cells[i, 6]),
+                                Denominacao = StringValue(spo.Cells[i, 7]),
+                                EmMdiCenl = Decimal.Parse(spo.Cells[i, 8].Value.ToString()),
+                                Texto = StringValue(spo.Cells[i, 9]),
+                                Empr = StringValue(spo.Cells[i, 10]),
+                                Ano = StringValue(spo.Cells[i, 11]),
+                                DataDoc = StringValue(spo.Cells[i, 12]),
+                                Usuario = StringValue(spo.Cells[i, 13]),
+                                Report = StringValue(spo.Cells[i, 14]),
+                                Grupo = StringValue(spo.Cells[i, 15]),
+                                Grupo1 = StringValue(spo.Cells[i, 16]),
+                                ProjectManager = StringValue(spo.Cells[i, 17]),
+                                KeyManager = StringValue(spo.Cells[i, 18]),
+                                Bf = StringValue(spo.Cells[i, 19]),
+                                KeyDescricao = StringValue(spo.Cells[i, 20]),
+                                Mes = spo.Cells[i, 3].Value.ToString()
+                            };
+                        }
+                        catch (Exception x) { Console.WriteLine(x.Message); }
+
+                        basePo.Add(po);
+                    }
+                }
+
+            }
+            spo = null;
+            wkPo.Dispose();
+            return basePo;
+
+        }
+        #endregion
+
+        #region Build file methods
+        /// <summary>
+        /// Builds the ReportFull.xlsx fiel
+        /// </summary>
+        private void BuildFullExcelFile()
+        {
+            
+            Message = "Gerando ReportFull.xlsx";
+            var wkb = GetTemplateFullWorkBook();
+            wkb.SaveAs(CreateExcelFile(Utl.DestinationReportFullFile));
+
+            ExcelWorksheet sheet = wkb.Workbook.Worksheets["Base"];
+            int firstRow = Utl.GetLastRow(sheet);
+            firstRow = firstRow < 2 ? 2 : firstRow + 1;
+            int firstPoRow = WriteLinesToBaseTab(sheet, BudgetList,"", firstRow);
+
+            /* Adiciona Base PO */
+            WritePoToReportFull(sheet, firstPoRow);
+
+            sheet.Select();
+            sheet.Calculate();
+            wkb.Save();
+
+            /* Build fullBudgetlist*/
+            int lastRow = Utl.GetLastRow(sheet);
+            fullBudgetlist = new List<Budget>();
+            for (var l = 2;l<=lastRow; l++)
+            {
+               decimal v = 0;
+               var x = sheet.Cells[l, 8].Value.ToString().Replace(".","");
+               var le = x.IndexOf(",");
+                if(le > 0)
+                {
+                    if (le + 2 <= x.Length)
+                    {
+                        v = x != "" ? decimal.Parse(x.Substring(0 , le+2)) : 0;
+                    }
+                }
+
+               var datadoc = StringValue(sheet.Cells[l, 12]) != "" ? StringValue(sheet.Cells[l, 12]) : "";
+               fullBudgetlist.Add(new Budget{
+                       D = StringValue(sheet.Cells[l, 1]),
+                       DocRef = StringValue(sheet.Cells[l, 2]),
+                       Periodo = StringValue(sheet.Cells[l, 3]),
+                       DtLancamento = StringValue(sheet.Cells[l, 4]),
+                       CenLucro = StringValue(sheet.Cells[l, 5]),
+                       NumConta = StringValue(sheet.Cells[l, 6]),
+                       Denominacao = StringValue(sheet.Cells[l, 7]),
+                       EmMdiCenl = v,
+                       Texto = StringValue(sheet.Cells[l, 9]),
+                       Empr = StringValue(sheet.Cells[l, 10]),
+                       Ano = StringValue(sheet.Cells[l, 11]),
+                       DataDoc = datadoc,
+                       Usuario = StringValue(sheet.Cells[l, 13]),
+                       Report = StringValue(sheet.Cells[l, 14]),
+                       Grupo = StringValue(sheet.Cells[l, 15]),
+                       Grupo1 = StringValue(sheet.Cells[l, 16]),
+                       KeyDescricao = StringValue(sheet.Cells[l, 20]),
+                       ProjectManager = StringValue(sheet.Cells[l, 17]),
+                       KeyManager = StringValue(sheet.Cells[l, 18]),
+                       Bf = StringValue(sheet.Cells[l, 19]),
+                       NivelDescricao = StringValue(sheet.Cells[l, 20]),
+                       Mes = StringValue(sheet.Cells[l, 21]),
+                });
+             };
+
+            sheet.Dispose();
+            wkb.Dispose();
+           
+
+
+        }
+
+        private void WritePoToReportFull(ExcelWorksheet sheet, int firstPoRow)
+        {
+            var basePo = MontaListaBasePO();
+            int l = firstPoRow;
+
+            foreach (var sl in basePo)
+            {
+                var mes = sl.Mes == "ytd" ? sl.Mes : Utl.Meses[int.Parse(sl.Mes)].ToLower().Trim();
+                sheet.Cells[l, 3].Value = sl.Periodo;
+                sheet.Cells[l, 5].Value = sl.CenLucro;
+                sheet.Cells[l, 8].Value = sl.EmMdiCenl;
+                sheet.Cells[l, 10].Value = sl.Empr;
+                sheet.Cells[l, 11].Value = sl.Ano;
+                sheet.Cells[l, 14].Value = sl.Report;
+                sheet.Cells[l, 15].Value = sl.Grupo;
+                sheet.Cells[l, 16].Value = sl.Grupo1;
+                sheet.Cells[l, 17].Value = sl.ProjectManager;
+                sheet.Cells[l, 18].Value = sl.KeyManager;
+                sheet.Cells[l, 19].Value = sl.Bf;
+                sheet.Cells[l, 20].Value = sl.KeyDescricao;
+                sheet.Cells[l, 21].Value = mes;
+                l += 1;
+            }
+        }
+
+
+        /// <summary>
+        /// Build each Reponsavel.xlsx
+        /// </summary>
+        private void BuildResposaveisFiles()
+        {
+            var wkb = GetTemplateRespWorkBook();
+            var dr = ResponsavelsDistinctList(resplist);
+            var pbincrement = Decimal.ToInt32(dr.Count(r => r.Length>0)/10);
+            ExcelWorksheet sheet = wkb.Workbook.Worksheets["Base"];
+            foreach (var name in dr)
+            {
+               BuildResponsavelExcelFile(name, wkb, sheet);
+               Percentage += pbincrement;
+               Message = String.Format("Gerando {0}.xlsx",name);
+            }
+            Percentage = 100;
+            Message = "";
+        }
+        /// <summary>
+        /// Builds single Responsavel.xlsx file
+        /// </summary>
+        /// <param name="nomeresponsavel"></param>
+        /// <param name="wkb"></param>
+        /// <param name="s"></param>
+        private void BuildResponsavelExcelFile(string nomeresponsavel, ExcelPackage wkb, ExcelWorksheet s)
+        {
+            List<Budget> temprlist = (from b in fullBudgetlist where b.ProjectManager == nomeresponsavel orderby b.ProjectManager select b).ToList();
+            ObservableCollection<Budget> orlist = new ObservableCollection<Budget>(temprlist);
+            s.Cells["A2:U50000"].Clear();
+            int lr = WriteLinesToBaseTab(s, orlist," PO");
+            s.Select();
+            s.Calculate();
+            wkb.SaveAs(CreateExcelFile(Utl.DestinationResponsavelFile(nomeresponsavel)));
+        }
+        /// <summary>
+        ///  Writes all lines in the target woekshhet
+        /// </summary>
+        /// <param name="sheet"></param>
+        /// <param name="bdglist"></param>
+        /// <param name="tipo"></param>
+        private static int WriteLinesToBaseTab(ExcelWorksheet sheet, ObservableCollection<Budget> bdglist, string tipo ="", int firstRow=2)
+        {
+            int l = firstRow;
+            foreach (var sl in bdglist)
+            {
+                  WriteTabLine(sl,sheet,l, tipo);
+                 l += 1;
+            }
+            return l;
+        }
+        /// <summary>
+        /// Writes one line in tarhet woeksheet
+        /// </summary>
+        /// <param name="sl"></param>
+        /// <param name="sheet"></param>
+        /// <param name="l"></param>
+        /// <param name="tipo"></param>
+        private static void WriteTabLine(Budget sl,ExcelWorksheet sheet, int l, string tipo="")
+        {
+
+            var mes = sl.Mes.Contains("ytd") ? sl.Mes : Utl.Meses[int.Parse(sl.Periodo)].ToLower().Trim() + tipo;
+
+            sheet.Cells[l, 1].Value = sl.D;
+            sheet.Cells[l, 2].Value = sl.DocRef;
+            sheet.Cells[l, 3].Value = sl.Periodo;
+            sheet.Cells[l, 4].Value = sl.DtLancamento;
+            sheet.Cells[l, 5].Value = sl.CenLucro;
+            sheet.Cells[l, 6].Value = sl.NumConta;
+            sheet.Cells[l, 7].Value = sl.Denominacao;
+            sheet.Cells[l, 8].Value = sl.EmMdiCenl;
+            sheet.Cells[l, 9].Value = sl.Texto;
+            sheet.Cells[l, 10].Value = sl.Empr;
+            sheet.Cells[l, 11].Value = sl.Ano;
+            sheet.Cells[l, 12].Value = sl.DataDoc;
+            sheet.Cells[l, 13].Value = sl.Usuario;
+            sheet.Cells[l, 14].Value = sl.Report;
+            sheet.Cells[l, 15].Value = sl.Grupo;
+            sheet.Cells[l, 16].Value = sl.Grupo1;
+            sheet.Cells[l, 17].Value = sl.ProjectManager;
+            sheet.Cells[l, 18].Value = sl.KeyManager;
+            sheet.Cells[l, 19].Value = sl.Bf;
+            sheet.Cells[l, 20].Value = sl.KeyDescricao;
+            sheet.Cells[l, 21].Value = mes;
+        }
+        #endregion
+
+        #region Consolidate xlsx files
+        private async void ConsolidateXlsxFiles(string fake = null)
+        {
+            foreach(var xlsx in resplist)
+            {
+              await  Task.Run(() =>  BuildReportFullConsolidatedFile() );
+            }
+        }
+
+        private void BuildReportFullConsolidatedFile()
+        {
+            
+        }
+
+        #endregion
+
+        #region Helpers
+        private string StringValue(ExcelRangeBase v)
+        {
+            if (v.Value != null)
+            {
+                return v.Value.ToString();
+            }
+            return string.Empty;
+        }
+       
+        private void HideProgressBar()
+        {
+             ProgressBarVisibility = Visibility.Hidden;
+             GridVisibility = Visibility.Visible;
+             ToggleButtons(true);
+        }
+
+        private void ShowProgressBar()
+        {
+            ToggleButtons(false);
+            ProgressBarVisibility = Visibility.Visible;
+            Percentage = 0;
+            Message = "Gerando arquivos";
+            GridVisibility = Visibility.Hidden;
+        }
+        private void ShowTaskInfo(string text, string[] results)
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                foreach (var item in results)
+                {
+                    Message = text;
+                }
+
+            }));
+        }
+
+       
+        public FileInfo CreateExcelFile(string file)
+        {
+  
+            if (File.Exists(file)) File.Delete(file);
+            return new FileInfo(file);
+        }
+ 
+        public ExcelPackage GetTemplateFullWorkBook()
+        {
+            return new ExcelPackage(new FileInfo(Utl.TemplateFullExcellFile));
+        }
+        public ExcelPackage GetTemplateRespWorkBook()
+        {
+            return new ExcelPackage(new FileInfo(Utl.TemplateResplExcellFile));
+        }
+        public  eWorkSheetHidden Hidden { get { return eWorkSheetHidden.Hidden; } }
+        public  eWorkSheetHidden VeryHidden { get { return eWorkSheetHidden.VeryHidden; } }
+ 
+        public void ToggleButtons(bool state)
+        {
+            RefreshButtonVisibility = Utl.TogleVisibility(state);
+           // ProgressButtonVisibility = Utl.TogleVisibility(!state);
+        }
+
+
+        #endregion
+
+
+    }
+}

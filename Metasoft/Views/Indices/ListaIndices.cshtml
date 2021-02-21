@@ -1,0 +1,79 @@
+﻿@model IEnumerable<Metasoft.Models.Indice>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Lista Indices";
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0) { count = Model.Count(); }
+    }
+}
+
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Índices" })
+<div class="panel panel-default mgauto" style="display:none;padding-left:80px;padding-right:80px">
+    <!--  Heading-->
+    <div style="display:grid;grid-template-columns: 90% 10%;height:28px;grid-column-gap:2px;margin-top:10px;">
+        @Html.Partial("_Title", new TitleViewModel { title = "Indices cadastrados (" + (count) + ")", width = "29%", classe = "title" })
+        @Html.Partial("_ActionsPanelShort", new ActionsPanelViewModel
+        {
+            DivClass = "inputdiv",
+            Mtop = "4px",
+            Height = "28px",
+            Id = "actions",
+            InputClass = "custom-dropdown",
+           AddNewLink = "/Indices/NovoIndice",
+            AddNewTitle = "Cadastrar indice",
+           Tabela = "#indices",
+            ReportTitle = "DNK - Lista de Índices cadastrados",
+           CanEdit = true
+           });
+    </div>
+
+    <div class="panel-body-custom">
+        @if (Model.Count() > 0)
+        {
+            <table id="indices" class="indices">
+                <thead>
+                    <tr>
+                        <th class="hidden"></th>
+                        <th class="thbkg">Descrição</th>
+                        <th class="noprint">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="hidden">@Html.DisplayFor(model => item.id)</td>
+                            <td>@Html.DisplayFor(modelItem => item.nome)</td>
+                            <td class="noprint" style="text-align:center">
+                                <a id="alterarlink" class="actionicon" href="/indices/AlterarIndice/@item.id" title="Alterar informações do índice"><i class="fa fa-pen"></i></a>
+                                <a id="excluiricon_@item.id" class="actionicon" href="#" onclick="ExcluirConfirm('indice','@item.id','@item.nome');" title="Excluir indice"><i class="fa fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhum índice cadastrado", width = "30%;" })
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+          GlobalSettings("#indices", "435px", 1, false, false, "", "", false,false, true);
+         if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+         if ('@Html.Raw(ViewBag.deletefailed)' != "") { msg('@Html.Raw(ViewBag.deletefailed)'); }
+      });
+
+    </script>
+}
+
+
+

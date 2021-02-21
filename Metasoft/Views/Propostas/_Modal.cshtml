@@ -1,0 +1,17 @@
+﻿@model Metasoft.Models.ModalPanelViewModel
+@using Metasoft.Models
+<div class="modal" id="@Model.Id"  name="@Model.Id" tabindex="-1" role="dialog"  >
+    <div class="modal-dialog @Model.ModalSize" role="document" style="@Model.Width">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header ">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title-custom">@Model.Title</h5>
+            </div>
+            <div class="modal-body modal-body-custom">
+                @Html.Partial(Model.PartialContent)
+             </div>
+        </div>
+    </div>
+</div>
+
+

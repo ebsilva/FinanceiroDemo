@@ -1,0 +1,18 @@
+﻿[
+  {
+    "outputFile": "Content/Site.css",
+    "inputFile": "Content/Site.scss"
+  },
+  {
+    "outputFile": "Scripts/metasoft.min.js",
+    "inputFile": "Scripts/metasoft.js"
+  },
+  {
+    "outputFile": "Scripts/NotaFiscal.min.es5.js",
+    "inputFile": "Scripts/NotaFiscal.min.js"
+  },
+  {
+    "outputFile": "Scripts/NotaFiscal.es5.js",
+    "inputFile": "Scripts/NotaFiscal.js"
+  }
+]

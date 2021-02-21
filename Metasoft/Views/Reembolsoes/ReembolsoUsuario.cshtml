@@ -1,0 +1,159 @@
+﻿@model IEnumerable<Metasoft.Models.ReembolsoViewModel>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+
+@{ViewBag.Title = "Rembolsos cadastrados";
+    int cadastrados = 0;
+    if (Model.Count() > 0)
+    {
+        cadastrados = Model.Count();
+    }
+    decimal total = 0;
+    string usuario = "";
+}
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Reembolso" })
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ReembolsoUsuario" })))
+{
+    <div class="panel panel-default mgauto" style="display:none;">
+        <div style="display:grid;grid-template-columns: 60%   12% 10%  8% 10%;height:35px;grid-column-gap:5px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Reembolsos cadastrados (" + Model.Count().ToString() + ")", width = "20%", classe = "title" })
+            <!-- Tipo reembolso-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "tipo", InputClass = "custom-dropdown", Title = "Tipo", NoLabel = true })
+            <!-- Meses-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "meses", InputClass = "custom-dropdown", Title = "Mês", StaticOptions = "_OptionsMeses", NoLabel = true })
+            <!-- Ano-->
+            @Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017, NoLabel = true })
+            @Html.Partial("_ActionsPanelShort", new ActionsPanelViewModel
+           {
+               DivClass = "inputdiv",
+               Mtop = "2px",
+               Height = "25px",
+               Id = "actions",
+               InputClass = "custom-dropdown",
+               AddNewLink = "/Reembolsoes/CadastrarReembolso",
+               AddNewTitle = "Cadastrar reembolso",
+               Tabela = "#tablereembolso",
+               ReportTitle = "DNK - Lista de rembolsos cadastrados",
+               CanEdit = true
+              });
+        </div>
+        <div style="height:15px;"></div>
+        <div >
+            @if (Model.Count() > 0)
+            {
+                <table id="tablereembolso" class="tablereembolso">
+                    <thead>
+                        <tr>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.reembolsoid)</th>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.tipoid)</th>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.userid)</th>
+                            <th>Referência</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.tiponome)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.usernome)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.descricao)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.valor)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.situacao)</th>
+                            <th class="noprint">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            total += item.valor;
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.reembolsoid)</td>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.tipoid)</td>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.userid)</td>
+
+                                @{string referencia = item.vencimento.ToString();}
+                                <td>@referencia</td>
+                                <td>@Html.DisplayFor(modelItem => item.tiponome) </td>
+                                <td>@Html.DisplayFor(modelItem => item.usernome) </td>
+                                <td>@Html.DisplayFor(modelItem => item.descricao) </td>
+                                <td>@String.Format("{0:C}", item.valor)</td>
+                                <td>@Html.DisplayFor(modelItem => item.situacao) </td>
+                                <td class="noprint">
+                                    <a id="alterarlink" class="actionicon" href="/Reembolsoes/AlterarReembolso/@item.reembolsoid" title="Alterar cliente"><i class="fa fa-pen"></i></a>
+                                    <a id="excluirlink" class="actionicon" href="#" title="Excluir reembolso" onclick="ExcluirConfirm('Reembolso',@item.reembolsoid,'@item.descricao');"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+
+                <div class="naocadastrado" style="color:white;">Nenhum reembolso cadastrado</div>
+            }
+            @if (Model.Count() > 0)
+            {
+                <div class="divtotais">
+                    <table class="tablereembolso" style="background-color:transparent;color:white;">
+                        <tr>
+                            <th class="hidden"></th>
+                            <th class="hidden"></th>
+                            <th class="hidden"></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th style="text-align:right;">Total R$</th>
+                            <th class="tdsubtt" style="color:white;padding-right:20px;">@String.Format("{0:C}", total)</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </table>
+                </div>
+
+            }
+        </div>
+        <div class="onlyprint">
+            <br />
+            <div>________________________________________________</div>
+            <div>@usuario.ToUpper()</div>
+        </div>
+
+    </div>
+    
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GlobalSettings("#tablereembolso","435px", 1, false, true,true, "", "", false,false,false);
+            PopulateTiposReembolso('tipo');
+            $("#printicon").click(function () { Imprime();})
+            var d = new Date(), m = d.getMonth()+1, y = d.getFullYear();
+            $('#meses option[value="' + m + '"]').prop('selected', true);
+            $('#meses').change(function () { this.form.submit(); });
+            $('#anos option[value="' + y + '"]').prop('selected', true);
+            $('#anos').change(function () { this.form.submit(); });
+            $('#tipo').change(function () { this.form.submit(); });
+
+            var mes = '@Html.Raw(ViewBag.mes)'; if (mes != "") { SetDropDownValue(mes, "meses"); } else { mes = m; }
+            var ano = '@Html.Raw(ViewBag.ano)'; if (ano != "") { SetDropDownValue(ano, "anos"); } else { mes = y; }
+            var tipo = '@Html.Raw(ViewBag.tipo)'; if (tipo != "") { SetDropDownValue(tipo, "tipo"); } else { tipo = ""; }
+
+
+            var meses = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            var referencia = meses[mes] + "/" + $("#anos").val();
+            $("#referencia").text(referencia);
+        });
+    </script>
+    @*@Scripts.Render("~/Scripts/Clientes.js")*@
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

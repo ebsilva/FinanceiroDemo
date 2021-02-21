@@ -1,0 +1,15 @@
+﻿@model Metasoft.Models.ActionsPanelViewModel
+@using Metasoft.Models;
+<div class="@Model.DivClass"  style="margin-top:@Model.Mtop;">
+    <div class="custom-dropdown-noarrow">
+        <a id="printicon"onclick="PrintTable('@Model.Tabela','@Model.ReportTitle');" title="Imprimir"><i class="fa fa-print fs24"></i></a>
+
+        @if (Model.CanEdit)
+        {
+            @Html.Partial("_LinkIcon", new LinkIconViewModel { link = Model.AddNewLink, title =  Model.AddNewTitle, icon = "fas fa-plus fs24" })
+
+        }
+    </div>
+</div>
+
+

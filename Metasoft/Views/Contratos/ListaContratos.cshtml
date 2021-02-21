@@ -1,0 +1,325 @@
+﻿@model IEnumerable<Metasoft.Models.ContratosViewModel>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Contratos";
+    Permissao permissoes = (Permissao)Session["permissoes"];
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0)
+        {
+            count = Model.Count();
+        }
+    }
+}
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Contratos" })
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ListaContratos" })))
+{
+    <div class="panel panel-default mgauto" style="display:none">
+        <div style="display:grid;grid-template-columns: 85% 15%;height:28px;grid-column-gap:1px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Contratos cadastrados (" + (count) + ")", classe = "title" })
+            @Html.Partial("_Search", new SearchViewModel { DivClass = "search", Tabela = "contratos", StarCol = 1, EndCol = 10 })
+        </div>
+        <div class="filterWrap noprint" style="display:grid;grid-template-columns: 10%  10% 10% 10% 36% 11%  10%;margin-top:0px; grid-column-gap:3px;">
+
+            <!--Tipo data-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "tipodata", InputClass = "custom-dropdown", Title = "Tipo Data", StaticOptions = "_OptionsTipoDataContrato" })
+
+            <!--De -->
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "de", Title = "De" })
+            <!--Ate -->
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "ate", Title = "Até" })
+            <!-- Tipos Contrato -->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "1px", Id = "tiposcontrato", InputClass = "custom-dropdown", Title = "Tipo Contrato" })
+            <!-- Clientes -->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "1px", Height = "31px", Id = "clientes", InputClass = "custom-dropdown", Title = "Clientes" })
+
+            <!-- Tipo resjuste-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "situacao", InputClass = "custom-dropdown", Title = "Status", StaticOptions = "_OptionsTipoReajuste" })
+
+            <!-- Actions Panel-->
+
+            @Html.Partial("_ActionsPanel", new ActionsPanelViewModel
+            {
+                DivClass = "inputdiv",
+                Mtop = "25px",
+                Height = "31px",
+                Id = "actions",
+                InputClass = "custom-dropdown",
+                AddNewLink = "/Contratos/NovoContrato",
+                AddNewTitle = "Cadastrar novo contrato",
+                Tabela = "#contratos",
+                ReportTitle = "'DNK - Contratos cadastrados",
+                CanEdit = permissoes.ctt_edit
+               })
+        </div>
+
+        <div class="panel-body-custom">
+
+            <div style="clear:both;height:5px;"></div>
+            <div>
+                @if (Model != null)
+                {
+                    <table id="contratos" class="contratos">
+                        <thead>
+                            <tr>
+                                <th class="thbkg">Nº</th>
+                                <th class="thbkg">Cliente</th>
+                                <th class="thbkg">Início</th>
+                                <th class="thbkg">Término</th>
+                                <th class="thbkg">In. Serv.</th>
+                                <th class="thbkg">Observação</th>
+                                <th class="thbkg">Tipo</th>
+                                <th class="thbkg">Prazo</th>
+                                <th class="thbkg">R$ Valor</th>
+                                <th class="thbkg">Tp Reaj.</th>
+                                <th class="thbkg">Prox Reaj.</th>
+                                <th class="thbkg noprint" style="text-align:center;">Açôes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+
+                                <tr>
+                                    <td>@Html.DisplayFor(modelItem => item.id)</td>
+                                    <td>@Tools.ShortText(item.clientenome, 40)</td>
+                                    <td class="tac">@Html.DisplayFor(modelItem => item.dtinicio)</td>
+                                    <td class="tac">@Html.DisplayFor(modelItem => item.dttermino)</td>
+                                    <td class="tac">@Html.DisplayFor(modelItem => item.iniciosv)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.observacao)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.tipocontrato)</td>
+                                    <td class="tac">@Html.DisplayFor(modelItem => item.prazo)</td>
+                                    <td class="tar">R$&nbsp;@Html.DisplayFor(modelItem => item.valor)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.indice)</td>
+                                    <td class="tac">
+
+                                        @Html.DisplayFor(modelItem => item.proxreajuste)
+                                        @{
+                                            var cor = "green";
+                                            DateTime dt = Convert.ToDateTime(item.proxreajuste);
+                                            var day = (dt - DateTime.Today).TotalDays;
+                                            var title = "Renovação nos próximos " + day.ToString() + " dias";
+
+                                            if (day < 60 && day > 30) { cor = "yellow"; }
+                                            if (day <= 30) { cor = "red"; };
+                                        }
+                                        @if (!String.IsNullOrEmpty(item.proxreajuste))
+                                        {
+                                            <i class="fa fa-circle noprint" style="color:@cor;" title="@title"></i>
+                                        }
+                                    </td>
+                                    <td class="noprint tac">
+
+                                        @if (permissoes.ctt_edit)
+                                        {
+                                            <a class="actionicon" href='/Contratos/AlterarContrato/@item.id' title='Alterar proposta' onclick=""><i id='alterarico' class='fa fa-pen'></i></a>
+                                            if (item.contas == 0)
+                                            {
+                                                <a class="actionicon" href='#' title='excluir contrato' onclick="ExcluirConfirm('contrato',@item.id,'Nº ' +'@item.observacao');"><i id='excluirico' class='fa fa-trash'></i></a>
+                                            }
+
+                                            @*if (cor == "red")
+                                            {
+                                                <a class="actionicon" href='#' title='renovar contrato'><i id='excluirico' class='fa fa-file-text-o' style="color:#633718;"></i></a>
+                                            }*@
+                                        }
+
+
+                                        <!--Proximo data de reajuste mostra icone renovacao-->
+                                        @*@if (item.situacaoid != 5)
+                                        {
+
+                                        }*@
+                                        <a id="contatoslink" class="actionicon" href="#" title="Exibir historico Contrato"
+                                           data-toggle="modal" data-target="#HistoricoModal"
+                                           onclick="ShowHistorico(@item.id,'@item.clientenome','@item.clientenome');">
+                                            <i class="fa fa-bars"></i>
+                                        </a>
+
+                                        @if (permissoes.ctt_edit)
+                                        {
+                                            if (item.iniciosv != null && item.contas < item.prazo)
+                                            {
+                                                <a class="actionicon"
+                                                   href='/Contratos/LancarCr/@item.id'
+                                                   title='Lançar Conta a Receber'>
+                                                    <i id='alterarico' class='fa fa-plus'></i>
+                                                </a>
+                                            }
+                                        }
+
+                                        @if (item.contas > 0)
+                                        {
+                                            <a href="#" class="actionicon"
+                                               onclick="ShowContasContrato(@item.id)"
+                                               data-toggle="modal" data-target="#ListaContasModal"
+                                               title="Exibir historico de contas">
+                                                <i class='fa fa-list-ul' style="color:#4e0404;"></i>
+                                            </a>
+                                        }
+
+                                    </td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhum contrato cadastrado", width = "30%;" })
+                }
+
+
+            </div>
+        </div>
+
+    </div>
+
+}
+
+
+<!-- Historico Modal-->
+<div class="modal fade modal-wide" id="HistoricoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modalheader">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                <h5 class="modal-title" id="modalheader"></h5>
+            </div>
+            <div class="modal-body">
+                <div id="modal-body">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ContasModal-->
+<div class="modal fade modal-wide" id="ListaContasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modalheader">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                <h5 class="modal-title" id="contasheader"></h5>
+            </div>
+            <div class="modal-body">
+                <div id="divcontas">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+           UpdateCategorias("tiposcontrato", "R", 0);
+           GlobalSettings("#contratos", "550px", 1, true,false, false, "C", "", false, true,false);
+            //PopulateTiposContrato("tiposcontrato")
+
+
+            $(function () { $('#tiposcontrato').change(function () { DownloadFalse(); this.form.submit(); }); });
+
+            var de = '@Html.Raw(ViewBag.deselected)'; if (de != "") { $("#de").val(de); }
+            var ate = '@Html.Raw(ViewBag.ateselected)'; if (ate != "") { $("#ate").val(ate); }
+            var tipodata = '@Html.Raw(ViewBag.tipodataselected)'; if (tipodata != "") { SetDropDownValue(tipodata, "tipodata"); } else { tipodata = "0"; }
+            var tipocontrato = '@Html.Raw(ViewBag.tipocontratoselected)'; if (tipocontrato != "") { SetDropDownValue(tipocontrato,"tiposcontrato"); } else { tipocontrato = "0"; }
+            var cliente = '@Html.Raw(ViewBag.clienteselected)'; if (cliente != "") { SetDropDownValue(cliente, "clientes"); } else { cliente = "0"; }
+           var situacao = '@Html.Raw(ViewBag.situacaoselected)'; if (situacao != "") { SetDropDownValue(situacao, "situacao"); }
+
+            $("#contratos_filter").addClass("noprint");
+
+        });
+
+        function ShowContasContrato(id) {
+            /* Mostra lancamentos na mesma TR que contatos*/
+            $("#contasheader").html("Contas contrato: " +id);
+            var placeholder = "#divcontas";
+
+            $(placeholder).load("/Contratos/ShowContasContrato", {
+                id: id,
+                viewName: "_Lancamentos"
+            });
+        }
+
+        function Pre_Print(tabela) {
+            var table = $(tabela).DataTable();
+            table.destroy();
+            Imprime();
+            SetDataTable();
+
+        }
+
+        function ShowHistorico(id,cliente) {
+
+            $("#modalheader").html("Historico Contrato: Nº " + id + "  "+ cliente);
+            var placeholder = "#modal-body";
+            $(placeholder).load("/Contratos/ShowHistorico", {
+                id: id,
+                viewName: "_HistoricoContrato"
+
+            });
+        }
+
+        function UpdateTotal() {
+            var table = $("#contratos table tbody");
+            var total = 0.00;
+            $("#contratos").find('tr').each(function (i) {
+                var $tds = $(this).find('td'), valor = $tds.eq(5).text().replace("R$", "").replace(".", "").replace(",", "");
+                var numero = Number(valor) / 100;
+                total = total + numero;
+
+            });
+        }
+
+        function Download() {
+            $("#download").val("true");
+            submitform("ListaContratos");
+        }
+
+        function DownloadFalse() {
+            $("#download").val("false");
+        }
+
+        function ShowDetalhes(propostaid, envio, numpo, numnf, he, hu, dtaceite) {
+            $("#detalheheadear").text("Historico contrato Nº " + propostaid)
+            $("#envio").val(envio);
+            $("#numpo").val(numpo);
+            $("#numnf").val(numnf);
+            $("#he").val(he);
+            $("#hu").val(hu);
+            $("#dtaceite").val(dtaceite);
+        }
+        function RemoveFiltersAndSubmit() {
+
+            $("#de").val("");
+            $("#ate").val("");
+            $("#anos").val("");
+            $("#tiposcontrato").val("");
+            $("#clientes").val("");
+            SetDropDownValue("0", "situacao");
+            submitform("ListaContratos");
+        }
+        function saveid(tipo,id){
+           propostaid = id;
+           acao = tipo;
+       }
+
+
+    </script>
+    @Scripts.Render("~/Scripts/Propostas.js")
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}

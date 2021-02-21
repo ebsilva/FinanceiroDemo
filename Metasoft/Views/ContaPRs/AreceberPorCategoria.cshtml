@@ -1,0 +1,168 @@
+﻿@model IEnumerable<Metasoft.Models.ContaPrViewModel>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "A receber por Categoria";
+    string cor = "red";
+    int registros = Model.Count();
+    decimal ttareceber = 0;
+    decimal ttrecebido = 0;
+    decimal ttatrasado = 0;
+}
+
+
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "MensalConsolidado" })))
+{
+    <div class="panel panel-default dspnone mgauto" style="padding-right:150px;padding-left:150px;">
+
+           <div style="display:grid;grid-template-columns: 73% 10% 10% 2% ;height:50px;grid-column-gap:10px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "A receber por categoria", width = "30%", classe = "title" })
+            <!-- Meses-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "meses", InputClass = "custom-dropdown", Title = "Mês", StaticOptions = "_OptionsMeses", NoLabel = true })
+            <!-- Ano-->
+            @Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017, NoLabel = true })
+            <div style="margin-top:7px;">
+                <a id="printicon" title="Imprimir" onclick="Imprime();"><i class="fas fa-print fs24"></i></a>
+            </div>
+        </div>
+            <div class="panel-body panel-body-custom" style="clear:both;overflow-y:auto;">
+
+            <table style="border:solid 1px #50728b;">
+
+                @{
+                    string categoria = "";
+                    decimal stareceber = 0;
+                    decimal strecebido = 0;
+                    decimal statrasado = 0;
+                    var i = 0;
+                    var count = Model.Count();
+
+                }
+
+                @foreach (var item in Model)
+                {
+                    i += 1;
+                    if (categoria != item.categorianome)
+                    {
+                        if (stareceber > 0 || statrasado > 0 || strecebido > 0)
+                        {
+                            <!--  Print Subtotal for category -->
+                            <tr>
+                                <td colspan="7" style="background-color:#124f7d">
+                                    <span style="display:inline-block;width:32%;padding-left:50px;">
+                                        <strong>Recebido R$&nbsp;@String.Format("{0:C}", strecebido)</strong>
+                                    </span>&nbsp;
+                                    <span style="display:inline-block;width:32%">
+                                        <strong>A receber R$&nbsp;@String.Format("{0:C}", stareceber)</strong>
+                                    </span>&nbsp;
+                                    <span style="display:inline-block;width:32%">
+                                        <strong>Atrasado R$&nbsp;@String.Format("{0:C}", statrasado)</strong>
+                                    </span>
+
+                                </td>
+                            </tr>
+                        }
+                        <!-- Print Categoria Description -->
+                        <tr>
+                            <td colspan="7" style="background-color:#2c6c9c;color:white;padding:5px 5px 5px  5px"><strong class="fs18">@item.categorianome</strong></td>
+                        </tr>
+                        <!-- Print Categoria column headers -->
+                        <tr style="background-color:#0b3758">
+                            <td style="min-width:50%">Cliente</td>
+                            <td style="text-align:left;">Lancto.</td>
+                            <td>@Html.DisplayNameFor(model => model.npar)</td>
+                            <td style="text-align:left;">@Html.DisplayNameFor(model => model.valor)</td>
+                            <td>@Html.DisplayNameFor(model => model.vencimento)</td>
+                            <td>@Html.DisplayNameFor(model => model.dtpagto)</td>
+                            <td class="noprint tac">Status</td>
+                        </tr>
+                        categoria = item.categorianome;
+                        stareceber = 0; strecebido = 0; statrasado = 0;
+                    }
+                    <!-- Print Conta receber line -->
+                    <tr style="background-color:transparent;color:white">
+                        <td style="min-width:50%">@Html.DisplayFor(model => item.clifornome)</td>
+                        <td>@Html.DisplayFor(modelItem => item.dtcad)</td>
+                        <td>@Html.DisplayFor(modelItem => item.npar)</td>
+                        <td>@String.Format("{0:C}", item.valor)</td>
+                        <td>@Html.DisplayFor(modelItem => item.vencimento)</td>
+                        <td>@Html.DisplayFor(modelItem => item.dtpagto)</td>
+                        <td class="noprint tac">
+                            @if (item.atrasado == "N") { cor = "green"; } else { cor = "red"; }
+                            <i class="fa fa-circle" style="color:@cor"></i>
+                        </td>
+                    </tr>
+                    <!-- Update Total and subtotal variables -->
+                    if (item.atrasado == "S")
+                    {
+                        statrasado += item.valor;
+                        ttatrasado += item.valor;
+                    }
+                    if (item.situacao == "P")
+                    {
+                        strecebido += item.valor;
+                        ttrecebido += item.valor;
+
+                    }
+                    if (item.situacao == "A")
+                    {
+                        stareceber += item.valor;
+                        ttareceber += item.valor;
+                    }
+
+                    <!-- If last item print subtotal -->
+                    if (i == count)
+                    {
+                        <tr>
+                            <td colspan="7">
+                                <span style="display:inline-block;width:32%;padding-left:50px;">
+                                    <strong>Recebido R$&nbsp;@String.Format("{0:C}", strecebido)</strong>
+                                </span>&nbsp;
+                                <span style="display:inline-block;width:32%">
+                                    <strong>A receber R$&nbsp;@String.Format("{0:C}", stareceber)</strong>
+                                </span>&nbsp;
+                                <span style="display:inline-block;width:32%">
+                                    <strong>Atrasado R$&nbsp;@String.Format("{0:C}", statrasado)</strong>
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>
+    <!-- Print Total Variables -->
+    <div class="divtotais" style="color:white;padding-left:50px;">
+        <span style="display:inline-block;width:32%">
+            Recebido R$&nbsp;@String.Format("{0:C}", ttrecebido)
+        </span>&nbsp;
+        <span style="display:inline-block;width:32%">
+            A receber R$&nbsp;@String.Format("{0:C}", ttareceber)
+        </span>&nbsp;
+        <span style="display:inline-block;width:32%">
+            Atrasado R$&nbsp;@String.Format("{0:C}", ttatrasado)
+        </span>
+    </div>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ebs.AnimateIcons();
+            var d = new Date(), m = d.getMonth()+1, y = d.getFullYear();
+
+            $(function () { $('#meses').change(function () { this.form.submit(); }); });
+            $(function () { $('#anos').change(function () { this.form.submit(); }); });
+
+            var mes = '@Html.Raw(ViewBag.messelected)';
+            if (mes != "") { SetDropDownValue(mes, "meses"); } else { $('#meses option:eq(' + y + ')').prop('selected', true) }
+
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (ano != "") { SetDropDownValue(ano, "anos"); } else { $('#anos option[value="' + y + '"]').prop('selected', true); }
+
+        });
+
+
+    </script>
+}
+

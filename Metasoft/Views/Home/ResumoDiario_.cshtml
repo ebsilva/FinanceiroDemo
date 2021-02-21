@@ -1,0 +1,129 @@
+﻿@model  Metasoft.Models.ResumoDiarioViewModel
+@{
+
+    string arh = "0"; string aph = "0"; string ara = "0"; string apa = "0";
+
+    if (Model != null)
+    {
+        arh = (Model.areceberhoje).ToString("C");
+        aph = (Model.apagarhoje).ToString("C");
+        ara = (Model.areceberatrasado).ToString("C");
+        apa = (Model.apagaratrasado).ToString("C");
+
+    }
+}
+  
+<div  style="height:520px;">
+  
+    <br />
+    @if (Model != null)
+    {
+
+
+        <div class="container" style="width:90%;margin:0 auto;">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#1" data-toggle="tab">Resumo Diário</a></li>
+                <li><a href="#2" data-toggle="tab">Despesas por categoria</a></li>
+                <li><a href="#3" data-toggle="tab">Receitas por categoria</a></li>
+            </ul>
+
+            <div class="tab-content ">
+                <div class="tab-pane active" id="1">
+                    <div class="row">
+
+                        <div id="div1" class="col-md-3 resumodiv">
+                            <div class="panel panel-default">
+                                <div class="panel-heading panel-header-custom tac">
+                                    @Html.ActionLink("A receber hoje", "AreceberAnalitico", "ContaPRs", new { fromresumodiario = "R,,,0,0,3," }, htmlAttributes: new { style = "color:white;" })
+                                </div>
+                                <div class="panel-body-custom-bordered">
+                                    <div class="tac">@arh</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="div2" class="col-md-3 resumodiv">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading panel-header-custom tac">
+                                    @Html.ActionLink("A pagar hoje", "ApagarAnalitico", "ContaPRs", new { fromresumodiario = "P,,,0,0,3," }, htmlAttributes: new { style = "color:white;" })
+                                </div>
+                                <div class="panel-body-custom-bordered">
+                                    <div class="tac">@aph</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="div3" class="col-md-3 resumodiv">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading panel-header-custom tac">
+                                    @Html.ActionLink("A receber atrasados", "AreceberAnalitico", "ContaPRs", new { fromresumodiario = "R,,,0,0,2," }, htmlAttributes: new { style = "color:white;" })
+                                </div>
+                                <div class="panel-body-custom-bordered">
+                                    <div class="tac">@ara</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="div4" class="col-md-3 resumodiv">
+                            <div class="panel panel-default">
+                                <div class="panel-heading panel-header-custom tac">
+                                    @Html.ActionLink("A pagar atrasados", "ApagarAnalitico", "ContaPRs", new { fromresumodiario = "P,,,0,0,2," }, htmlAttributes: new { style = "color:white;" })
+                                </div>
+                                <div class="panel-body-custom-bordered">
+                                    <div class="tac">@apa</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="divgraph" class="row" style="width:100%;background-color:transparent;opacity:0">
+                        <div class="col-md-12" style="background-color:transparent;">
+                            <img src="@Url.Action("DrawGraph", Model)" style="margin-left:0px;padding-left:0px;background-color:transparent;" />
+                        </div>
+
+
+                    </div>
+                </div>
+                <div class="tab-pane" id="2">
+                    <div class="row">
+                       <div id="divgraph" class="row" style="width:100%;background-color:transparent;opacity:0">
+                            <div class="col-md-12" style="background-color:transparent;">
+                                <img src="@Url.Action("DrawGraphPie", Model)" style="margin-left:0px;padding-left:0px;background-color:transparent;" />
+                            </div>
+                       </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="3">
+                    <h3>add clearfix to tab-content (see the css)</h3>
+                </div>
+            </div>
+
+
+        
+        </div>
+
+    }
+    else
+    {
+        <span>Não há lançamentos para resumo diário</span>
+    }
+
+   
+</div>
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //Animation();
+            var tl = new TimelineLite();
+              tl.to("#div1", 0.3, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div2", 0.3, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div3", 0.3, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div4", 0.3, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#divgraph", 0.3, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+
+                if ('@Html.Raw(ViewBag.bloqueado)' != "") { msg('@Html.Raw(ViewBag.bloqueado)'); }
+          });
+
+    </script>
+    @Scripts.Render()
+}
+

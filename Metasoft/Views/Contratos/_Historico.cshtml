@@ -1,0 +1,94 @@
+﻿@model IEnumerable<Metasoft.Models.HistoricoContratoViewModel>
+
+@if (Model != null)
+{
+    if (Model.Count() > 0)
+    {
+            <table id="historicocontrato" class="historicocontrato">
+               <thead>
+                   <tr>
+                       <th class="fs12" style="width:5%;min-width:30%;max-width:30%;">&nbsp;Cadastro</th>
+                       <th class="fs12" style="width:50%;min-width:30%;max-width:30%;">&nbsp;Observação</th>
+                       <th class="fs12" style="width:5%;min-width:30%;max-width:30%;">&nbsp;Inicio</th>
+                       <th class="fs12" style="width:5%;min-width:15%;max-width:15%;">&nbsp;Térmico</th>
+                       <th class="fs12" style="width:5%;min-width:15%;max-width:15%;">&nbsp;reajuste</th>
+                       <th class="fs12 tac" style="width:10%;min-width:8%;max-width:8%;">R$ Valor</th>
+                       <th class="fs12 tac" style="width:8%;min-width:8%;max-width:8%;">&nbsp;Situação</th>
+                   </tr>
+               </thead>
+               <tbody>
+
+                   @foreach (var item in Model)
+                   {
+                       <tr>
+                           <td>@item.dtcad</td>
+                           <td>&nbsp;@item.observacao</td>
+                           <td>&nbsp;@item.inicio</td>
+                           <td>&nbsp;@item.termino</td>
+                           <td>&nbsp;@item.reajuste</td>
+                           <td>&nbsp;@item.valor</td>
+                           <td>&nbsp;@item.situacao</td>
+                       </tr>
+                   }
+               </tbody>
+            </table>
+    }
+    else
+    {
+        <div>
+            Não há historico cadastrado para este contrato
+        </div>
+    }
+}
+else
+{
+ <div>
+     Não há historico cadastrado para este contrato
+ </div>
+}
+<script>
+    function DeleteContatoConfirm(id, nome) {
+
+        bootbox.confirm({
+            message: "Confirma exclusão do contato " + nome + " ?",
+            buttons: {
+                confirm: {
+                    label: 'Sim',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'Não',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result == true) {
+                    DeleteContato(id);
+                }
+
+            }
+        });
+    }
+
+    function DeleteContato(id) {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: '/Clientes/ExcluirContato',
+            data: {
+                "id": id,
+            },
+            success: function (data) {
+                /* Update clientList*/
+
+                msg("Contato excluido com sucesso")
+                window.setTimeout('location.reload()', 2000);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+
+                msg('Falha ao excluir contato');
+            }
+        });
+    }
+</script>

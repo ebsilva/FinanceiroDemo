@@ -1,0 +1,22 @@
+﻿@model Metasoft.Models.AnosViewModel
+
+    <div class="@Model.DivClass noprint" style="height:@Model.Height;margin-top:@Model.Mtop;border:none;">
+        @if (!Model.NoLabel)
+        {
+            <label class="noprint">@Model.Title</label>
+        }
+        <div class="@Model.InputClass noprint">
+            <select id="@Model.Id" name="@Model.Id" class="form-control f-12 noprint">
+                <option value="0"></option>
+                @{
+                    for (int i = Model.CurrentYear; i >= Model.End; i--)
+                    {
+                        <option value="@i.ToString()">@i.ToString()</option>
+
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+

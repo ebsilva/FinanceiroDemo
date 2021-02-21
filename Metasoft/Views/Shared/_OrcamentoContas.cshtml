@@ -1,0 +1,108 @@
+﻿@model IEnumerable<Metasoft.Models.ContaPrViewModel>
+@using Metasoft.Models
+@{
+    string cor = "red";
+}
+<style>
+    table.orclan td, table.orclan thead th, table.orclan tbody td {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+    }
+
+        table.orclan thead th:nth-child(3), table.orclan tbody td:nth-child(3) {
+            min-width: 250px;
+            max-width: 250px;
+            width: 250px;
+        }
+
+        table.orclan thead th:nth-child(4), table.orclan tbody td:nth-child(4) {
+            min-width: 50px;
+            max-width: 50px;
+            width: 50px;
+        }
+
+        table.orclan thead th:nth-child(5), table.orclan tbody td:nth-child(5) {
+            min-width: 110px;
+            max-width: 110px;
+            width: 110px;
+        }
+
+        table.orclan thead th:nth-child(6), table.orclan tbody td:nth-child(6),
+        table.orclan thead th:nth-child(7), table.orclan tbody td:nth-child(7) {
+            text-align: center;
+            min-width: 80px;
+            max-width: 80px;
+            width: 80px;
+        }
+
+        table.orclan thead th:nth-child(8), table.orclan tbody td:nth-child(8) {
+            text-align: center;
+            min-width: 30px;
+            max-width: 30px;
+            width: 30px;
+        }
+</style>
+<div style="overflow-y:hidden;max-height:450px;">
+    @if (Model != null)
+    {
+        if (Model.Count() > 0)
+        {
+            decimal total = 00;
+            <div style="max-height:400px;height:400px;overflow:scroll">
+                <table id="orclan" class="orclan">
+                    <thead>
+                        <tr>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.propostaid)</th>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.cliforid)</th>
+                            <th>Cliente/Fornecedor</th>
+                            <th>@Html.DisplayNameFor(model => model.vencimento)</th>
+                            <th>@Html.DisplayNameFor(model => model.valor)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody style="max-height: 150px; height: 150px; overflow-y: scroll">
+                        @foreach (var item in Model)
+                        {
+                            <tr style="background-color:transparent">
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.propostaid)</td>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.cliforid)</td>
+                                <td>@Html.DisplayFor(modelItem => item.clifornome)</td>
+                                <td>@DateTime.Parse(item.vencimento).ToShortDateString()</td>
+                                <td style="text-align:right;">@String.Format("{0:N}", item.valor)</td>
+                                <td style="text-align:center;">
+                                    @if (DateTime.Parse(item.vencimento) < DateTime.Now && item.situacao == "A")
+                                    { cor = "red"; }
+                                    else { cor = "green"; }
+                                    <i class="fa fa-circle" style="color:@cor"></i>
+                                </td>
+                            </tr>
+                            total += item.valor;
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+  
+            <div style="font-size:18px;color:orange;text-align:right;width:90%;margin-right:20px;">
+                    @String.Format("Total   R$ {0:N}", total)
+            </div>
+
+
+
+        }
+        else
+        {
+            <h6>Não há lançamentos</h6>
+        }
+    }
+    else
+    {
+        <div>Não há contas lançadas</div>
+    }
+
+</div>
+<script type="text/javascript">
+
+</script>
+
+

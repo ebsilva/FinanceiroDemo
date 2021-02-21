@@ -1,0 +1,13 @@
+﻿@model Metasoft.ViewModels.CaixaItemVm
+@using Metasoft.Utilities
+    @if (Model.Valor > 0) {
+        @Tools.NotNullMoney(Model.Valor)
+    }
+    else
+    {
+    <label style="opacity:.5">
+        <i class="fa fa-dollar-sign iconbar"></i>
+    </label>
+    }
+
+

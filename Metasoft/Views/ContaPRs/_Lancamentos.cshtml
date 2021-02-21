@@ -1,0 +1,130 @@
+﻿@model IEnumerable<Metasoft.Models.ContaPrViewModel>
+@{
+    string cor = "red";
+}
+<style>
+    #tablelancamentos{min-width:100%;max-width:100%;width:100%;}
+    #tablelancamentos tr{min-width:100%;max-width:100%;width:100%;}
+    #tablelancamentos th {
+        font-size: 11px;
+        background-color: #16288e;
+        color: white;
+        font-style: normal;
+        height: 25px;
+        max-height: 25px;
+        min-height: 25px;
+        width: 95%;
+        max-width: 95%;
+        min-width: 95%;
+        opacity: 0.4;
+    }
+
+        #tablelancamentos th:nth-child(3), #tablelancamentos td:nth-child(3) {
+            width: 25%;
+            min-width: 25%;
+            max-width: 25%;
+            text-align: left;
+        }
+        /* Nome*/
+        #tablelancamentos th:nth-child(4), #tablelancamentos td:nth-child(4) {
+            width: 20%;
+            min-width: 20%;
+            max-width: 20%;
+            text-align: left;
+        }
+        /* Categoria*/
+        #tablelancamentos th:nth-child(5), #tablelancamentos td:nth-child(5) {
+            width: 9%;
+            min-width: 9%;
+            max-width: 9%;
+        }
+        /* lancamento */
+        #tablelancamentos th:nth-child(6), #tablelancamentos td:nth-child(6) {
+            width: 5%;
+            min-width: 5%;
+            max-width: 5%;
+        }
+        /* Par Nº*/
+        #tablelancamentos th:nth-child(7), #tablelancamentos td:nth-child(7) {
+            width: 12%;
+            min-width: 12%;
+            max-width: 12%;
+        }
+        /* Valor */
+        #tablelancamentos th:nth-child(8), #tablelancamentos td:nth-child(8) {
+            width: 12%;
+            min-width: 12%;
+            max-width: 12%;
+        }
+        /* Vencimento */
+        #tablelancamentos th:nth-child(9), #tablelancamentos td:nth-child(9) {
+            width: 12%;
+            min-width: 12%;
+            max-width: 12%;
+        }
+        /* Pagamento */
+        #tablelancamentos th:nth-child(10), #tablelancamentos td:nth-child(10) {
+            width: 4%;
+            min-width: 4%;
+            max-width: 4%;
+        }
+    /*  Situacao */
+</style>
+
+<div style="overflow-y:auto;">
+    @if (Model != null)
+    {
+        if (Model.Count() > 0)
+        {
+
+            <table id="tablelancamentos">
+                <thead>
+                    <tr>
+                        <th class="hidden">@Html.DisplayNameFor(model => model.propostaid)</th>
+                        <th class="hidden">@Html.DisplayNameFor(model => model.cliforid)</th>
+                        <th>@Html.DisplayNameFor(model => model.clifornome)</th>
+                        <th>@Html.DisplayNameFor(model => model.categorianome)</th>
+                        <th>@Html.DisplayNameFor(model => model.dtcad)</th>
+                        <th>@Html.DisplayNameFor(model => model.npar)</th>
+                        <th>@Html.DisplayNameFor(model => model.valor)</th>
+                        <th>@Html.DisplayNameFor(model => model.vencimento)</th>
+                        <th>@Html.DisplayNameFor(model => model.dtpagto)</th>
+                        <th>@Html.DisplayNameFor(model => model.atrasado)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var svalor = String.Format("{0:C}", item.valor);
+                        <tr>
+                            <td class="hidden">@Html.DisplayFor(modelItem => item.propostaid)</td>
+                            <td class="hidden">@Html.DisplayFor(modelItem => item.cliforid)</td>
+                            <td>@Html.DisplayFor(model => item.clifornome)</td>
+                            <td>@Html.DisplayFor(modelItem => item.categorianome)</td>
+                            <td>@Html.DisplayFor(modelItem => item.dtcad)</td>
+                            <td>@Html.DisplayFor(modelItem => item.npar)</td>
+                            <td>@svalor</td>
+                            <td>@Html.DisplayFor(modelItem => item.vencimento)</td>
+                            <td>@Html.DisplayFor(modelItem => item.dtpagto)</td>
+                            <td>
+                                @if (item.atrasado == "N") { cor = "green"; } else { cor = "red"; }
+                                <i class="fa fa-circle" style="color:@cor"></i>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        }
+        else
+        {
+            <div class="cw fs12" style="border-top:solid 1px white;padding:5px 0px 0px 15px;"></div>
+        }
+    }
+    else
+    {
+        <div>No records found.</div>
+    }
+
+</div>
+

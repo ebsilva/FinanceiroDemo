@@ -1,0 +1,348 @@
+﻿@model IEnumerable<Metasoft.Models.ClienteViewModel>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+
+@{ViewBag.Title = "Lista Fornecedores";
+    int count = 0;
+    if (Model != null) { if (Model.Count() > 0) { count = Model.Count(); } }
+    string cor = "";
+}
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ListaFornecedores" })))
+{
+    @Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Fornecedores" })
+    <div class="panel panel-default mgauto" style="display:none">
+        <!--  Heading-->
+        <div style="display:grid;grid-template-columns: 65% 15% 10% 10%;height:35px;grid-column-gap:15px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Fornecedores cadastrados (" + (count) + ")", width = "29%", classe = "title" })
+            @Html.Partial("_Search", new SearchViewModel { DivClass = "search", Tabela = "clientes", StarCol = 1, EndCol = 5 })
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "situacao", InputClass = "custom-dropdown", Title = "Status", StaticOptions = "_OptionsClienteStatus", NoLabel = true })
+            @Html.Partial("_ActionsPanelShort", new ActionsPanelViewModel
+            {
+                DivClass = "inputdiv",
+                Mtop = "4px",
+                Height = "31px",
+                Id = "actions",
+                InputClass = "custom-dropdown",
+                AddNewLink = "/Clientes/NovoFornecedor",
+                AddNewTitle = "Cadastrar novo fornecedor",
+               Tabela = "#clientes",
+                ReportTitle = "DNK - Lista de Fornecedores cadastrados",
+               CanEdit = true
+             });
+        </div>
+
+        <div >
+            @if (Model.Count() > 0)
+            {
+                <table id="clientes" class="clientes">
+                    <thead>
+                        <tr>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.clienteid)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.cnpj)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.nome)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.email)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.site)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.fone)</th>
+                            <th class="thbkg">PA</th>
+                            <th class="thbkg noprint">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.clienteid)</td>
+                                <td>@Html.DisplayFor(modelItem => item.cnpj) </td>
+                                <td>
+                                    <a id="detaillink" href="#"
+                                       data-toggle="modal" data-target="#DetalhesModal"
+                                       title="Detalhes Fornecedor"
+                                       onclick="ShowDetalhes('@item.nome','@item.endereco','@item.complemento','@item.bairro','@item.cidade','@item.estado','@item.cep','@item.f0800')">
+                                        @Html.DisplayFor(modelItem => item.nome)
+                                    </a>
+                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.email) </td>
+                                <td>@Html.DisplayFor(modelItem => item.site) </td>
+                                <td>@String.Format("{0:(##) ####-####}", @Html.DisplayFor(modelItem => item.fone))</td>
+                                <td>
+                                    @if (item.atrasados == 0)
+                                    {
+                                        cor = "green";
+                                        <i class="fa fa-circle" style="color:@cor"></i>
+                                    }
+                                    else
+                                    {
+                                        <a href="#"
+                                           onclick="ShowContasCliente(@item.clienteid,'@item.nome','P','true')"
+                                           data-toggle="modal" data-target="#ListaContasModal"
+                                           title="Exibir contas em atraso">
+                                            <span class="badge cprredbadge" style="font-size:10px;">@item.atrasados</span>
+                                        </a>
+                                    }
+
+                                </td>
+                                <td class="noprint">
+                                    <a id="alterarlink" class="actionicon" href="/Clientes/AlterarFornecedor/@item.clienteid" title="Alterar fornecedor"><i class="fa fa-pen"></i></a>
+                                    @if (item.pagamentos == 0)
+                                    {
+                                        <a id="excluirlink" class="actionicon" href="#" title="Excluir fornecedor" onclick="ExcluirConfirm('fornecedor',@item.clienteid,'@item.nome');"><i class="fa fa-trash"></i></a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#"
+                                           onclick="ShowContasCliente(@item.clienteid,'@item.nome','P','false')"
+                                           data-toggle="modal" data-target="#ListaContasModal"
+                                           title="Exibir contas pendentes">
+                                            <span class="badge cprbadge" style="font-size:10px;">@item.pagamentos</span>
+                                        </a>
+                                    }
+
+                                    <a id="contatoslink" class="actionicon" href="#" title="Exibir contatos fornecedor"
+                                       data-toggle="modal" data-target="#ListaContatosModal"
+                                       onclick="ShowContatosCliente(@item.clienteid,'@item.nome');">
+                                        <i class="fa fa-users"></i>
+                                    </a>
+                                    <a id="addcontatolink" class="actionicon" href="#" title="Cadastrar Contato" data-toggle="modal" onclick="SetClientID(@item.clienteid);" data-target="#addnewcontat"><i class="fa fa-user-plus"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            }
+            else
+            {
+                @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhum fornecedor cadastrado", width = "30%;" })
+            }
+
+        </div>
+    </div>
+}
+
+<!-- Add New Contat Modal -->
+
+<div class="modal fade" id="addnewcontat" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modalheader">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                <h4 class="modal-title" id="novocontatoheadear">Novo Contato</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <span class="lbtexto" style="width:10%;">Nome</span>@Html.TextBox("nomecontato", null, new { @class = "form-control  form-control-custom", style = "width:90%;height:25px;" })
+                    </div>
+
+
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <span class="lbtexto" style="width:10%;"><i class="fa fa-envelope-o"></i></span>
+                        <span class="lbtexto" style="width:10%;">Email</span>@Html.TextBox("emailcontato", null, new { @class = "form-control  form-control-custom", style = "width:90%;height:25px;" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <span class="lbtexto">Sexo</span>
+                        <select class="form-control form-control-custom" id="sexocontato" style="height:25px;">
+                            <option value="M">M</option>
+                            <option value="F">F</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <span class="lbtexto"><i class="fa fa-phone"></i>&nbsp;Fone</span>
+                        @Html.TextBox("fonecontato", null, new { @class = "form-control  form-control-custom", style = "width:30%;height:25px;display:inline-block" })
+                    </div>
+                    <div class="col-md-5">
+                        <span class="lbtexto"><i class="fa fa-mobile"></i>&nbsp;Celular</span>
+                        @Html.TextBox("celularcontato", null, new { @class = "form-control  form-control-custom", style = "width:30%;height:25px;display:inline-block" })
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                <button id="savenewcontat" type="button" class="btn btn-primary" onclick="SaveNewContato(jsclientid);" data-dismiss="modal">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Client details Modal -->
+<div class="modal fade" id="DetalhesModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modalheader">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                <h5 class="modal-title" id="detalheheader"></h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <span class="label-modal" style="width:10%;">Endereço</span>
+                        <div><input class="form-control form-control-custom" id="endereco" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="label-modal" style="width:10%;">Complemento</span>
+                        <div><input class="form-control form-control-custom" id="complemento" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <span class="label-modal" style="width:10%;">Cidade</span>
+                        <div><input class="form-control form-control-custom" id="cidade" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="label-modal" style="width:10%;">Bairro</span>
+                        <div><input class="form-control form-control-custom" id="bairro" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <span class="label-modal" style="width:10%;">Cep</span>
+                        <div><input class="form-control form-control-custom" id="cep" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="label-modal" style="width:10%;">UF</span>
+                        <div><input class="form-control form-control-custom" id="estado" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="label-modal" style="width:10%;">0800</span>
+                        <div><input class="form-control form-control-custom" id="f0800" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contatos list Modal-->
+<div class="modal fade modal-wide" id="ListaContatosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modalheader">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                <h5 class="modal-title" id="contatoheader"></h5>
+            </div>
+            <div class="modal-body">
+                <div id="divcontatos">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contaslist Modal-->
+<div class="modal fade modal-wide" id="ListaContasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modalheader">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                <h5 class="modal-title" id="contasheader"></h5>
+            </div>
+            <div class="modal-body">
+                <div id="divcontas">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+           GlobalSettings("#clientes", "470px", [2,'asc'], false, false, "", "", false,true, true);
+           var jsclientid = 0
+            $("#fonecontato").mask("(00) 0000-0000");
+            $("#celularcontato").mask("(00) 0-0000-0000");
+       
+           var situacao = '@Html.Raw(ViewBag.situacaoselected)'; if (situacao != "") { SetDropDownValue(situacao, "situacao"); } else { situacao = "N"; }
+        });
+        function ShowDetalhes(cliente, endereco, complemento, bairro, cidade, estado, cep, f0800) {
+            $("#detalheheader").text(cliente)
+            $("#endereco").val(endereco);
+            $("#complemento").val(complemento);
+            $("#bairro").val(bairro);
+            $("#cidade").val(cidade);
+            $("#estado").val(estado);
+            $("#cep").val(cep);
+            $("#f0800").val(f0800);
+        }
+        function ShowContatosCliente(clienteid, nome) {
+
+            $("#contatoheader").html("Contatos: " + nome);
+            var placeholder = "#divcontatos";
+            $(placeholder).load("/Clientes/ShowContatos", {
+                clienteid: clienteid,
+                viewName: "_Contatos"
+
+            });
+        }
+        function ShowContasCliente(clienteid, nome, tipo, atrasadas) {
+            /* Mostra lancamentos na mesma TR que contatos*/
+            $("#contasheader").html("Contas em atraso: " + nome);
+            var placeholder = "#divcontas";
+
+            $(placeholder).load("/Clientes/ShowContas", {
+                clienteid: clienteid,
+                tipo: tipo,
+                atrasadas: atrasadas,
+                viewName: "_Lancamentos"
+            });
+        }
+        $(".modal-wide").on("show.bs.modal", function () {
+            var height = $(window).height() - 200;
+            $(this).find(".modal-body").css("max-height", height);
+        });
+
+        function ShowContas(clienteid, tipo) {
+            /* Mostra lancamentos na mesma TR que contatos*/
+            var targetrow = "#contatos_" + clienteid;
+            var placeholder = "#divcontatos_" + clienteid;
+
+            if (!$(targetrow).is(":visible")) {
+                $(placeholder).empty();
+                $(placeholder).load("/Clientes/ShowContas", {
+                    clienteid: clienteid,
+                    tipo: tipo,
+                    viewName: "_Lancamentos"
+                });
+                $(targetrow).show();
+            }
+            else {
+                $(targetrow).hide();
+            }
+        }
+
+    </script>
+    @Scripts.Render("~/Scripts/Clientes.js")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

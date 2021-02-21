@@ -1,0 +1,84 @@
+﻿@model  Metasoft.Models.ClienteViewModel
+
+<div style="overflow-y:auto;">
+
+    @if (Model != null)
+    {
+
+        <div class="panel panel-default" style="overflow:hidden;">
+            <div class="panel-heading-crud">
+                <div style="float:left;"><i class="fa fa-building"></i>&nbsp;@Html.DisplayFor(model => model.nome, null, new { htmlAttributes = new { @class = "control-label" , style="color:white" } })</div>
+            </div>
+            <div class="panel-body-crud">
+                <div class="row">
+                    <div class="col-md-3" style="padding-right:0px;padding-left:0px;">
+                        @Html.LabelFor(model => model.cnpj, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.cnpj, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                    <div class="col-md-3" style="padding-right:0px;padding-left:0px;">
+                        @Html.LabelFor(model => model.ie, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.ie, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                    <div class="col-md-3">
+                        @Html.LabelFor(model => model.fone, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.fone, new { htmlAttributes = new { @class = "form-control", style = "font-size:12px;" } })
+                    </div>
+                    <div class="col-md-3">
+                        @Html.LabelFor(model => model.f0800, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.f0800, new { htmlAttributes = new { @class = "form-control", style = "font-size:12px;" } })
+                    </div>
+                </div>
+                <div class="row">
+        
+                    <div class="col-md-9">
+                        @Html.LabelFor(model => model.endereco, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.endereco, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                    <div class="col-md-2" style="padding-right:0px;padding-left:0px;">
+                        @Html.LabelFor(model => model.complemento, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.complemento, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-5">
+                        @Html.LabelFor(model => model.bairro, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.bairro, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                    <div class="col-md-4" style="padding-right:0px;padding-left:0px;">
+                        @Html.LabelFor(model => model.cidade, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.cidade, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                    <div class="col-md-1">
+                        @Html.LabelFor(model => model.estado, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.estado, new { htmlAttributes = new { @class = "form-control", style = "font-size:12px;" } })
+                    </div>
+                    <div class="col-md-2">
+                        @Html.LabelFor(model => model.cep, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.cep, new { htmlAttributes = new { @class = "form-control", style = "font-size:12px;" } })
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(model => model.email, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.email, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                    <div class="col-md-6" style="padding-right:0px;padding-left:0px;">
+                        @Html.LabelFor(model => model.site, htmlAttributes: new { @class = "control-label" })
+                        @Html.DisplayFor(model => model.site, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+
+            </div>
+
+         </div>
+     
+        <div class="row">
+             <button style="float:right;" type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close" style="font-size:20px;"></i></button>
+        </div>
+
+    }
+   
+
+</div>

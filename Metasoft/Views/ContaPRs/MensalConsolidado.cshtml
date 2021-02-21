@@ -1,0 +1,108 @@
+﻿@model IEnumerable<Metasoft.Models.MensalConsolidadoViewModel>
+@using Metasoft.Models;
+@using Metasoft.Utilities;
+@{
+    ViewBag.Title = "Mensal Consolidado";
+    int registros = Model.Count(), counter = 0; decimal ttreceber = 0; decimal ttpagar = 0;
+}
+
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "MensalConsolidado" })))
+{
+    <div class="panel panel-default dspnone mgauto" style="padding-right:150px;padding-left:150px;">
+        <div style="display:grid;grid-template-columns: 73% 10% 10% 2% ;height:50px;grid-column-gap:10px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Mensal Consolidado", width = "30%", classe = "title" })
+            <!-- Ano-->
+            @Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017, NoLabel = true })
+            <div style="margin-top:7px;">
+                <a id="printicon" title="Imprimir" onclick="Imprime();"><i class="fas fa-print fs24"></i></a>
+            </div>
+        </div>
+        <div>
+            <table class="tableconsolidado">
+                <tr>
+                    <th>Mes</th>
+                    <th>A receber</th>
+                    <th>A pagar</th>
+                    <th>Saldo</th>
+                    <th class="noprint tac  ">Ações</th>
+                </tr>
+            </table>
+        </div>
+        <div class="panel-body panel-body-custom" style="clear:both;overflow-y:auto;">
+            <table class="table table-bordered tableconsolidado" style="clear:both;">
+                @foreach (var item in Model)
+                {
+                    ttreceber += item.receber;
+                    ttpagar += item.pagar;
+                    counter += 1;
+                    string cor = item.receber > item.pagar ? "white" : "red";
+                    string sreceber = item.receber > 0 ? String.Format("{0:C}", item.receber) : "";
+                    string spagar = item.pagar > 0 ? String.Format("{0:C}", item.pagar) : "";
+                    string ssaldo = (item.receber - item.pagar) != 0 ? String.Format("{0:C}", item.receber - item.pagar) : "";
+
+                    <tr>
+                        <td>@Html.DisplayFor(model => item.mes)</td>
+                        <td>@sreceber</td>
+                        <td>@spagar</td>
+                        <td style="color:@cor">@ssaldo</td>
+                        <td class="noprint">
+                            <a id="rec_@item.mes" class="actionicon" href="#" onclick="ShowLancamentos(@item.mes,'R');" title="Exibir lançamentos a receber"><span class="badge cprbadge" style="font-size:10px;">R</span></a>
+                            <a id="pag_@item.mes" class="actionicon" href="#" onclick="ShowLancamentos(@item.mes,'P');" title="Exibir lançamentos a apagar"><span class="badge cprredbadge" style="font-size:10px;">P</span></a>
+                        </td>
+                    </tr>
+
+                    <tr id="row_@item.mes" style="display:none;">
+                        <td colspan="5">
+                            <div id="lancamentos_@item.mes" style="max-width:98%;"></div>
+                        </td>
+                    </tr>
+                }
+
+            </table>
+
+        </div>
+        <div class="divtotais mgauto">
+            <span style="margin-left:12%;color:#c4ebb3;">Total Receber&nbsp;@String.Format("{0:C}", ttreceber)</span>
+            <span style="margin-left:12%;color:#c89169;">Total pagar&nbsp;@String.Format("{0:C}", ttpagar)</span>
+            <span style="margin-left:12%;color:white;">Saldo&nbsp;@String.Format("{0:C}", ttreceber - ttpagar)</span>
+        </div>
+    </div>
+
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ebs.AnimateIcons();
+            var d = new Date(), m = d.getMonth() + 1, y = d.getFullYear();
+            //d = ebs.Hoje();
+            $('#anos option[value="' + y + '"]').prop('selected', true);
+            $(function () { $('#anos').change(function () { this.form.submit(); }); });
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+               if (ano != "") { SetDropDownValue(ano, "anos");} else { $('#anos option:eq(' + y + ')').prop('selected', true) }
+
+        });
+        function ShowLancamentos(mes, tipo) {
+            var targetrow = "#row_" + mes;
+            var placeholder = "#lancamentos_" + mes;
+
+            if (!$(targetrow).is(":visible")) {
+                var ano = $("#anos").val();
+                $(placeholder).load("/ContaPRs/ShowLancamentosMes", {
+                    mes: mes,
+                    ano: ano,
+                    tipo: tipo,
+                    viewName: "_Lancamentos"
+                });
+                $(targetrow).show();
+            }
+            else {
+                $(targetrow).hide();
+            }
+        }
+
+
+    </script>
+    @*@Scripts.Render("~/Scripts/ApagarAnalitico.js")*@
+}
+

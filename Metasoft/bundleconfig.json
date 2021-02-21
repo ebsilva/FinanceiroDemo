@@ -1,0 +1,38 @@
+[
+  {
+    "outputFileName": "Scripts/metasoft.min.js",
+    "inputFiles": [
+      "Scripts/metasoft.js"
+    ]
+  },
+  {
+    "outputFileName": "Content/Site.min.css",
+    "inputFiles": [
+      "Content/Site.css"
+    ]
+  },
+  {
+    "outputFileName": "Scripts/jquery.mask.plugin.min.js",
+    "inputFiles": [
+      "Scripts/jquery.mask.plugin.js"
+    ]
+  },
+  {
+    "outputFileName": "Scripts/modernizr-2.8.3.min.js",
+    "inputFiles": [
+      "Scripts/modernizr-2.8.3.js"
+    ]
+  },
+  {
+    "outputFileName": "Scripts/NotaFiscal.min.js",
+    "inputFiles": [
+      "Scripts/NotaFiscal.js"
+    ]
+  },
+  {
+    "outputFileName": "Scripts/metasoft.es5.min.js",
+    "inputFiles": [
+      "Scripts/metasoft.es5.js"
+    ]
+  }
+]

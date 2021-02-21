@@ -1,0 +1,19 @@
+﻿@model Metasoft.Models.NFDetails
+<div class="row">
+    @Html.HiddenFor(model => model.nfdid);
+
+    <div class="col-md-1">
+        @Html.TextBoxFor(model => model.quantidade, htmlAttributes: new { @class = "form-control form-control-nf" })
+        @*@Html.TextBox("qtd" + i.ToString() , null, htmlAttributes: new { @class = "form-control" })*@
+    </div>
+    <div class="col-md-7">
+        @Html.TextBox("descricao", null, htmlAttributes: new { @class = "form-control" })
+    </div>
+    <div class="col-md-2">
+        @Html.TextBox("unitário", null, htmlAttributes: new { @class = "form-control" })
+    </div>
+    <div class="col-md-2">
+        @Html.TextBox("dtotal", null, htmlAttributes: new { @class = "form-control" })
+    </div>
+</div>
+

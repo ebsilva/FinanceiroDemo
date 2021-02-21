@@ -1,0 +1,162 @@
+﻿@model  Metasoft.Models.ResumoDiarioViewModel
+@using Metasoft.Models;
+@{
+
+    string arh = "0"; string aph = "0"; string ara = "0"; string apa = "0"; string apm = "0"; string arm = "0"; string liq = "0";
+
+    if (Model != null)
+    {
+        arh = (Model.areceberhoje).ToString("C");
+        aph = (Model.apagarhoje).ToString("C");
+        ara = (Model.areceberatrasado).ToString("C");
+        apa = (Model.apagaratrasado).ToString("C");
+        apm = (Model.apagarmes).ToString("C");
+        arm = (Model.arecebermes).ToString("C");
+        liq = (Model.liquido).ToString("C");
+
+    }
+
+
+}
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ApagarAnalitico" })))
+{
+<div style="width:90%;margin:0 auto;">
+
+    @if (Model != null)
+    {
+        <br />
+
+        <div class="container" style="margin:0 auto;">
+            <div style="display:grid;grid-template-columns: 80%  10%  10% ;margin-top:10px; grid-column-gap:3px;">
+                <div></div>
+                <div class="custom-dropdown">
+                    <select id="meses" name="meses" class="form-control  form-control-custom form-control-small" style="max-width:12%;">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown">
+                    <select id="anos" name="anos" class="form-control  form-control-custom form-control-small" style="max-width:8%;">
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="container" style="margin:0 auto;">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#1" data-toggle="tab" style="background-color: #133f60;color:whitesmoke;">Resumo Diário</a></li>
+                <li><a href="#2" data-toggle="tab" style="background-color: #174d76;color:whitesmoke;">Evolução Mensal</a></li>
+                <li><a href="#3" data-toggle="tab" style="background-color: #195481;color:whitesmoke;">Despesas por categoria</a></li>
+                <li><a href="#4" data-toggle="tab" style="background-color: #1d6297;color:whitesmoke;">Receitas por categoria</a></li>
+            </ul>
+            <div class="tab-content " style="color:whitesmoke;border:solid 1px white">
+                <div class="tab-pane active" id="1">
+                    <div style="height:170px;padding:3px;display:grid;grid-template-columns: 24.9%  24.9%  24.9% 24.9% ; grid-column-gap:1px;color:whitesmoke;background-color:#1b5b8c;border-left: solid 1px whitesmoke;border-right: solid 1px whitesmoke;border-bottom: solid 1px whitesmoke;">
+
+                        @Html.Partial("_ResumoBadge", new ResumoBadgeViewModel { Id = "div1", LinkText = "A receber Hoje", Valor = arh, HeaderColor = "lightgreen" })
+                        @Html.Partial("_ResumoBadge", new ResumoBadgeViewModel { Id = "div2", LinkText = "A pagar Hoje", Valor = aph, HeaderColor = "red" })
+                        @Html.Partial("_ResumoBadge", new ResumoBadgeViewModel { Id = "div3", LinkText = "A receber atrasados", Valor = ara, HeaderColor = "yellow" })
+                        @Html.Partial("_ResumoBadge", new ResumoBadgeViewModel { Id = "div4", LinkText = "A pagar atrasados", Valor = apa, HeaderColor="darkorange" })
+                    </div>
+                    <div style="height:170px;display:grid;grid-template-columns: 33%  33%  33% ; grid-column-gap:3px;color:whitesmoke;background-color:#133f60;border-left: solid 1px whitesmoke;border-right: solid 1px whitesmoke;border-bottom: solid 1px whitesmoke;">
+
+                        @Html.Partial("_ResumoBadge", new ResumoBadgeViewModel { Id = "div5", LinkText = "A receber (mês)", Valor = arm, HeaderColor = "lightgreen" })
+                        @Html.Partial("_ResumoBadge", new ResumoBadgeViewModel { Id = "div6", LinkText = "A pagar (mês)", Valor = apm, HeaderColor = "darkorange" })
+                        @Html.Partial("_ResumoBadge", new ResumoBadgeViewModel { Id = "div7", LinkText = " Saldo em " + @DateTime.Now.Year.ToString(), Valor = liq, HeaderColor = "green" })
+                    </div>
+                </div>
+                <div class="tab-pane" id="2" style="background-color:#1b5b8c;width:100%">
+                </div>
+                <div class="tab-pane" id="3">
+
+                </div>
+                <div class="tab-pane" id="4">
+
+                </div>
+            </div>
+        </div>
+
+       
+
+
+    }
+    else
+    {
+        <span>Não há lançamentos para resumo diário</span>
+    }
+
+
+</div>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        var mes = "";
+        var ano = "";
+        $(document).ready(function () {
+            var resumo = @Html.Raw(Json.Encode(Model));
+            var tl = new TimelineLite();
+              tl.to("#div1", 0.1, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div2", 0.1, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div3", 0.1, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div4", 0.1, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div5", 0.1, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div6", 0.1, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div7", 0.1, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                .to("#div8", 0.1, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+
+            $(function () { $('#meses').change(function () { this.form.submit(); }); });
+            $(function () { $('#anos').change(function () { this.form.submit(); }); });
+
+            if ('@Html.Raw(ViewBag.bloqueado)' != "") { msg('@Html.Raw(ViewBag.bloqueado)'); }
+
+            var d = new Date();
+            var n = d.getMonth();
+            var y = d.getFullYear();
+
+            mes = '@Html.Raw(ViewBag.messelected)'; if (mes != null) { SetDropDownValue(mes, "meses"); } else {SetDropDownValue(n, "meses"); }
+            ano = '@Html.Raw(ViewBag.anoselected)'; if (ano != null) { SetDropDownValue(ano, "anos"); } else {SetDropDownValue(y, "anos"); }
+            /* Use in Graph Title */
+
+            var ameses = ["","Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
+
+            var mestext = ameses[mes];
+            var anotext = $("#anos option:selected").text();
+            google.charts.load('current', { 'packages': ['corechart'] });
+            google.charts.setOnLoadCallback(drawChart);
+            function drawChart() {
+
+                drawbar(resumo,'Evolução mensal',1139,400,'2',true);
+
+                drawpie('/Home/ResumoPorCategoria', 'P', 'Comparativo Despesas Por Categoria - '+mestext+"/"+anotext, 1139, 400, '3',true,mes,ano);
+                drawpie('/Home/ResumoPorCategoria', 'R', 'Comparativo Receitas Por Categoria - '+mestext+"/"+anotext, 1139, 400, '4',true,mes,ano);
+
+            }
+
+        });
+
+
+
+    </script>
+    @Scripts.Render("~/Scripts/Graphs.js")
+}
+

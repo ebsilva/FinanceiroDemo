@@ -1,0 +1,5 @@
+﻿@model Metasoft.Models.SearchViewModel
+<div class="@Model.DivClass">
+    <i class="fas fa-search noprint fs18"></i>
+    <input type="text" onkeyup="ebs.Search('@Model.Tabela', this.value, @Model.StarCol, @Model.EndCol)" />
+</div>

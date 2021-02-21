@@ -1,0 +1,98 @@
+﻿@model IEnumerable<Metasoft.Models.Categoria>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+
+@{ViewBag.Title = "Lista Categorias";
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0) { count = Model.Count(); }
+    }
+}
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Categorias" })
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ListaCategorias" })))
+{
+    <div class="panel panel-default mgauto" style="display:none;padding-left:150px;padding-right:150px;">
+        <div style="display:grid;grid-template-columns:70% 20% 10%;margin-top:10px;height:28px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Categorias cadastradas (" + (count) + ")", width = "29%", classe = "title" })
+            @Html.Partial("_Search", new SearchViewModel { DivClass = "search", Tabela = "categorias", StarCol = 1, EndCol = 1 })
+            @Html.Partial("_ActionsPanelShort", new ActionsPanelViewModel
+            {
+                DivClass = "inputdiv",
+                Mtop = "2px",
+                Height = "25px",
+                Id = "actions",
+                InputClass = "custom-dropdown",
+                AddNewLink = "/Categorias/NovaCategoria",
+                AddNewTitle = "Cadastrar nova categoria",
+                Tabela = "#categorias",
+                ReportTitle = "DNK - Lista de categorias cadastradas",
+                CanEdit = true
+               });
+        </div>
+
+
+        <!-- table -->
+        <div class="panel-body-custom">
+            @if (Model.Count() > 0)
+            {
+                <table id="categorias" class="categorias">
+                    <thead>
+                        <tr>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.categoriaid)</th>
+                            <th class="thbkg">&nbsp;Descrição</th>
+                            <th class="tac">Tipo</th>
+                            <th class="noprint">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(model => item.categoriaid)</td>
+                                <td thd="Descrição"> @Html.DisplayFor(modelItem => item.nome)</td>
+                                <td thd="Tipo" class="tac"> @Html.DisplayFor(modelItem => item.tipo)</td>
+                                <td class="noprint" style="text-align:center">
+                                    <a id="alticon_@item.categoriaid" class="actionicon" href="/Categorias/AlterarCategoria/@item.categoriaid" title="Alterar categoria"><i class="fa fa-pen"></i></a>
+                                    <a id="excicon_@item.categoriaid" class="actionicon" href="#" onclick="ExcluirConfirm('categoria',@item.categoriaid,'@item.nome');" title="Excluir categoria"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhuma categoria cadastrada", width = "30%;" })
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            GlobalSettings("#categorias", "550px", [1, 'asc'], false, false, false, "", "", false, false, false);
+            //AnimateIcons();
+            //var jsclientid = 0
+            //$("#fonecontato").mask("(00) 0000-0000");
+            //$("#celularcontato").mask("(00) 0-0000-0000");
+        });
+    </script>
+    @Scripts.Render("~/Scripts/Categorias.js")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

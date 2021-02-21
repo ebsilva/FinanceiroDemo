@@ -1,0 +1,97 @@
+﻿@model Metasoft.Models.ReembolsoItem
+@using Metasoft.Models;
+@{ ViewBag.Title = "Cadastrar Reembolso"; Decimal total = 0;}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "CadastrarReembolso" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-default" style="padding-top:50px;padding-left:250px;padding-right:250px;">
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div style="display:grid;grid-template-columns: 15% 20%;grid-column-gap:5px;margin-top:20px;">
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "vencimento", Title = "Referência" })
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "tipoid", InputClass = "custom-dropdown", Title = "Tipo Reembolso" })
+        </div>
+        <div style="display:grid;grid-template-columns: 80% 20%;grid-column-gap:5px;margin-top:20px;">
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição" })
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "valor", InputClass = "custom-dropdown_noarrow tar", Title = "R$ Valor" })
+        </div>
+        @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "CadastrarReembolso", BackToUrl = "/Reembolsoes/ReembolsoUsuario" })
+
+        <div class="panel-body panel-body-crud" style="margin:0 auto;padding:15px;overflow-y:auto;">
+
+            @if (Model.reembolsosdosusuario != null)
+            {
+                if (Model.reembolsosdosusuario.Count() > 0)
+                {
+                    total = 0;
+                    <table class="table table-bordered tablenovosreembolsos">
+                        @foreach (var item in Model.reembolsosdosusuario)
+                        {
+                            <tr>
+                                <td>@item.vencimento</td>
+                                <td>@item.tiponome</td>
+                                <td>@item.descricao</td>
+                                <td>@item.valor</td>
+                            </tr>
+                            total += item.valor;
+                        }
+                    </table>
+                }
+            }
+            else
+            {
+                <p>Nenhum reembolso cadastrado  </p>
+            }
+        </div>
+       @if (Model.reembolsosdosusuario != null)
+        {
+                if (Model.reembolsosdosusuario.Count() > 0)
+                {
+                <div class="divtotais" style="margin:0 auto;color:white;font-size:12px;text-align:right;padding-right:10px;padding-top:3px;height:25px;">
+                    @String.Format("{0:C}", total)
+                </div>
+                }
+        }
+
+    </div>
+
+
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+                   ebs.Set_DatePicker();
+                    //$(".datepicker").datepicker();
+                    $("#vencimento").val("");
+                    //ebs.PropDropDown('tipoid', '');
+                    PopulateTiposReembolso('tipoid');
+                     ebs.Mask("valor");
+                     /* Check if is return invalid data */
+                    if ('@Html.Raw(ViewBag.vencimento)' != "01/01/0001") { $("#vencimento").val('@Html.Raw(ViewBag.vencimento)'); } else { $("#vencimento").val("") }
+                    SetDropDownValue('@Html.Raw(ViewBag.tipoid)', "tipoid");
+                    $("#descricao").val('@Html.Raw(ViewBag.descricao)');
+
+                    if ('@Html.Raw(ViewBag.cadastramento)' != "") { msg('@Html.Raw(ViewBag.cadastramento)'); }
+                });
+
+         function submitit() {
+             if ($("#valor").val() != "" && $("#valor").val() != "0") {
+                 submitform('CadastrarReembolso')
+             }
+             else {
+                 msg("Valor não pode ser 0 ou em branco");
+                 return false;
+             }
+
+         }
+    </script>
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+    }
+
+

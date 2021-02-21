@@ -1,0 +1,120 @@
+﻿@model Metasoft.Models.ContaPR
+@using Metasoft.Models
+@{ ViewBag.Title = "Nova Parcela a Receber";}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovaParcelaAreceber" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.contagrupo)
+    @Html.HiddenFor(model => model.cliforid)
+    <div class="panel panel-default" style="padding-top:20px;padding-right:250px;padding-left:250px;">
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud">
+            <div>
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "clifornome", InputClass = "custom-dropdown_noarrow", Title = "Ciente", Value = Model.descricao, ReadOnly = true })
+            </div>
+            <div style="display:grid;grid-template-columns:  8% 90%;grid-column-gap:5px;margin-top:10px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "noordem", InputClass = "custom-dropdown_noarrow", Title = "Nº Ordem", Value = Model.noordem })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição", Value = Model.descricao })
+                @Html.ValidationMessageFor(model => model.descricao, "", new { @class = "text-danger" })
+            </div>
+            <div style="display:grid;grid-template-columns: 68% 15% 15%;grid-column-gap:5px;margin-top:15px;">
+                @Html.HiddenFor(model => model.categoriaid)
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "categoria", InputClass = "custom-dropdown_noarrow readonly", Title = "Categoria", ReadOnly = true })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "valor", InputClass = "custom-dropdown_noarrow", Title = "R$ Valor", Value = Model.valor.ToString() })
+                @{ Html.EnableClientValidation(false); }
+                @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "14px", Id = "vencimento", Title = "Vencimento" })
+            </div>
+            @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "NovaParcelaAreceber", BackToUrl = "/ContaPRs/ApagarAnalitico" })
+        </div>
+    </div>
+
+
+
+    <div class="panel panel-default" style="width:70%;margin:0 auto;height:250px;">
+
+        @Html.HiddenFor(model => model.contagrupo)
+        <div class="panel-body panel-body-crud">
+            <div class="row">
+
+                <div class="col-md-12 clientediv">
+                    <label class="control-label">Cliente</label>
+                    @Html.HiddenFor(model => model.cliforid)
+                    @Html.TextBox("clifornome", null, new { @class = "form-control form-control-custom", @readonly = "readonly" })
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 clientediv">
+
+                    @Html.LabelFor(model => model.noordem, htmlAttributes: new { @class = "control-label" })
+                    @Html.TextBoxFor(model => model.noordem, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+                <div class="col-md-10 clientediv">
+                    @Html.LabelFor(model => model.descricao, htmlAttributes: new { @class = "control-label" })
+                    @Html.TextBoxFor(model => model.descricao, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.descricao, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <!-- Categoria Valor-->
+            <div class="row">
+                <div class="col-md-6 clientediv">
+                    @Html.HiddenFor(model => model.categoriaid)
+                    @Html.LabelFor(model => model.categoriaid, htmlAttributes: new { @class = "control-label" })
+                    @Html.TextBox("categoria", null, new { @class = "form-control form-control-custom", @readonly = "readonly" })
+
+                </div>
+
+                <div class="col-md-3 clientediv">
+                    @Html.LabelFor(model => model.valor, htmlAttributes: new { @class = "control-label" })
+                    @Html.TextBoxFor(model => model.valor, htmlAttributes: new { @class = "form-control form-control-custom" })
+                    @{ Html.EnableClientValidation(false); }
+                    @*@Html.ValidationMessageFor(model => model.valor, "", new { @class = "text-danger" })*@
+
+                </div>
+                <div class="col-md-3 clientediv">
+                    @Html.LabelFor(model => model.vencimento, htmlAttributes: new { @class = "control-label" })
+                    <div class="input-group date">
+                        @Html.TextBoxFor(model => model.vencimento, htmlAttributes: new { @class = "form-control" })
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                    @Html.ValidationMessageFor(model => model.vencimento, "", new { @class = "text-danger" })
+
+                </div>
+            </div>
+            @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "NovaParcelaAreceber", BackToUrl = "/ContaPRs/AreceberAnalitico" })
+
+        </div>
+    </div>
+
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+               ebs.Mask('npar', 'valor', 'vencimento')
+                ebs.Set_DatePicker();
+               $("#npar").val("1");
+
+               $('#noordem').css('outline-width', 'thin');
+               $('#noordem').css('outline-color', 'blue');
+               PopDropDown("cliforid", [{ "tipo": 'C' }]);
+               $("#categoria").val('@Html.Raw(ViewBag.categorianome)')
+               $("#clifornome").val('@Html.Raw(ViewBag.clifornome)')
+               SetDropDownValue('@Html.Raw(ViewBag.cliforid)', "cliforid")
+        });
+
+
+
+
+
+    </script>
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}

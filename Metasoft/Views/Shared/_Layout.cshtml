@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="~/img/favico.ico" />
+    <title>DNK</title>
+    <link href="@Url.Content("~/Css/fontawesome.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Css/solid.min.css")" rel="stylesheet" type="text/css" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+
+<body id="bodyid" style="height:100%; overflow-y:hidden;">
+    <div class="navbar navbar-inverse navbar-fixed-top" style="background-color:#033862;height:25px;padding-left:15px;padding-right:45px;">
+        <div>
+            <a class="navbar-brand" href="/Home/Index" style="color:white;padding-left:0px;">
+                <img border="0" alt="" src="~/Img/companylogo.jpg" width="100" height="40" style="position:relative;top:-11px"><span style="font-size:20px;position:relative;top:-45px ;left:120px;">Financeiro</span>
+            </a>
+            
+        </div>
+        <div class="navbar-collapse collapse" style="position:relative;top: -5px;">
+            @Html.Partial("_LoginPartial")
+        </div>
+
+    </div>
+    <div  id="contentdiv" class="container-fluid body-content">
+        @RenderBody()
+    </div>
+
+   
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/tools")
+    @*<script src="~/Scripts/jquery.mask.plugin.js"></script>*@
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

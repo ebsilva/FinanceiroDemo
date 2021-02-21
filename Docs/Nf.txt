@@ -1,0 +1,326 @@
+@model Metasoft.Models.ClienteContaPrViewModel
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{ViewBag.Title = "Nota Fiscal a Receber";}
+
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "NotaFiscalAReceber" })))
+{
+    <style>
+        .title1 {
+            font-size: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .title2 {
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .blab {
+            border: solid 0.3px black;
+            border-collapse: collapse;
+        }
+
+        .brdt {
+            border-top: solid 0.3px black
+        }
+
+        .brdb {
+            border-bottom: solid 0.3px black
+        }
+
+        .brdr {
+            border-right: solid 0.3px black
+        }
+
+        .brdl {
+            border-left: solid 0.3px black
+        }
+
+        .h90 {
+            height: 90px;
+        }
+
+        .H35 {
+            height: 45px;
+        }
+
+        .padl10 {
+            padding-left: 10px;
+        }
+
+        .padl05 {
+            padding-left: 5px;
+        }
+
+        .fwb {
+            font-weight: bold;
+        }
+
+        .tac {
+            text-align: center;
+        }
+
+        .form-control-nf {
+            font-size: 12px;
+            color: #061568;
+            width: 97%;
+            border-radius: 4px;
+            background-color: #8dc7f4;
+            height: 27px;
+        }
+    </style>
+
+    <div class="panel panel-default mgauto dspnone">
+        <div style="display:grid;grid-template-columns: 85% 15%;height:28px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Emissão de Nota Fiscal a receber", width = "50%", classe = "title" })
+            @Html.Partial("_Search", new SearchViewModel { DivClass = "search", Tabela = "contaprs", StarCol = 2, EndCol = 9 })
+        </div>
+
+        <br />
+        <div class="container mgauto" style="background-color:#45a3e4;width:97%;">
+            <!-- header linha 1 -->
+            @Html.HiddenFor(model => model.cliforid)
+            @Html.HiddenFor(model => model.contaprid)
+            @Html.HiddenFor(model => model.vencimento)
+            @Html.HiddenFor(model => model.noordem)
+            <!-- header linha 2  DATA EMISSAO , NUMERO DE ORDEM, NATEUREZA OPERAÇÃO , VENCIMENTO -->
+
+            @*<div id="idnfheaderl2" class="row brdt brdb brdl brdr">
+                <br />
+                <div class="col-md-3 brdr">
+                    <div class="form-group">
+                        <label class="col-md-5 control-label" for="form-group-input  datepicker">Emissão:</label>
+                        <div class="col-md-7">
+
+                            <div class="input-group date">
+                                @Html.TextBoxFor(model => model.emissao, htmlAttributes: new { @class = "form-control form-control-nf" })
+                                <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-md-6 control-label" for="form-group-input">Nº Ordem:</label>
+                        <div class="col-md-6">
+                            @Html.DisplayFor(model => model.noordem)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="control-label">Natureza da operação</label>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="control-label">LOCAÇÃO DE BENS MÓVEIS</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="control-label">Vencimento</label>
+                        </div>
+                        <div class="col-md-8">
+                            @Html.DisplayFor(model => model.vencimento)
+
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+            <!-- header linha 3  CLIENTE NOME, ENDERECO,COMPLEMENTO, BAIRRO-->
+            <!--<div id="idnfheaderl3" class="row brdb brdr brdl">
+                <div class="col-md-12 ">
+                    <div class="row brdb">
+                        <div class="col-md-12">
+                            <div class="col-md-1">
+                                <label class="control-label">Destinatário:</label>
+                            </div>
+                            <div class="col-md-11">
+                                <label class="control-label">Html.DisplayFor(model => model.clientenome)</label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- header linha 4  MUNCIPIO, ESTADO CEP -->
+                <!--<br />-->
+                <!-- Detalhe da nota fiscal-->-->
+                <!--@*<div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            @Html.Label("Quantidade", htmlAttributes: new { @class = "control-label" })
+                        </div>
+                        <div class="col-md-1">
+                            @Html.Label("Código", htmlAttributes: new { @class = "control-label" })
+                        </div>
+                        <div class="col-md-6">
+                            @Html.Label("Descrição", htmlAttributes: new { @class = "control-label" })
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("R$ Unitário", htmlAttributes: new { @class = "control-label" })
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("R$ Total", htmlAttributes: new { @class = "control-label" })
+                        </div>
+
+                    </div>
+
+                    @for (int i = 0; i <= 19; i++)
+                    {
+
+                        @Html.EditorFor(model => model.nfdetails)
+                        <div class="row">
+
+                            <div class="col-md-1">
+                                @Html.TextBox("qtd" + i.ToString(), null, htmlAttributes: new { @class = "form-control form-control-nf" })
+                            </div>
+                            <div class="col-md-1">
+                                @Html.TextBox("produtoid_" + i.ToString(), null, htmlAttributes: new { @class = "form-control form-control-nf", @disabled = "disabled", onfocus = "" })
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-11">
+                                        @switch (i)
+                                        {
+                                            case 13:
+                                                <input class="form-control form-control-nf" disabled="disabled" id="produtoid_@i.ToString()" name="produtoid_1" type="text" value="P/ DEPÓSITO BRADESCO" />
+                                                break;
+                                            case 14:
+                                                <input class="form-control form-control-nf" disabled="disabled" id="produtoid_@i.ToString()" name="produtoid_1" type="text" value="AGENCIA 0197-0" />
+
+                                                break;
+                                            case 15:
+                                                <input class="form-control form-control-nf" disabled="disabled" id="produtoid_@i.ToString()" name="produtoid_1" type="text" value="CONTA CORRENTE 092200-5" />
+                                                break;
+                                            case 17:
+                                                <input class="form-control form-control-nf" disabled="disabled" id="produtoid_@i.ToString()" name="produtoid_1" type="text" value="OBSERVAÇÕES" />
+                                                break;
+                                            case 18:
+                                                <input class="form-control form-control-nf" disabled="disabled" id="produtoid_@i.ToString()" name="produtoid_1" type="text" value="'Dispensado de emissão de Documento fiscal, por não constar na lista de" />
+                                                break;
+                                            case 19:
+                                                <input class="form-control form-control-nf" disabled="disabled" id="produtoid_@i.ToString()" name="produtoid_1" type="text" value="serviços da Lei 13.701/03'Locação de bens móveis/Não-incidência de ICMS''" />
+                                                break;
+                                            default:
+                                                @Html.TextBox("descricao" + i.ToString(), null, htmlAttributes: new { @class = "form-control form-control-nf", style = "width:100%;" })
+                                                break;
+                                        }
+
+                                    </div>
+                                    <div class="col-md-1 tac">
+                                        <a id="selectproduto_@i.ToString()" onclick="MarkLine(@i);" data-toggle="modal" data-target="#ProdutosModal" href="#" style="font-size:24px;display:inline-block;" title="Selecionar produto">
+                                            <i class="fa fa-list"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                @Html.TextBox("unitario" + i.ToString(), null, htmlAttributes: new { @class = "form-control form-control-nf" })
+                            </div>
+                            <div class="col-md-2">
+                                @Html.TextBox("dtotal" + i.ToString(), null, htmlAttributes: new { @class = "form-control form-control-nf", @disabled = "disabled", style = "text-align:right;" })
+                            </div>
+                        </div>
+
+                    }
+                </div>*@
+            </div>-->
+        </div>
+    </div>
+    <!-- Produtos modal -->
+    <div class="modal fade" id="ProdutosModal" tabindex="-1" role="dialog" aria-labelledby="ProdutosModal-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ProdutosModal-label">Produtos Cadastrados</h4>
+                </div>
+                <div class="modal-body">
+                    <select id="produtos" name="produtos" class="form-control form-control-custom">
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    <button id="savebutton" type="button" class="btn btn-primary" onclick="SelectProduct()" data-dismiss="modal">Selecionar</button>
+                </div>
+                <div id="lineselected" class="dspnone">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GlobalSettings("#notafiscal", "400px", [2, 'asc'], true, false, true, "C", "R", false, true, true);
+            $('.datepicker').datepicker();
+            ebs.Set_DatePicker()
+
+            for (var i = 0; i <= 19; i++) {
+                $('#qtd' + i).mask("000", { reverse: true });
+                $("#emissao").mask("00/00/0000");
+                $('#unitario' + i).mask("###0,00", { reverse: true });
+
+                $("#produtoid_" + i).focus(function () {
+                    var id = "#" + this.id;
+                    $("#selectproduto_" + id).trigger('click');
+                });
+                $("#unitario" + i).focusout(function () {
+
+                    var id = "#" + this.id;
+                    var index = id.substring(9, 10);
+
+                    var qtd = $("#qtd" + index).val();
+                    var unitario = $(id).val();
+                    unitario = unitario.replace(",", ".");
+
+                    if ($.isNumeric(qtd) && $.isNumeric(unitario)) {
+                        var total = parseFloat(qtd * unitario).toFixed(2)
+                        total = total.replace(".", ",");
+                        $("#dtotal" + index).val(total)
+                    }
+                    else {
+                        msg('Quantidade ou Valor Unitário não é um número válido');
+                    }
+                });
+
+                $("#produtos").change(function () {
+                    $("#savebutton").click();
+                })
+            }
+            PopulateProdutos('produtos');
+        });
+        function MarkLine(lineid) {
+            $("#lineselected").text(lineid);
+        }
+        function SelectProduct() {
+            var lineid = $("#lineselected").text();
+            var produtoid = $("#produtos").val();
+            $("#produtoid_" + lineid).val(produtoid);
+            var produtodescr = $("#produtos  option:selected").text();
+            $("#descricao" + lineid).val(produtodescr);
+            //$("#ProdutosModal").toggle();
+        }
+        function EnableLines() {
+            for (var i = 0; i <= 19; i++) {
+                $('#produtoid_' + i).removeAttr("disabled");
+
+            }
+        }
+
+
+
+    </script>
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+
+}
+
+

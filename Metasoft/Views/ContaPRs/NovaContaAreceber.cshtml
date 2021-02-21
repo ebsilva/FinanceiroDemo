@@ -1,0 +1,121 @@
+﻿@model Metasoft.Models.ContaPR
+@using Metasoft.Models
+@{ ViewBag.Title = "Nova Conta a Receber";}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovaContaAreceber" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="panel panel-default newitem">
+        <div class="panel-heading-crud" >
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;margin-top:20px;">
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "cliforid", InputClass = "custom-dropdown", Title = "Clientes" })
+            <div>
+                @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "propostaid", InputClass = "custom-dropdown", Title = "Nº Proposta" })
+                <label id="semproposta" style="display:none;margin-top:10px;color:red;">Não há propostas liberadas para este cliente</label>
+            </div>
+            @*<div>
+                <label class="control-label">Nº Proposta</label>
+                @Html.DropDownListFor(model => model.propostaid, new List<SelectListItem>(), new { @class = "form-control form-control-custom", style = "z-index:999;display:none;" })
+            </div>*@
+        </div>
+        @*<div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;">
+            @Html.ValidationMessageFor(model => model.cliforid, "", new { @class = "text-danger" })
+            <label id="semproposta" class="control-label" style="display:none;margin-top:10px;color:red;">Não há propostas liberadas para este cliente</label>
+        </div>*@
+        <div style="display:grid;grid-template-columns: 10% 10% 75%;grid-column-gap:5px;margin-top:10px;">
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "noordem", InputClass = "custom-dropdown_noarrow", Title = "Nº Ordem" })
+            @Html.Partial("_Checkbox", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "recorrente", InputClass = "custom-dropdown_noarrow", Title = "Recorrente" })
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição" })
+        </div>
+        <div style="display:grid;grid-template-columns: 35% 20% 20% 20%;grid-column-gap:5px;margin-top:15px;">
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "14px", Id = "categoriaid", InputClass = "custom-dropdown", Title = "Categoria" })
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "nf", InputClass = "custom-dropdown_noarrow", Title = "Nº NF" })
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "valor", InputClass = "custom-dropdown_noarrow", Title = "R$ Valor" })
+            @{ Html.EnableClientValidation(false); }
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "14px", Id = "vencimento", Title = "Vencimento" })
+        </div>
+        <div style="display:grid;grid-template-columns: 30% 20% 20% 20%;grid-column-gap:5px;">
+            @Html.ValidationMessageFor(model => model.categoriaid, "", new { @class = "text-danger" })
+            <div></div>
+            <div></div>
+            @Html.ValidationMessageFor(model => model.vencimento, "", new { @class = "text-danger" })
+        </div>
+        @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "NovaContaAreceber", BackToUrl = "/ContaPRs/AreceberAnalitico" })
+
+    </div>
+
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+           $(document).ready(function () {
+            ebs.PopDropDown("categoriaid", [{ "tipo": 'R' }]);
+            ebs.PopDropDown("cliforid", [{ "tipo": 'C' }]);
+            $("#npar").mask("00");
+             ebs.Mask('npar','valor','noordem','vencimento')
+             $("#npar").val("1");
+             $("#noordem").val("01/01");
+             $("#nf").mask("0000000");
+               ebs.Set_DatePicker();
+               /* Change function for recorrente */
+               $("#recorrente").change(function(){
+                   n = $("#noordem").val();
+                   var o = n.split("/");
+                   var parcela = parseInt(o[0]);
+                   var qtparcelas = parseInt(o[1]);
+                   if (parcela == qtparcelas) {
+                       $('#recorrente').prop('checked', false);
+                       event.stopPropagation();
+                   }
+                      if ($('#recorrente').prop('checked') == true) {
+                       $('#recorrente').val(true);
+                       event.stopPropagation();
+                    }
+
+               });
+               /* Change function for Cliente  */
+               $("#cliforid").change(function () {
+                   /* Popula propostas dropdown */
+                   PopulatePropostasCliente(5, $("#cliforid").val());
+
+               });
+
+        
+               /* Set Cliente on post back */
+               var cliforselected = '@Html.Raw(ViewBag.cliforselected)';
+               if (cliforselected != "") {
+                   setTimeout(function () {
+                       index = 0
+                       $("#cliforid option").each(function () {
+                           if ($(this).val().trim() == cliforselected) {
+                               $("select#cliforid").val(cliforselected).change();
+                           }
+                       });
+                   }, 1000);
+
+               } else { cliforselected = "0"; }
+
+               /* Set proposta on postback */
+               var propostaselected = '@Html.Raw(ViewBag.propostaselected)';
+               if (propostaselected != "") {
+                   setTimeout(function () {
+                       $("#propostaid option").each(function () {
+                           if ($(this).val().trim() == propostaselected) {
+                               $("select#propostaid").val(propostaselected);
+                           }
+                       });
+                   }, 1500);
+               } else { propostaselected = "0"; }
+               var categoriaselected = '@Html.Raw(ViewBag.categoriaselected)'; if (categoriaselected != "") { SetDropDownValue(categoriaselected, "categoriaid"); } else { categoriaselected = "0"; }
+
+
+        });
+    </script>
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}

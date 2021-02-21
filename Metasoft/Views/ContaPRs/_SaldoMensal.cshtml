@@ -1,0 +1,41 @@
+﻿@using Metasoft.Utilities;
+@using Metasoft.ViewModels;
+@model Metasoft.ViewModels.SaldoMensalViewModel
+<style>
+    .saldo {
+        display: grid;
+        grid-template-columns: 60% 40%;
+    }
+    .edit {
+        padding: 0px 5px 0px 5px;
+        color: red;
+        height: 25px;
+        font-size: 12px;
+        width:20px;
+    }
+    .saldo , .edit, .edit > input{
+        background-color: #21436c;
+        border: solid 1px #1c1f9c;
+        border-radius: 3px;
+        text-align: center;
+    }
+
+</style>
+
+<div style="overflow-y:auto;">
+    @if (Model != null)
+    {
+    <div class="saldo">
+        <div class="cw">Saldo Banco/@Model.Ano :&nbsp;&nbsp;</div>
+        <div id="lsaldo" data-id="@Model.Id" class="cw tal pdr5" onclick="EditSaldo(@Model.Id)">R$&nbsp;&nbsp;@Tools.NotNullMoney(@Model.Saldo)</div>
+        <div id="dsaldo" class="dspnone edit">
+            <input id="isaldo" 
+                   class="caixa" 
+                   title="Saldo atual mês"
+                   value =@Tools.NotNullMoney(@Model.Saldo)  />
+        </div>
+    </div>
+
+    }
+ </div>
+

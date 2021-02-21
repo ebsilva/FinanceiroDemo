@@ -1,0 +1,81 @@
+﻿@model Metasoft.Models.PerfilPermissaoViewModel
+@using Metasoft.Models
+@{ ViewBag.Title = "Alterar Perfil";}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "AlterarPerfil" }))
+{
+    @Html.AntiForgeryToken()
+    <br />
+    <br />
+    <div class="panel panel-default" style="width:70%;margin:0 auto;height:50px;">
+        <div class="panel-heading-crud">
+            <div style="float:left;"><i class="fa fa-user"></i>&nbsp;@ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud" style="padding:5px 5px 5px 5px;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        @Html.Label("Nome", htmlAttributes: new { @class = "control-label" })
+                        @Html.EditorFor(model => model.name, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.name, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                @Html.HiddenFor(model => model.roleid)
+                <div class="row">
+                    @Html.Partial("_ItemPerfil",new ItemPerfil { titulo="Propostas",  id="propostas", item1="Consultar", item2="Alterar", item3="Sem acesso"  })
+                    @Html.Partial("_ItemPerfil", new ItemPerfil { titulo = "A receber", id = "receber", item1 = "Consultar", item2 = "Alterar", item3 = "Sem acesso" })
+                    @Html.Partial("_ItemPerfil", new ItemPerfil { titulo = "A Pagar", id = "pagar", item1 = "Consultar", item2 = "Alterar", item3 = "Sem acesso" })
+                </div>
+                <br />
+                <div class="row">
+                    @Html.Partial("_ItemPerfil", new ItemPerfil { titulo = "Cadastros", id = "cadastros", item1 = "Consultar", item2 = "Alterar", item3 = "Sem acesso" })
+                    @Html.Partial("_ItemPerfil", new ItemPerfil { titulo = "Relatorios", id = "relatorios", item1 = "Consultar", item2 = "Alterar", item3 = "Sem acesso" })
+                    @Html.Partial("_ItemPerfil", new ItemPerfil { titulo = "Reembolso", id = "reembolso", item1 = "Consultar", item2 = "Alterar", item3 = "Sem acesso" })
+
+                </div>
+                <!-- ALTERADO EM 31/03/2017 -->
+                <br />
+                <div class="row">
+                    @Html.Partial("_ItemPerfil", new ItemPerfil { titulo = "Projetos", id = "projetos", item1 = "Analista", item2 = "Admin", item3 = "Sem acesso" })
+                    <!-- ALTERADO EM 30/05/2017 -->
+                    @Html.Partial("_ItemPerfil", new ItemPerfil { titulo = "Contratos", id = "contratos", item1 = "Consultar", item2 = "Alterar", item3 = "Sem acesso" })
+                    @Html.Partial("_ItemPerfil", new ItemPerfil { titulo = "Remunerações", id = "remuneracoes", item1 = "Consultar", item2 = "Alterar", item3 = "Sem acesso" })
+                </div>
+            </div>
+
+            <div class="row">
+                <a id="saveico" href="#" onclick="submitform('AlterarPerfil');" title="Salvar" class="actionicon savenew" style="font-size:26px;"><i id="saveimg" class="fa fa-save"></i></a>
+                <a id="alterarico" href="/Perfis/ListaPerfis" title="Voltar para lista" class="actionicon savenew" style="font-size:26px;"><i id="alcliimg" class="fa fa-arrow-left"></i></a>
+            </div>
+
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            SetRadioValue("propostas", '@Html.Raw(ViewBag.propostas)')
+            SetRadioValue("receber", '@Html.Raw(ViewBag.receber)')
+            SetRadioValue("pagar", '@Html.Raw(ViewBag.pagar)')
+            SetRadioValue("cadastros", '@Html.Raw(ViewBag.cadastros)')
+            SetRadioValue("relatorios", '@Html.Raw(ViewBag.relatorios)')
+            SetRadioValue("reembolso", '@Html.Raw(ViewBag.reembolsos)')
+            SetRadioValue("projetos", '@Html.Raw(ViewBag.projetos)')
+            SetRadioValue("contratos", '@Html.Raw(ViewBag.contratos)')
+            SetRadioValue("remuneracoes", '@Html.Raw(ViewBag.remuneracoes)')
+
+            if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+        });
+
+        function SetRadioValue(name, value) {
+            $('input:radio[name="'+name + '"]').filter('[value='+value+']').attr("checked", true);
+        }
+
+    </script>
+    @Scripts.Render("~/bundles/jqueryval")
+
+}
+
+

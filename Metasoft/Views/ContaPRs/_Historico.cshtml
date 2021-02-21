@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Metasoft.Models.Historico>
+
+
+@if (Model != null)
+{
+
+    if (Model.Count() > 0)
+    {
+
+        <table class="tablehistorico">
+            <tr>
+                <th>Data</th>
+                <th>Historico</th>
+            </tr>
+        </table>
+        <table  class="tablehistorico">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.data</td>
+                    <td>@item.texto</td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <div>
+            Não há histórico para esta conta
+        </div>
+    }
+}
+else
+{
+ <div>
+     Não há histórico para esta conta
+ </div>
+}

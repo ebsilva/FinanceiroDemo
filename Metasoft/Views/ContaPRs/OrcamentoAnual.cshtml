@@ -1,0 +1,452 @@
+﻿@model IEnumerable<Metasoft.ViewModels.OrcamentoVm>
+@using Metasoft.Models;
+@using Metasoft.ViewModels;
+@using Metasoft.Utilities;
+@{
+    ViewBag.Title = "Orçamento Anual";
+    int registros = Model.Count();
+}
+<style>
+    table.orcamento thead th, table.orcamento tbody td, table.orcamento tfoot td, table.orcamento tbody td span {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 13px;
+    }
+
+        table.orcamento tbody td span {
+            font-weight: normal;
+        }
+
+    table.orcamento thead th, table.orcamento tbody td, table.orcamento tfoot td {
+        text-align: right;
+        width: 75px;
+        max-width: 75px;
+        min-width: 75px;
+        padding: 3px 3px 3px 0px;
+    }
+
+    table.orcamento thead th {
+        text-align: center;
+    }
+
+    table.orcamento tfoot td {
+        color: orange;
+    }
+
+        /*Coluna 1*/
+        table.orcamento thead th:nth-child(2),
+        table.orcamento tbody td:nth-child(2),
+        table.orcamento tfoot td:nth-child(2) {
+            width: 160px;
+            max-width: 160px;
+            min-width: 160px;
+            text-align: left;
+            padding: 3px 1px 3px 2px;
+        }
+
+    table.orcamento thead th:nth-child(3),
+    table.orcamento tbody td:nth-child(3) {
+        border-left: none;
+        width: 15px;
+        max-width: 15px;
+        min-width: 15px;
+        text-align: center
+    }
+
+    .ored, .ogreen, .oyellow, .owhite {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 12px;
+        text-align: right;
+        font-weight: bold;
+        text-align: right;
+        display: inline;
+    }
+
+    .ored {color: red;}
+    .ogreen {color: green;}
+    .owhite {color: white;}
+    .oyellow {color: yellow;}
+    .oorange {color: orange;}
+
+    .iconbar, .iconpie {
+        font-size: 14px;
+        margin-right: 8px;
+    }
+
+    .iconbar {
+        color: darkcyan;
+    }
+
+    .iconpie {
+        color: brown;
+    }
+
+    .modal-wide {
+        min-width: 1080px;
+    }
+</style>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', { packages: ['corechart', 'bar'] })
+</script>
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "OrcamentoAnual" })))
+{
+    <div class="panel panel-default dspnone mgauto" style="padding-right:5px;padding-left:5px;">
+        <style type="text/css" media="print">
+            .page {
+                -webkit-transform: rotate(-90deg);
+                -moz-transform: rotate(-90deg);
+                filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+            }
+        </style>
+        <div class="noprint" style="display:grid;grid-template-columns: 73% 10% 10% 2% ;height:50px;grid-column-gap:10px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Orçamento Anual", width = "30%", classe = "title" })
+            <!--Tipo-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Height = "31px", Id = "tipo", InputClass = "custom-dropdown", Title = "Tipo", NoLabel = true, StaticOptions = "_OptionsPagarReceber" })
+            <!-- Ano-->
+            @Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017, NoLabel = true })
+            <div class="noprint" style="margin-top:7px;">
+                <a id="printicon" title="Imprimir" onclick="Imprime();"><i class="fas fa-print fs24"></i></a>
+            </div>
+        </div>
+        <div class="panel-body panel-body-custom" style="clear:both;">
+            <table id="orcamento" class="table table-bordered orcamento">
+                <thead>
+                    <tr>
+                        <th class="hidden"></th>
+                        <th>Categoria</th>
+                        <th>Janeiro</th>
+                        <th>Fevereiro</th>
+                        <th>Março</th>
+                        <th>Abril</th>
+                        <th>Maio</th>
+                        <th>Junho</th>
+                        <th>Julho</th>
+                        <th>Agosto</th>
+                        <th>Setembro</th>
+                        <th>Outubro</th>
+                        <th>Novembro</th>
+                        <th>Dezembro</th>
+                        <th>Total</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        decimal t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0, t10 = 0, t11 = 0, t12 = 0, tto = 0;
+                        decimal r1 = 0, r2 = 0, r3 = 0, r4 = 0, r5 = 0, r6 = 0, r7 = 0, r8 = 0, r9 = 0, r10 = 0, r11 = 0, r12 = 0, ttr = 0;
+                    }
+                    @foreach (var item in Model)
+                    {
+
+                        <tr>
+                            <td class="hidden"></td>
+                            <td title="@item.CatNome.Trim()">
+                                <i class="fa fa-chart-bar iconbar"
+                                   onclick="BarGraph('@item.CatNome',@Json.Encode(item))"
+                                   data-toggle="modal" data-target="#BarModal" />
+                                <span style="width:90%;color:white">&nbsp;@Tools.ShortText(item.CatNome, 27)</span>
+
+                            </td>
+                            <td id="m01_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 1, O = item.Oja, R = item.Rja, Caixa = item.Cja })</td>
+                            <td id="m02_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 2, O = item.Ofv, R = item.Rfv, Caixa = item.Cfv })</td>
+                            <td id="m03_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 3, O = item.Omr, R = item.Rmr, Caixa = item.Cmr })</td>
+                            <td id="m04_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 4, O = item.Oab, R = item.Rab, Caixa = item.Cab })</td>
+                            <td id="m05_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 5, O = item.Oma, R = item.Rma, Caixa = item.Cma })</td>
+                            <td id="m06_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 6, O = item.Oju, R = item.Rju, Caixa = item.Cju })</td>
+                            <td id="m07_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 7, O = item.Ojl, R = item.Rjl, Caixa = item.Cju })</td>
+                            <td id="m08_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 8, O = item.Oag, R = item.Rag, Caixa = item.Cag })</td>
+                            <td id="m09_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 9, O = item.Ost, R = item.Rst, Caixa = item.Cst })</td>
+                            <td id="m10_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 10, O = item.Oot, R = item.Rot, Caixa = item.Cou })</td>
+                            <td id="m11_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 11, O = item.Ono, R = item.Rno, Caixa = item.Cno })</td>
+                            <td id="m12_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 12, O = item.Ode, R = item.Rde, Caixa = item.Cde })</td>
+                            <td id="m13_@item.Id">@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = item.Id, Mes = 13, Tto = item.Tto, Ttr = item.Ttr })</td>
+                        </tr>
+                        t1 += item.Oja; t2 += item.Ofv; ; t3 += item.Omr; ; t4 += item.Oab; ; t5 += item.Oma; ; t6 += item.Oju;
+                        t7 += item.Ojl; t8 += item.Oag; ; t9 += item.Ost; ; t10 += item.Oot; ; t11 += item.Ono; ; t12 += item.Ode;
+                        r1 += item.Rja; r2 += item.Rfv; ; r3 += item.Rmr; ; r4 += item.Rab; ; r5 += item.Rma; ; r6 += item.Rju;
+                        r7 += item.Rjl; r8 += item.Rag; ; r9 += item.Rst; ; r10 += item.Rot; ; r11 += item.Rno; ; r12 += item.Rde;
+                        tto = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12;
+                        ttr = r1 + r2 + r3 + r4 + r5 + r6 + r7 + r8 + r9 + r10 + r11 + r12;
+                    }
+                </tbody>
+
+                <tfoot style="background-color:#0b085c">
+                    <tr>
+                        <td class="hidden"></td>
+                        <td>Totais Diferença</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 1, O = t1, R = r1 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 2, O = t2, R = r2 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 3, O = t3, R = r3 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 4, O = t4, R = r4 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 5, O = t5, R = r5 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 6, O = t6, R = r6 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 7, O = t7, R = r7 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 8, O = t8, R = r8 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 9, O = t3, R = r9 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 10, O = t10, R = r10 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 11, O = t11, R = r11 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 12, O = t12, R = r12 })</td>
+                        <td>@Html.Partial("_OrcamentoItem", new OrcamentoItemVm { Id = 0, Mes = 0, O = tto, R = ttr })</td>
+                    </tr>
+                </tfoot>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Modal Lancamentos -->
+    <div class="modal fade modal-wide" id="ListaContasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header modalheader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;opacity:1"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                    <h5 class="modal-title" id="contasheader"></h5>
+                </div>
+                <div class="modal-body" style="background-color:darkslategrey">
+                    <div id="divcontas">
+                        @Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando lançamentos" })
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Graph Lancamentos -->
+    <div class="modal fade modal-wide" id="BarModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header modalheader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;opacity:1"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                    <h5 class="modal-title" id="barheader"></h5>
+                </div>
+                <div class="modal-body" style="background-color:darkslategrey">
+                    <div style="display:flex;">
+                        <div id="piediv">
+                            @Html.Partial("_Loading", new LoadingViewModel { Text = "Montando grafico" })
+
+                        </div>
+                        <div id="bardiv">
+                            @Html.Partial("_Loading", new LoadingViewModel { Text = "Montando grafico" })
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            t = $("#orcamento").DataTable({
+                "fixedHeader": {
+                    header: true,
+                 },
+                "info": false,
+                "scrollY": 400,
+                "scrollX": false,
+                'order': 3,
+                "paging": false,
+                "searching": false,
+                "language": { "emptyTable": "<div class='naocadastrado'><span>Nenhum item cadastrado</span></div>", "zeroRecords": "<div class='naocadastrado'><span>Nenhum item cadastrado</span></div>" }
+            });
+
+            var d = new Date(), m = d.getMonth() + 1, y = d.getFullYear();
+            $('#anos option[value="' + y + '"]').prop('selected', true);
+            $(function () { $('#anos').change(function () { this.form.submit(); }); });
+            $(function () { $('#tipo').change(function () { this.form.submit(); }); });
+
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (ano != "") { SetDropDownValue(ano, "anos");} else { $('#anos option:eq(' + y + ')').prop('selected', true) }
+
+            var tipo = '@Html.Raw(ViewBag.tiposelected)';
+            if (tipo != "") { SetDropDownValue(tipo, "tipo"); } else { $('#tipo option:eq(' + y + ')').prop('selected', true) }
+
+            $('.caixa').keypress(function (e) {
+                var ivalue = this.value;
+                var editfield = "#" + $("#" + e.target.id).closest('div')[0].id
+                var tecla = e.keyCode;
+                /* verifica se a tecla pressionada foi o ENTER */
+                if (tecla == 13) {
+                    e.preventDefault(e);
+                    campo = $('.caixa');
+
+                    /*  Salva no banco */
+                    var afield = editfield.replace("e", "a");
+
+                    if (!isNaN(ivalue)) {
+                        var lb = document.getElementById(e.target.id.replace("i", "l"));
+                        HideEdit(editfield)
+                        var m = parseInt(lb.getAttribute("data-mes"));
+                        var c = parseInt(lb.getAttribute("data-cat"));
+                        var v = ivalue;
+                        var placeholder = "#l" + c + m;
+                         try {
+                            var ano = '@Html.Raw(ViewBag.anoselected)';
+                            $(placeholder).load("/ContaPrs/OrcamentoUpdateCaixa", {
+                                ano: ano,
+                                mes: m,
+                                Id: c,
+                                valor : v,
+                                viewName: "_OrcamentoCaixaItem"
+                            });
+                        }
+                        catch (e) {
+                            alert(e)
+                        }
+                    }
+                }
+            });
+        });
+        function EditCaixa(id, mes) {
+            var a = "#a" + id + mes;
+            ShowEdit(a)
+        }
+        function ShowEdit(id){
+            $(id).hide();
+            var target = id.replace("a", "e")
+            $(target).show();
+            target = target.replace("e", "i")
+            $(target).focus();
+        }
+        function HideEdit(id) {
+            $(id).hide();
+            $(id.replace("e", "a")).show();
+        }
+        function OrcamentoLancamentos(id,mes) {
+            var tipo = '@Html.Raw(ViewBag.tiposelected)';
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            $("#contasheader").html("Lançamentos " + ebs.MesExtenso(mes)+"/"+ano);
+            var placeholder = "#divcontas";
+             $(placeholder).load("/ContaPrs/OrcamentoContasMes", {
+                tipo: tipo,
+                ano: ano,
+                mes: mes,
+                 Id: id,
+                all: false,
+                viewName: "_OrcamentoContas"
+            });
+        }
+        function OrcamentoLancamentosAll(id, mes) {
+            var tipo = '@Html.Raw(ViewBag.tiposelected)';
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            $("#contasheader").html("Lançamentos " + ebs.MesExtenso(mes)+"/"+ano);
+            var placeholder = "#divcontas";
+             $(placeholder).load("/ContaPrs/OrcamentoContasMes", {
+                tipo: tipo,
+                ano: ano,
+                mes: mes,
+                Id: id,
+                all: true,
+                viewName: "_OrcamentoContas"
+            });
+        }
+
+        function OrcamentoUpdateCaixa(id, mes) {
+  
+            var ano =  '@Html.Raw(ViewBag.anoselected)';
+            var placeholder = "#" + id + mes;
+            try {
+                $(placeholder).load("/ContaPrs/OrcamentoUpdateCaixa", {
+                    ano: ano,
+                    mes: mes,
+                    Id: id,
+                    viewName: "_OrcamentoCaixaItem"
+                });
+            }
+            catch (e) {
+                alert(e)
+            }
+
+        }
+
+
+        function BarGraph(categoria, item) {
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            $("#barheader").text("Evolução dos lançamentos para " + categoria + "/" + ano,);
+            var placeholder = "#bardiv";
+            google.charts.setOnLoadCallback(function () { Draw(item, categoria,ano)});
+        }
+        function Draw( item, categoria,ano) {
+            DrawBar(item, categoria, ano);
+            DrawPie(categoria, item);
+        }
+        function DrawBar(item, categoria,ano) {
+            document.querySelector("#bardiv div").remove();
+            var data = google.visualization.arrayToDataTable([
+                ['Mes', 'Total', { role: 'style' }, { role: 'annotation' } ],
+                ['Jan', item.Oja, 'color: DarkMagenta', item.Oja/1000],
+                ['Fev', item.Ofv, 'color: MediumPurple', item.Ofv/1000],
+                ['Mar', item.Omr, 'color: MediumSlateBlue', item.Omr/1000],
+                ['Abr', item.Oab, 'color: DarkSalmon', item.Oab/1000],
+                ['Mai', item.Oma, 'color: Salmon', item.Oma/1000],
+                ['Jun', item.Oju, 'color: IndianRed', item.Oju/1000],
+                ['Jul', item.Ojl, 'color: ForestGreen', item.Ojl/1000],
+                ['Ago', item.Oag, 'color: YellowGreen', item.Oag/1000],
+                ['Set', item.Ost, 'color: OliveDrab', item.Ost/1000],
+                ['Out', item.Oot, 'color: Chocolate', item.Oot/1000],
+                ['Nov', item.Ono, 'color: Sienna', item.Ono/1000],
+                ['Dez', item.Ode, 'color: Brown', item.Ode/1000]
+            ]);
+            console.log(item)
+            var options = {
+                width: 550,
+                height: 400,
+                bar: { groupWidth: "90%" },
+                legend: { position: "none" },
+                chartArea: { 'width': '90%', 'height': '90%' },
+                fontName: 'Segoe UI',
+                fontSize: 10,
+
+            };
+            var bchart = new google.visualization.ColumnChart(document.getElementById("bardiv"));
+            bchart.draw(data, options);
+        }
+        function PieGraph(categoria, item) {
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            var placeholder = "#piediv";
+        }
+        function DrawPie(categoria, item){
+            document.querySelector("#piediv div:nth-child(1)").remove();
+            var pdata = google.visualization.arrayToDataTable([
+                ['Mes', 'Total'],
+                ['Jan', item.Oja],
+                ['Fev', item.Ofv],
+                ['Mar', item.Omr],
+                ['Abr', item.Oab],
+                ['Mai', item.Oma],
+                ['Jun', item.Oju],
+                ['Jul', item.Ojl],
+                ['Ago', item.Oag],
+                ['Set', item.Ost],
+                ['Out', item.Oot],
+                ['Nov', item.Ono],
+                ['Dez', item.Ode]
+            ]);
+            var poptions = {
+                width: 350,
+                height: 400,
+                is3D: true,
+                chartArea: { 'width': '60%', 'height': '60%' },
+                legend: { 'position': 'none' },
+                pieSliceTextStyle: {
+                    color: 'black',
+                },
+                fontName: 'Segoe UI',
+                fontSize: 10,
+                colors: ['DarkMagenta', 'MediumPurple', 'MediumSlateBlue', 'DarkSalmon', 'Salmon', 'IndianRed', 'ForestGreen', 'YellowGreen', 'OliveDrab', 'Chocolate', 'Sienna', 'Brown']
+            };
+            var pchart = new google.visualization.PieChart(document.getElementById('piediv'));
+            pchart.draw(pdata, poptions);
+        }
+
+    </script>
+}
+

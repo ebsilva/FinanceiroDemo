@@ -1,0 +1,13 @@
+﻿@model Metasoft.Models.DataViewModel
+    <div class="@Model.DivClass"  style="margin-top:@Model.Mtop;border: 0px 0px 0px 1px">
+           <label>@Model.Title</label>
+        <div class="custom-dropdown_noarrow">
+            <span class="input-group date">
+                @*@Html.Editor(Model.Id, new { htmlAttributes = new { @class = "form-control  noprint", style = "border:none;" } })*@
+                <input id="@Model.Id" name="@Model.Id" type="text" value="@Model.Value" class="form-control" />
+                <span class="input-group-addon" style="border:none; background-color: #1b0b5c;">
+                    <i class="fa fa-calendar" style="color:white"></i>
+                </span>
+            </span>
+        </div>
+    </div>

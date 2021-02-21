@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Metasoft.Models.TipoContrato>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Lista Tipos de Contrato";
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0) { count = Model.Count(); }
+    }
+}
+
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Tipos Contrato" })
+<div class="panel panel-default mgauto" style="display:none;max-width:60%;">
+    <i class="fa fa-search noprint icon_search" style="left:55%;"></i>
+    <div class="mt10">
+        @Html.Partial("_Title", new TitleViewModel { title = "Tipos de Contrato cadastrados (" + (count) + ")", width = "90%", classe = "title" })
+        <div class="noprint dspib" style="width:9%;position:relative;top:4px;">
+            @Html.Partial("_PrintIcon", new PrintIconViewModel { tabela = "#tiposcontrato", title = "DNK - Lista de Tipos de Contrato cadastrados" })
+            @Html.Partial("_LinkIcon", new LinkIconViewModel { link = "/TiposContratos/NovoTipocontrato", title = "Cadastrar Tipo de contrato", icon = "fa fa-plus" })
+        </div>
+    </div>
+    <div class="panel-body-custom">
+        @if (Model.Count() > 0)
+        {
+            <table id="tiposcontrato" class="tiposcontrato">
+                <thead>
+                    <tr>
+                        <th class="hidden"></th>
+                        <th>&nbsp;Descrição</th>
+                        <th class="noprint">&nbsp;Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="hidden">@Html.DisplayFor(model => item.id)</td>
+                            <td>@Html.DisplayFor(modelItem => item.nome)</td>
+                            <td class="noprint" style="text-align:center">
+                                <a id="alterarlink" class="actionicon" href="/TiposContratos/AlterarTipoContrato/@item.id" title="Alterar informações"><i class="fa fa-pen"></i></a>
+                                <a id="excluiricon_@item.id" class="actionicon" href="#" onclick="ExcluirConfirm('tipocontrato','@item.id','@item.nome');" title="Excluir indice"><i class="fa fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div style="clear:both;margin-top:100px;">Nenhum tipo de contrato cadastrado</div>
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+          GlobalSettings("#tiposcontrato", "435px", 1, false, false, "", "", false,false, true);
+
+         if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+         if ('@Html.Raw(ViewBag.deletefailed)' != "") { msg('@Html.Raw(ViewBag.deletefailed)'); }
+      });
+
+    </script>
+}
+
+
+

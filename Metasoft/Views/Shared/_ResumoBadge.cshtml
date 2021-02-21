@@ -1,0 +1,16 @@
+﻿@model Metasoft.Models.ResumoBadgeViewModel
+<div id="@Model.Id" style="margin-top:20px;">
+    <div>
+        <div class="panel-heading resumodiario-panel-header tac" style="border:solid 4px red;">
+            @*@Html.ActionLink(Model.LinkText, "ApagarAnalitico", "ContaPRs", new { fromresumodiario = "P,,,0,0,3," }, htmlAttributes: new { style = "color:@Model.HeaderColor;" })*@
+            <a href="/ContaPRs/ApagarAnalitico?fromresumodiario=P%2C%2C%2C0%2C0%2C3%2C" style="color:@Model.HeaderColor;">@Model.LinkText</a>
+        </div>
+        <div>
+            @if(!String.IsNullOrWhiteSpace(Model.Valor) && Model.Valor != "R$ 0,00")
+            {
+                <div class="tac" style="font-size:20px;margin-top:5%">@Model.Valor</div>
+            }
+
+        </div>
+    </div>
+</div>

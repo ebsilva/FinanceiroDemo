@@ -1,0 +1,185 @@
+﻿@model IEnumerable<Metasoft.Models.RemuneracaoViewModel>
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "XXXXX";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Permissao permissoes = (Permissao)Session["permissoes"];
+    int count = 0;
+    if (Model != null){
+        if (Model.Count() > 0) {count = Model.Count();}
+    }
+}
+<style>
+    .sorting_asc {
+        background: url("../Img/sort_asc.png") no-repeat scroll right center transparent;
+    }
+
+    .sorting_desc {
+        background: url("../Img/sort_desc.png") no-repeat scroll right center transparent;
+    }
+
+    #remuneracao_filter {
+        width: 14%;
+        position: absolute;
+        left: 66%;
+        top: 59px;
+    }
+
+        #remuneracao_filter input {
+            margin-left: 5px;
+            border-radius: 3px;
+            border: solid 0.3px #050e5f;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            color: #05043f;
+            padding-left: 8px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+    .dataTables_empty {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        font-size: 18px;
+        margin-top: 20px;
+        color: #0c0545;
+    }
+
+    .odd {
+        padding-top: 20px;
+        border: none;
+    }
+</style>
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "XXXXX" })))
+{
+    <div class="panel panel-default dspnone">
+        <!--  Heading-->
+        <!--  Heading-->
+        <i class="fa fa-search noprint" style="position:absolute;left:65%;top:61px;"></i>
+        <div>
+            @Html.Partial("_Title", new TitleViewModel { title = "Remunerações cadastradas (" + (count) + ")", width = "40%", classe = "title" })
+            <div class="noprint" style="width:13%;display:inline-block;">
+                @Html.Partial("_Meses", new MesesViewModel
+           {
+               labelcss = "width:20%;max-width:20%;display:inline-block;position:relative;",
+               labelclass = "label-control noprint fs12",
+               selectdivcss = "width:70%;max-width:70%;display:inline-block;",
+               selectclass = "noprint form-select-small fs12"
+           })
+            </div>
+            <div class="noprint" style="width:13%;display:inline-block;">
+                @Html.Partial("_Anos", new AnosViewModel
+                   {
+                       start = 2017,
+                       meses = 5,
+                       labelcss = "width:20%;max-width:20%;display:inline-block;position:relative;",
+                       labelclass = "label-control noprint fs12",
+                       selectdivcss = "width:70%;max-width:70%;display:inline-block;",
+                       selectclass = "noprint form-select-small fs12"
+                   })
+            </div>
+            <div class="noprint" style="width:20%;display:inline-block;">
+
+            </div>
+            <div class="noprint" style="width:10%;display:inline-block;position:relative;top:4px;">
+                <a id="downloadbuttom" class="noprint ticon fs22" href="#" title="Donwload Excel file" onclick="Download();"><i class="fa fa-download"></i></a>
+                <a id="printbuttom" class="noprint ticon fs22" href="#" title="Imprimir" onclick="Imprime();"><i class="fa fa-print"></i></a>
+                @if (permissoes.pro_edit)
+                {
+                    <a id="addnewbuttom" class="noprint ticon fs22" href="/Remuneracao/NovaRemuneracao" title="Cadastrar nova remuneração"><i class="fa fa-plus"></i></a>
+                }
+                <span class="hidden">@Html.Editor("download", new { htmlAttributes = new { @class = "form-control form-control-custom noprint", style = "font-size:10px;" } })</span>
+            </div>
+        </div>
+
+        <!-- Table div -->
+
+        <div class="panel-body-custom titleshadow" style="margin-top:5px;border-radius:3px;border:solid 0.3px #3766ac;overflow-x:hidden;overflow-y:hidden;">
+            @if (Model != null)
+            {
+                <table id="XXXXX" class="XXXXX">
+                    <thead>
+                        <tr>
+                            <th class="hidden"></th>
+                            <th>XXXXX</th>
+                            <th>Ações</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.id)</td>
+
+                                <td><i class="fa fa-circle" style="color:@item.cor;" title="@Html.DisplayFor(modelItem => item.situacaonome)"></i></td>
+                                <td class="tac">@Html.DisplayFor(modelItem => item.percentual)%</td>
+                                <td>@Html.DisplayFor(modelItem => item.remuneracao)</td>
+                                <td>
+                                    <a id="alticon_@item.id" class="actionicon" href="/Controller/Action/@item.id" title="Alterar renumeracao"><i class="fa fa-pen"></i></a>
+                                    <a id="excicon_@item.id" class="actionicon" href="#" onclick="ExcluirConfirm('remuneracao',@item.id,'@item.descricao');" title="Excluir remuneracao"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="naocadastrado">Nenhum XXXXX cadastrado</div>
+            }
+        </div>
+        <div class="panel-body-custom titleshadow" style="background-color:#0d5182;margin-top:5px;border-radius:3px;border:solid 0.3px #3766ac;overflow-x:hidden;overflow-y:hidden;">
+            <div id="totalrem" class="fs12" style="color:white;float:right;width:20%;text-align:right;padding-right:70px;"></div>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            AnimateIcons();
+            var d = new Date(), m = d.getMonth(), y = d.getFullYear();
+
+            var mes = '@Html.Raw(ViewBag.messelected)';
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (mes != "") { SetDropDownValue(mes, "meses"); } else { $('#meses option:eq(' + m + ')').prop('selected', true) }
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (ano != "") { SetDropDownValue(ano, "anos"); } else { $('#anos option:eq(' + y + ')').prop('selected', true) }
+
+            var table = $('#idtabela').DataTable({
+                            "bInfo": false,
+                            "scrollY": "390px",
+                            "scrollX": false,
+                            'order': [[1, 'desc']],
+                            "paging": false,
+                            "searching": true,
+                            "language": { "search": " ", "emptyTable": "Nenhuma remuneração cadastrada", "zeroRecords": "Nenhum item corresponde ao filtro" },
+                            "drawCallback": function (settings) { UpdateTotal();}
+            });
+            $(function () { $('#meses').change(function () { DownloadFalse(); this.form.submit(); }); });
+            $(function () { $('#anos').change(function () { DownloadFalse(); this.form.submit(); }); });
+        });
+        function Download() {
+            $("#download").val("true");
+            submitform("NomeView");
+        }
+        function DownloadFalse() {
+            $("#download").val("false");
+        }
+        function UpdateTotal() {
+            var table = $("#idtabela table tbody");
+            var total = 0.00;
+            $("#idtabela").find('tr').each(function (i) {
+                var $tds = $(this).find('td'), valor = $tds.eq(13).text().replace("R$", "").replace(".", "").replace(",", "");
+                  var numero = Number(valor) / 100;
+                total = total + numero;
+
+            });
+            $("#totalrem").text("Total R$ "+total.toLocaleString());
+        }
+
+    </script>
+    @Scripts.Render("~/Scripts/jquery.dataTables.min.js")
+}
+

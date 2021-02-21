@@ -1,0 +1,82 @@
+﻿@model IEnumerable<Metasoft.Models.Perfil>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Encaminhar)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Anexar)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Encerrar)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Reclassificar)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Reabrir)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Imprimir)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AdicionarHistorico)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ExibirHistorico)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Encaminhar)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Anexar)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Encerrar)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Reclassificar)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Reabrir)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Imprimir)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.AdicionarHistorico)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ExibirHistorico)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.RoleId }) |
+            @Html.ActionLink("Details", "Details", new { id=item.RoleId }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.RoleId })
+        </td>
+    </tr>
+}
+
+</table>

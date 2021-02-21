@@ -1,0 +1,73 @@
+﻿@model Metasoft.Models.Proposta
+@using  Metasoft.Models
+@{
+    ViewBag.Title = "Nova Proposta";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovaProposta" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="panel panel-default novaproposta" >
+
+        <div class="panel-heading-crud">
+            <div ><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+
+        <div class="panel-body panel-body-crud">
+            <!-- Cliente & Categoria  -->
+            <div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;">
+                @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "clienteid", InputClass = "custom-dropdown", Title = "Cliente" })
+                @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "categoriaid", InputClass = "custom-dropdown", Title = "Categoria" })
+            </div>
+            <div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;">
+                <div>@Html.ValidationMessageFor(model => model.clienteid, "", new { @class = "text-danger text-danger-custom" })</div>
+                <div>@Html.ValidationMessageFor(model => model.categoriaid, "", new { @class = "text-danger text-danger-custom" })</div>
+            </div>
+            <!-- Responsaveis -->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "20px", Id = "responsaveis", InputClass = "custom-dropdown", Title = "Responsável" })
+            <!-- Descricao  -->
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição" })
+            <div>@Html.ValidationMessageFor(model => model.descricao, "", new { @class = "text-danger text-danger-custom" })</div>
+
+
+            <div style="display:grid;grid-template-columns: 20% 20% 20% 20%;grid-column-gap:20px; margin-top:20px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "numpo", InputClass = "custom-dropdown_noarrow", Title = "Númrero PO" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "he", InputClass = "custom-dropdown_noarrow", Title = "Horas estimadas" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "previsao", InputClass = "custom-dropdown_noarrow", Title = "Previsão" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "valor", InputClass = "custom-dropdown_noarrow", Title = "R$ Valor" })
+
+            </div>
+            <div style="display:grid;grid-template-columns: 20% 20% 20% 20%;grid-column-gap:20px; margin-top:0px;">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div>@Html.ValidationMessageFor(model => model.valor, "", new { @class = "text-danger text-danger-custom" })</div>
+            </div>
+            @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "NovaProposta", BackToUrl = "/Propostas/ListaPropostas" })
+
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+          UpdateCategorias("categoriaid", "R", 0);
+          PopulateDropDownCliFor("C", "clienteid", "/Propostas/GetClientes")
+          PopulateDropDownResponsaveis("responsaveis", "/Propostas/GetResponsaveis")
+           ebs.Mask('he', 'valor', 'previsao');
+
+          SetDropDownValue('@Html.Raw(ViewBag.clienteid)', "clienteid")
+          SetDropDownValue('@Html.Raw(ViewBag.categoriaid)', "categoriaid")
+      });
+    function ResetInputBackcolor(id) {
+         $("#"+id).css('color', 'red');
+         console.log(id);
+
+    }
+    </script>
+
+}
+
+

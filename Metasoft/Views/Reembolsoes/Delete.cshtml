@@ -1,0 +1,81 @@
+﻿@model Metasoft.Models.Reembolso
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Reembolso</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.dtcad)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dtcad)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.tipoid)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tipoid)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.userid)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.userid)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.valor)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.valor)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.vencimento)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.vencimento)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dtpagto)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dtpagto)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.situacao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.situacao)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

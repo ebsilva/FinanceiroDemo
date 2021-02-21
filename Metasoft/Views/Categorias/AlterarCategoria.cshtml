@@ -1,0 +1,38 @@
+﻿@model Metasoft.Models.Categoria
+@using Metasoft.Models
+@{ ViewBag.Title = "Alterar Categoria";}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "AlterarCategoria" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.categoriaid)
+    <div class="panel panel-default" style="padding:50px 300px 0px 300px;overflow-y:hidden">
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div style="display:grid;grid-template-columns: 80% 20%;grid-column-gap:5px;">
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "nome", InputClass = "custom-dropdown_noarrow", Title = "Descrição", Value = Model.nome })
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "20px", Height = "31px", Id = "tipo", InputClass = "custom-dropdown", Title = "Tipo", NoLabel=true, StaticOptions = "_OptionsPagarReceber" })
+        </div>
+        <div style="display:grid;grid-template-columns: 80% 20%;grid-column-gap:5px;">
+            @Html.ValidationMessageFor(model => model.nome, "", new { @class = "text-danger" })
+        </div>
+        @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "AlterarCategoria", BackToUrl = "/Categorias/ListaCategorias" })
+
+
+    </div>
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+         $(document).ready(function () {
+             if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+             SetDropDownValue('@Model.tipo', "tipo");
+        });
+    </script>
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

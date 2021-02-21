@@ -1,0 +1,359 @@
+﻿@model Metasoft.Models.ClienteContaNota
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@using System.Globalization;
+@{ViewBag.Title = "Nota Fiscal a Receber";}
+
+
+
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "NotaFiscalAReceber" })))
+{
+    
+
+    <div class="panel panel-default mgauto dspnone pd0050">
+        <div class="pd noprint" style="display:grid;grid-template-columns: 95% 5%;height:28px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Emissão de Nota Fiscal a receber", width = "100%", classe = "title noprint" })
+            <div id="BotaoImprimir" class="noprint noshow">
+                <a onclick="nfh.ImprimeNotaFiscal(window.location.href)" title="Imprimir"><i class="fa fa-print fs22" style="color:#38970f;"></i></a>
+            </div>
+        </div>
+
+        <!-- Nota fiscal -->
+        @{ 
+            int obsline = 14;
+
+        }
+        <div>
+            <!-- Header -->
+
+            <div id="nfHeader" class="fs12" style="border-top:solid 1px black;">
+                <div class="g2ct h70 bgc1 pd0503 blrb">
+                    <div class="h60"><img src="/img/companylogo.jpg" /></div>
+                    <div class="g3rt cw tac">
+                        <div class="tac pd0300">DNK INFOTELECOM PROGRAMAÇÃO E ANÁLISE EMINFORMÁTICA LTDA</div>
+                        <div class="tac pd0300">ENDEREÇO : AVENIDA ENGENHEIRO LUIZ CARLOS BERRINI, 1748, CONJUNTO 402</div>
+                        <div class="tac pd0300">
+                            CEP: 04571-000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SÃO PAULO - SP
+                        </div>
+                    </div>
+
+                </div>
+                <div class="g2c gb h100 bgc1 blrb">
+
+                    <div class="g3r h100 bnone">
+                        <div class="cw blr bnone">
+                            <div class="pd5px">
+                                INSC. MUNICIPAL:&nbsp;&nbsp;&nbsp;3.700.319-4
+                            </div>
+                            <div class="pd5px">
+                                CNPJ:&nbsp;&nbsp;&nbsp;09.235.470/0001-09
+                            </div>
+
+                        </div>
+                        <div id="emissao" style="color:black;margin-left:5px;">
+                           
+                        </div>
+                        <div class="gb cw pd5px bnone">
+                            <span>Nº DE ORDEM :</span>&nbsp;&nbsp;<span>@Model.Nota.NumeroOrdem</span>
+                        </div>
+
+                    </div>
+                    <div class="g4r bgchc2 bnone">
+                        <div class="yb cw tac blrb">
+                            NOTA DE LOCAÇÃO DE BENS MÓVEIS
+                        </div>
+                        <div class="g2cl bnone">
+                            <div class="yb cw tac" style="border-left:1px solid black;border-top:none">1º VIA CLIENTE</div>
+                            <div class=" cw pd5px" style="border-bottom:1px solid black;">
+           
+                              <div id="NumeroNotaContainer" class="tac">
+
+                                  <div id="NumeroNotaContainerContent" class="w100" >
+                                      <div class="hidden nfnumgb" id="NumeroNfContainer"  >
+                                          <span>Nº Nota Fiscal:</span>&nbsp;
+                                          <span id="NumeroNf">@Model.Nota.NumeroNf</span>
+                                      </div>
+                                      <div id="GerarNumeroNota" class="hidden  bgr">
+                                          <a class="cw w100 " title="Gera número de Nota" onclick="GeraNumeroNotaFiscalAtualizaUI(@Model.Nota.NfId)">
+                                              Gerar Nº NF
+                                          </a>
+                                      </div>
+                                  </div>
+                                       
+                               </div>
+
+                            </div>
+                        </div>
+                        <div class="yb cw tac blrb">NATUREZA DA OPERAÇÃO:&nbsp;&nbsp;&nbsp;LOCAÇÃO DE BENS MÓVEIS</div>
+                        <div class="yb cw tac blrb">VENCIMENTO:&nbsp;&nbsp;&nbsp;@Model.Nota.Vencimento.ToShortDateString()</div>
+                    </div>
+                </div>
+                <!-- Destinatario-->
+                <div class="pd5px h25 bgc3 blrb cw ">
+                    DESTINATÁRIO:&nbsp;&nbsp;@Model.Cliente.nome
+                </div>
+                <!-- Endereco-->
+                <div  class="header_line_grid_3c h25 bgc3 blrb endereco">
+                    <div class="pd5px cw">ENDEREÇO:&nbsp;&nbsp;@Model.Cliente.endereco</div>
+                    <div class="pd5px cw">Bairro:&nbsp;&nbsp;@Model.Cliente.bairro </div>
+                    <div class="pd5px cw">Cep:&nbsp;&nbsp;@Model.Cliente.cep</div>
+
+                </div>
+                <!-- Municipio estato-->
+                <div class="header_line_grid_2cB h25 bgc3 blrb">
+                    <div class="pd5px cw">MUNICÍPIO:&nbsp;&nbsp;@Model.Cliente.cidade</div>
+                    <div class="pd5px cw">ESTADO:&nbsp;&nbsp;@Model.Cliente.estado</div>
+                </div>
+                <!-- CNPJ Insc-->
+                <div class="header_line_grid_4cB h25 bgc3 blrb">
+                    <div class="pd5px">CNPJ :</div>
+                    <div>@Model.Cliente.cnpj</div>
+                    <div>INSCR. ESTADUAL :</div>
+                    <div>@Model.Cliente.ie</div>
+                </div>
+                <!-- embranco -->
+                <div class="h25 bgc3"></div>
+                <!--  Itens da nota -->
+            </div>
+
+            <div class="bgc4" style="overflow-y:hidden">
+                <table id="nota" class="nota fs12">
+                    <thead>
+                        <tr>
+                            <th class="hidden"></th>
+                            <th>Quantidade</th>
+                            <th>Descrição</th>
+                            <th>Valor R$</th>
+                            <th>Total R$</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notabody" class="btnone" style="overflow-y:hidden;">
+                        @for (int i = 0; i <= 18; i++)
+                        {
+                        <tr>
+                            @{ var l = i + 1;}
+                            <td class="hidden">@Model.Detalhes[i].Nfid</td>
+                            <!-- Segunda coluna : quantidade -->
+                            @if (i == obsline)
+                            {
+                                /* Linha de observações */
+                                <td></td>
+                            }
+                            else
+                            {
+                                <td>
+                                    @if (Model.Detalhes[i].Quantidade > 0)
+                                    {
+                                        <input id="qtd_@l" data-line="@l" class="qtd" type="text" value="@Model.Detalhes[i].Quantidade" onblur="nfh.UpdateItemQtd(@Model.Nota.NfId,@l, this.value)" />
+                                    }
+                                    else
+                                    {
+                                        <input id="qtd_@l" data-line="@l" class="qtd" type="text" onblur="nfh.UpdateItemQtd(@Model.Nota.NfId,@l, this.value)" />
+                                    }
+
+                                </td>
+                            }
+
+                            <!-- Terceira coluna : descrição -->
+
+                            @if (i == obsline)
+                            {
+                                <td class="tac"><span>Observações</span></td>
+                            }
+                            else
+                            {
+                                if (i == obsline+1)
+                                {
+                                    <td class="tac">"Dispensado de emissão de Documento fiscal, por não constar na lista de</td>
+                                }
+                                else
+                                {
+                                    if (i == obsline +2)
+                                    {
+                                        <td class="tac">serviçõs da Lei 13.701/03  Locação de bens móveis/Não-incidência de ICMS" </td>
+                                    }
+                                    else
+                                    {
+                                        <td><input id="des_@l" class="desc" type="text" value="@Model.Detalhes[i].Descricao" onblur="nfh.UpdateItemDescricao(@Model.Nota.NfId,@l, this.value)" /></td>
+                                    }
+                                }
+                            }
+                            <!-- Quarta coluna: Valor -->
+                            <td>
+                                @if (Model.Detalhes[i].Quantidade > 0)
+                                {
+                                    <input id="uni_@l" class="unit" type="text" value="@Model.Detalhes[i].Unitario" onblur="nfh.UpdateItemUnitario(@Model.Nota.NfId,@l, this.value)" />
+                                }
+                                else
+                                {
+                                    <input id="uni_@l" class="unit" type="text" onblur="nfh.UpdateItemUnitario(@Model.Nota.NfId,@l, this.value)" />
+                                }
+
+                            </td>
+                            <!-- Quinta coluna : Total ( calculado ) -->
+                            <td>
+                                @if (Model.Detalhes[i].Quantidade * Model.Detalhes[i].Unitario > 0)
+                                {
+                                    var it = (Model.Detalhes[i].Quantidade * Model.Detalhes[i].Unitario);
+                                    <input id="tti_@l" class="tot" type="text" disabled value="@it" />
+                                }
+                                else
+                                {
+                                    <input id="tti_@l" class="tot" type="text" disabled />
+                                }
+                            </td>
+                        </tr>
+
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr id="tgeralrow" class="hidden">
+                            <td class="hidden"></td>
+                            <td class="bb"></td>
+                            <td id="tgeraltext" class="bb tac"></td>
+                            <td></td>
+                            <td id="tgeral" class="cw fs14 tar bb"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div id="msgdiv"  style="display:grid;grid-template-columns:90% 10%;padding-left:10px;" >
+                <div id="msg" class="fs14 cw noprint"></div>
+                <div id="tgeraldiv" class="cw fs14 tar" style="padding-right:20px;"></div>
+            </div>
+            
+        </div>
+
+    </div>
+
+
+@section Scripts {
+@Scripts.Render("~/Scripts/NotaFiscal.js")
+<script>
+
+    var NotaNumero = '@Html.Raw(Model.Nota.NumeroNf)';
+    var TotalNota = 0;
+    var Missingfields = "";
+    MostrarEmissao("white");
+
+    window.onbeforeprint = event => {
+        MostrarNumeroNota(true);
+        MostrarEmissao("black");
+        var table = document.getElementById("nota");
+        table.style.marginTop = "-1px";
+        var headers = document.querySelectorAll("th div");
+        for (var i = headers.length - 1; i >= 0; --i) {
+            headers[i].style.opacity = 1;
+            headers[i].style.fontSize = 12;
+            headers[i].style.height = 30;
+            
+
+        }  
+        console.log(headers);
+      
+        adicionaLinhaComData(table)
+        var nnf = document.getElementById("NumeroNf").innerText;
+        adicionaLinhaComAssinatura(table, nnf)
+
+        document.getElementById("tgeralrow").classList.remove('hidden');
+        document.getElementById("tgeraltext").innerText = "VALOR TOTAL DA NOTA";
+        document.getElementById("tgeraldiv").classList.add('hidden');
+      
+    };
+    window.onafterprint = event => {
+        var table = document.getElementById("nota");
+        var row = table.deleteRow(21);
+        document.getElementById("tgeraldiv").classList.remove('hidden');
+
+    }
+
+    adicionaLinhaComData = (table) => {
+        var d = new Date();
+        let dia = d.getDate();
+        let mes = d.getMonth() + 1;
+        let ano = d.getFullYear();
+  
+        var r = addRow(table, 21);
+        var c1 = addHiddenCell(r);
+        var c2 = addCell(r, "", "tac", 2)
+        var c3 = addCell(r, "São Paulo, " + dia + " de " + ebs.MesExtenso(mes) + " de " + ano, "pdl05", 2)
+    }
+    adicionaLinhaComAssinatura = (table, notaid) => {
+        var r = addRow(table, 22);
+        var c1 = addHiddenCell(r);
+        var c2 = addCell(r, "Identificação e Assinatura do Recebedor", "bb", 3)
+        
+        var c3 = addCell(r, notaid, "tac")
+        var r2 = addRow(table, 23);
+        c3.setAttribute("rowspan", 2);
+        var c21 = addHiddenCell(r2);
+        var c22 = addCell(r2, "", "", 3)
+
+    }
+
+
+    addRow = (table, line) => {
+
+        var r = table.insertRow(line);
+        r.classList.add("bb")
+        return r
+
+    }
+    addHiddenCell =(row) => {
+                var c = row.insertCell(0)
+                c.classList.add("hidden")
+                return c;
+            }
+    addCell =(row,text, classname, colspan) =>{
+                var c = row.insertCell(0);
+                if (classname) {
+                    c.classList.add(classname)
+                }
+                if (colspan) {
+                    c.setAttribute("colspan", colspan);
+                }
+                if (text) {
+                    c.innerText = text;
+                }
+                return c;
+            }
+
+    GeraNumeroNotaFiscalAtualizaUI = (nfid) => {
+        if (PodeGerarNumero) {
+            nfh.GeraNumeroNotaFiscal(nfid);
+        }
+    }
+
+
+    EnderecoEstaCompleto =() => {
+                if (ebs.IsNull('@Html.Raw(Model.Cliente.endereco)')) {
+                    Missingfields += 'Endereco ';
+                }
+                if(ebs.IsNull('@Html.Raw(Model.Cliente.cnpj)') ){
+                    Missingfields += 'Cnpj ';
+                }
+                if(ebs.IsNull('@Html.Raw(Model.Cliente.bairro)') ){
+                    Missingfields += 'Bairro ';
+                }
+                if(ebs.IsNull('@Html.Raw(Model.Cliente.cep)') ){
+                    Missingfields += 'Cep ';
+                }
+                if(ebs.IsNull('@Html.Raw(Model.Cliente.cidade)') ){
+                    Missingfields += 'Cidade ';
+                }
+                if(ebs.IsNull('@Html.Raw(Model.Cliente.estado)') ){
+                    Missingfields += 'Estado ';
+                }
+
+          return Missingfields.trim().length === 0;
+
+    }
+    var EnderecoCompleto = EnderecoEstaCompleto();
+
+</script>
+ }
+
+
+}
+
+

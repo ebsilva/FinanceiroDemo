@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Metasoft.Models.Perfil>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Perfis";
+    string cor = "green";
+    Permissao permissoes = (Permissao)Session["permissoes"];
+    ViewBag.Title = "Lista Produtos";
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0) { count = Model.Count(); }
+    }
+}
+
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ListaPerfis" })))
+{
+    @Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Perfis" })
+    <div class="panel panel-default mgauto" style="display:none;padding-left:80px;padding-right:80px">
+        <div style="display:grid;grid-template-columns: 90% 10%;height:28px;grid-column-gap:2px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Perfis cadastrados (" + (count) + ")", width = "29%", classe = "title" })
+            @Html.Partial("_ActionsPanelShort", new ActionsPanelViewModel
+            {
+                DivClass = "inputdiv",
+                Mtop = "4px",
+                Height = "28px",
+                Id = "actions",
+                InputClass = "custom-dropdown",
+               AddNewLink = "/Perfis/NovoPerfil",
+                AddNewTitle = "Cadastrar novo perfil",
+               Tabela = "#perfis",
+                ReportTitle = "DNK - Lista de Perfis cadastrados",
+               CanEdit = permissoes.cad_edit
+               });
+        </div>
+
+        <div class="panel-body-custom">
+            @if (Model != null)
+            {
+                <table id="perfis" class="perfis">
+                    <thead>
+                        <tr>
+                            <th class="hidden"></th>
+                            <th class="thbkg">Nome</th>
+                            <th style="text-align:center;" class="noprint">Açôes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.id)</td>
+                                <td>@Html.DisplayFor(modelItem => item.name)</td>
+                                <td class="noprint">
+                                    @if (permissoes.cad_edit)
+                                    {
+                                        <a id="alterarlink" class="actionicon" href='/Perfis/AlterarPerfil/@item.id' title='Alterar perfil' onclick=""><i id='alterarico' class='fa fa-pen'></i></a>
+                                        <a id="excluirlink" class="actionicon disabled" href='#' title='excluir proposta' onclick=""><i id='excluirico' class='fa fa-trash'></i></a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhuma perfil cadastrado", width = "30%;" })
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+            GlobalSettings("#perfis", "435px", 1, false, false, "", "", false,false, true);
+        });
+
+    </script>
+}
+
+
+
+
+
+

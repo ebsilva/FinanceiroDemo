@@ -1,0 +1,12 @@
+﻿@using Metasoft.Models
+<div style="margin:0 auto;">
+    <div style="display:grid;grid-template-columns: 78% 20% ;margin-top:10px; ">
+        @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "dataaceite", Title = "Data para aceite" })
+        <div style="margin-top:23px;">
+            <button type="button" class="btn btn-success" onclick="CallAceitarProposta()"><i class="fas fa-save" style="font-size:20px;"></i></button>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,107 @@
+﻿@model Metasoft.Models.NovaRemuneracaoViewModel
+
+@{ ViewBag.Title = "Nova Remuneracao";}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovaRemuneracao" }))
+{
+    @Html.AntiForgeryToken()
+    <br />
+    <br />
+    <div class="panel panel-default" style="width:70%;margin:0 auto;height:50px;">
+        <div class="panel-heading-crud">
+            <div class="inlinediv" style="float:left;"><i class="fa fa-money fs20"></i>&nbsp; @ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud" style="padding:5px 5px 5px 5px;">
+            <div class="row">
+               
+                @*<div class="col-md-8">
+                    <div class="form-group">
+                        @Html.Label("Cliente", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <select id="cliente" name="cliente" class="form-control form-control-custom" data-val="true" data-val-required="Cliente é obrigatório"></select>
+                        @Html.ValidationMessageFor(model => model.cliente, "", new { @class = "text-danger" })
+                    </div>
+                </div>*@
+               
+                <div class="col-md-12">
+                    <div class="form-group">
+                        @Html.Label("Proposta", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <select id="proposta" name="proposta" class="form-control form-control-custom fs10" data-val="true" data-val-required="Proposta é obrigatório"></select>
+                        @Html.ValidationMessageFor(model => model.proposta, "", new { @class = "text-danger fs10" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="form-group">
+                        @Html.Label("Comercial", htmlAttributes: new { @class = "control-label col-md-2" })
+                        <select id="comercial" name="comercial" class="form-control form-control-custom" data-val="true" data-val-required="Comercial é obrigatório"></select>
+                        @Html.ValidationMessageFor(model => model.comercial, "", new { @class = "text-danger fs10" })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        @Html.Label("Insumos", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.EditorFor(model => model.insumos, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        @Html.Label("%", htmlAttributes: new { @class = "control-label col-md-2" })
+                        @Html.EditorFor(model => model.percentual, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.percentual, "", new { @class = "text-danger fs10" })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <a id="saveico" href="#" onclick="submitform('NovaRemuneracao');" title="Salvar" class="actionicon savenew" style="font-size:26px;"><i id="saveimg" class="fa fa-save"></i></a>
+                <a id="alterarico" href="/Remuneracao/ListaRemuneracao" title="Voltar para lista" class="actionicon savenew" style="font-size:26px;"><i id="alcliimg" class="fa fa-arrow-left"></i></a>
+            </div>
+
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#insumos').mask("###0,00", { reverse: true });
+            PopulatePropostasRemuneracao("proposta");
+            PopulateComercialRemuneracao("comercial")
+         
+     
+            if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+        });
+        function FormatSelect() {
+           
+            var spacesToAdd = 5;
+            var biggestLength = 0;
+            var pselect = $("#proposta");
+          
+            $("#proposta option").each(function () {
+                var len = $(this).text().length;
+                if (len > biggestLength) {
+                    biggestLength = len;
+                }
+            });
+            var padLength = biggestLength + spacesToAdd;
+            
+            $("#proposta option").each(function () {
+               
+                var parts = $(this).text().split(';');
+                   var strLength = parts[0].length;
+                for (var x = 0; x < (padLength - strLength) ; x++) {
+                    parts[0] = parts[0] + ' ';
+                }
+                $(this).text(parts[0].replace(/ /g, '\u00a0') + '+' + parts[1]).text;
+            });
+        }
+       
+    </script>
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+}
+
+

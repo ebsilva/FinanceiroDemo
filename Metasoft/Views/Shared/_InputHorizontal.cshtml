@@ -1,0 +1,13 @@
+﻿@model Metasoft.Models.InputViewModel
+<div class="@Model.DivClass" style="margin-top:@Model.Mtop;">
+    <div style="display:flex;">
+        <div  style="color:white;font-size:18px;margin-right:5px;vertical-align:top">@Model.Title</div>
+        <div>
+            <input id="@Model.Id" name="@Model.Id" type="text" value="@Model.Value" 
+             style="border:none;border-radius:0;display:inline; border-bottom: solid 1px #d3b07f;font-size:18px;" />
+        </div>
+    </div>
+</div>
+<script>
+    ebs.Mask('valor');
+</script>

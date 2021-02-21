@@ -1,0 +1,10 @@
+-- Select * from __MigrationHistory
+
+drop table  __MigrationHistory
+drop table AspNetUserClaims
+drop table AspNetUserLogins
+drop table AspNetUserRoles
+drop table AspNetRoles
+drop table AspNetUsers
+drop table clientes
+drop table Propostas

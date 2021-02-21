@@ -1,0 +1,81 @@
+﻿@model IEnumerable<Metasoft.Models.Produto>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Lista Produtos";
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0) { count = Model.Count(); }
+    }
+}
+
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Produtos" })
+<div class="panel panel-default  mgauto" style="display:none;padding-left:80px;padding-right:80px">
+    <div style="display:grid;grid-template-columns: 90% 10%;height:28px;grid-column-gap:2px;margin-top:10px;">
+        @Html.Partial("_Title", new TitleViewModel { title = "Produtos cadastrados (" + (count) + ")", width = "29%", classe = "title" })
+        @Html.Partial("_ActionsPanelShort", new ActionsPanelViewModel
+        {
+            DivClass = "inputdiv",
+            Mtop = "4px",
+            Height = "28px",
+            Id = "actions",
+            InputClass = "custom-dropdown",
+           AddNewLink = "/Produtos/NovoProduto",
+            AddNewTitle = "Cadastrar produto",
+           Tabela = "#produtos",
+            ReportTitle = "DNK - Lista de Produtos cadastrados",
+           CanEdit = true
+           });
+    </div>
+
+    <div class="panel-body-custom">
+        @if (Model.Count() > 0)
+        {
+            <table id="produtos" class="produtos">
+                <thead>
+                    <tr>
+                        <th class="hidden"></th>
+                        <th class="thbkg">Descrição</th>
+                        <th class="thbkg">R$ valor</th>
+                        <th class="noprint">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="hidden">@Html.DisplayFor(model => item.produtoid)</td>
+                            <td>@Html.DisplayFor(modelItem => item.nome)</td>
+                            <td style="text-align:right;padding-right:10px;">R$&nbsp;@Html.DisplayFor(modelItem => item.valor)</td>
+                            <td class="noprint" style="text-align:center">
+                                <a id="alterarlink" class="actionicon" href="/Produtos/AlterarProduto/@item.produtoid" title="Alterar informações do produto"><i class="fa fa-pen"></i></a>
+                                <a id="excluiricon_@item.produtoid" class="actionicon" href="#" onclick="ExcluirConfirm('produto','@item.produtoid','@item.nome');" title="Excluir produto"><i class="fa fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhum produto cadastrado", width = "30%;" })
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+          GlobalSettings("#produtos", "435px",  [2,'asc'], false, false, "", "", false,false, true);
+
+         if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+         if ('@Html.Raw(ViewBag.deletefailed)' != "") { msg('@Html.Raw(ViewBag.deletefailed)'); }
+      });
+
+    </script>
+}
+
+
+

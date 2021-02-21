@@ -1,0 +1,105 @@
+﻿@using Metasoft.Models
+@model LoginViewModel
+@{
+    Layout = "~/Views/Shared/_OpenLayout.cshtml";
+    ViewBag.Title = "Entrar";
+    string versao = "Versão 8.0";
+}
+<style>
+    .dnk{opacity:1;}
+</style>
+
+<div class="row mainpage" style="border-radius:3px;">
+        <br />
+        <br />
+        <section id="loginForm">
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new {  role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+
+               <h1 id="title" style="color:#4d6271;text-shadow:2px 2px 2px #234c65;opacity:0"> Controle Financeiro</h1>
+
+
+               <div class="logindiv">
+                   <h4 style="color:#475c64;background-color:transparent;opacity:0;">Acesso ao sistema</h4>
+                   <br />
+
+                   <div>
+                       @Html.TextBoxFor(m => m.Email, new { @class = "form-control form-control-login", placeholder="Seu email", style="opacity:0;"})
+                       @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                   </div>
+                   <div>
+                       <br />
+                      <div>@Html.PasswordFor(m => m.Password, new { @class = "form-control form-control-login", placeholder = "Sua senha", style = "opacity:0;" })</div>
+                       <div>@Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })</div>
+                   </div>
+                   <br />
+                   <div>
+                       @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                       <input id="submit" type="submit" value="Entrar" class="btno" style="margin-top:5px;height:35px;width:100%;opacity:0; background-color:#2b3d4b; border:solid thin #112b42;border-radius:4px;" />
+                   </div>
+                   <br />
+
+              </div>
+              <div id="metasoft" class="noprint" style="width:90%;margin:0 auto;opacity:0;font-size:12px;position:relative;top:-45px;">
+                <div class="divfooter" style="color:#8399a9">
+                    <span class="dnk">&copy;</span>
+                    <span class="dnk">@DateTime.Now.Year</span>
+                    <span class="dnk">-</span>
+                    <span class="dnk">p</span>
+                    <span class="dnk">o</span>
+                    <span class="dnk">w</span>
+                    <span class="dnk">e</span>
+                    <span class="dnk">r</span>
+                    <span class="dnk">e</span>
+                    <span class="dnk">d</span>
+                    <span class="dnk">&nbsp;</span>
+                    <span class="dnk">b</span>
+                    <span class="dnk">y</span>
+                    <span class="dnk">&nbsp;</span>
+                    <span class="dnk">M</span>
+                    <span class="dnk">e</span>
+                    <span class="dnk">t</span>
+                    <span class="dnk">a</span>
+                    <span class="dnk">s</span>
+                    <span class="dnk">o</span>
+                    <span class="dnk">f</span>
+                    <span class="dnk">t</span>
+                    <span class="dnk">&nbsp;</span>
+                    <span class="dnk">S</span>
+                    <span class="dnk">o</span>
+                    <span class="dnk">l</span>
+                    <span class="dnk">u</span>
+                    <span class="dnk">t</span>
+                    <span class="dnk">i</span>
+                    <span class="dnk">o</span>
+                    <span class="dnk">n</span>
+                    <span class="dnk">s</span>
+
+                </div>
+            </div>
+
+            }
+       </section>
+
+
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+         $(document).ready(function () {
+             var tl = new TimelineLite();
+             tl.to("#title", 0.5, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                 .to("h4",0.2, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 }}, "-=0.35" )
+                 .to("#Email", 0.2, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                 .to("#Password", 0.2, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                 .to("#submit",0.2, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                 .to("#metasoft", 0.2, { css: { scaleX: 1, scaleY: 1, autoAlpha: 1 } })
+                 TweenMax.staggerFrom(".dnk", 0.1, { opacity: 0 }, 0.12)
+             if ('@Html.Raw(ViewBag.bloqueado)' != "") { msg('@Html.Raw(ViewBag.bloqueado)'); }
+          });
+
+    </script>
+
+    @Scripts.Render("~/bundles/jqueryval")
+}

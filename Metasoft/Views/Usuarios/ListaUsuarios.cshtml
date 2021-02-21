@@ -1,0 +1,110 @@
+﻿@model IEnumerable<Metasoft.Models.UsuarioViewModel>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Lista Usuários";
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0) { count = Model.Count(); }
+    }
+
+}
+
+    <div class="panel panel-default dspnone" style="display:none;padding-left:80px;padding-right:80px">
+        <div style="display:grid;grid-template-columns: 90% 10%;height:28px;grid-column-gap:2px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Usuários Cadastrados (" + (count) + ")", width = "29%", classe = "title" })
+            @Html.Partial("_ActionsPanelShort", new ActionsPanelViewModel
+            {
+                DivClass = "inputdiv",
+                Mtop = "4px",
+                Height = "28px",
+                Id = "actions",
+                InputClass = "custom-dropdown",
+               AddNewLink = "/Usuarios/NovoUsuario",
+                AddNewTitle = "Cadastrar usuário",
+               Tabela = "#usuarios",
+                ReportTitle = "DNK - Lista de usuários cadastrados",
+               CanEdit = true
+               });
+        </div>
+
+
+        <div class="panel-body-custom">
+            @if (Model.Count() > 0)
+            {
+                <table id="usuarios" class="usuarios">
+                    <thead>
+                        <tr>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.id)</th>
+                            <th class="thbkg">Nome</th>
+                            <th class="thbkg">Email</th>
+                            <th class="thbkg">Perfil</th>
+                            <th class="noprint thbkg">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(model => item.id)</td>
+                                <td>@Html.DisplayFor(modelItem => item.nome)</td>
+                                <td>@Html.DisplayFor(modelItem => item.email)</td>
+                                <td>@Html.DisplayFor(modelItem => item.perfil)</td>
+                                <td class="noprint" style="text-align:center">
+                                    <a id="alterarlink" class="actionicon" href="/Usuarios/AlterarPerfilUsuario/@item.id" title="Alterar perfil de usuário"><i class="fa fa-pen"></i></a>
+                                    <a id="excluiricon_@item.id" class="actionicon" href="#" onclick="ExcluirConfirm('usuario','@item.id','@item.nome');" title="Excluir Pagamento"><i class="fa fa-trash"></i></a>
+                                    <a id="restpwd_@item.id" class="actionicon" href="#" onclick="ResetPwdConfirm('@item.id','@item.nome');" title="Resetar senha"><i class="fa fa-key"></i></a>
+
+                                    @if (!string.IsNullOrEmpty(item.LockDate))
+                                    {
+                                        <a id="unlockicon_@item.id" class="actionicon" href="#" onclick="ExcluirConfirm('desbloquear','@item.id','@item.nome');" title="Desbloquer acesso"><i class="fa fa-unlock-alt"></i></a>
+                                    }
+                                    else
+                                    {<a id="lockicon_@item.id" class="actionicon" href="#" onclick="ExcluirConfirm('bloquear','@item.id','@item.nome');" title="Bloquer acesso"><i class="fa fa-lock"></i></a>}
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhum usuário cadastrado", width = "30%;" })
+            }
+        </div>
+    </div>
+
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header modalheader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                    <h4 class="modal-title" id="novacategoria">Nova Categoria</h4>
+                </div>
+                <div class="modal-body">
+                    <div><span class="lbtexto" style="width:10%;">Descrição</span>@Html.TextBox("nome", null, new { @class = "form-control", style = "width:90%;height:25px;" })</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    <button id="savenewcategoria" type="button" class="btn btn-primary" onclick="SaveNewCategoria();" data-dismiss="modal">Salvar</button>
+                </div>
+            </div>
+        </div>
+</div>
+
+@section Scripts {
+  <script type="text/javascript">
+     $(document).ready(function () {
+        GlobalSettings("#usuarios", "450px",  [1,'asc'], false, false, "", "", false,false, true);
+
+         if ('@Html.Raw(ViewBag.deletefailed)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+      });
+
+  </script>
+}
+
+
+
+

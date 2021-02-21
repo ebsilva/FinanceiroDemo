@@ -1,0 +1,150 @@
+﻿@model IEnumerable<Metasoft.Models.RemuneracaoViewModel>
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Lista Remuneracao";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Permissao permissoes = (Permissao)Session["permissoes"];
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0) { count = Model.Count(); }
+    }
+}
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Remunerações" })
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ListaRemuneracao" })))
+{
+    <div class="panel panel-default mgauto" style="display:none;">
+
+        <div class="filterWrap" style="display:grid;grid-template-columns: 55% 14% 10%  8%  10%  ;margin-top:5px; grid-column-gap:4px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Remunerações cadastradas (" + (count) + ")", width = "50%", classe = "title" })
+            @Html.Partial("_Search", new SearchViewModel { DivClass = "search", Tabela = "remuneracao", StarCol = 2, EndCol = 9 })
+            <!-- Meses-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "meses", InputClass = "custom-dropdown", Title = "Mês", StaticOptions = "_OptionsMeses", NoLabel = true })
+            <!-- Ano-->
+            @Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017, NoLabel = true })
+            @Html.Partial("_ActionsPanel", new ActionsPanelViewModel
+           {
+              DivClass = "inputdiv",
+               Mtop = "5px",
+               Height = "31px",
+               Id = "actions",
+               InputClass = "custom-dropdown",
+              AddNewLink = "Remuneracao/NovaRemuneracao",
+               AddNewTitle = "Cadastrar nova remuneração",
+              Tabela = "#contaprs",
+               ReportTitle = "DNK - Relação de Remunerações cadastradas",
+              CanEdit = permissoes.rec_edit
+          })
+
+        </div>
+        <div style="clear:both;height:5px;"></div>
+        <div>
+            @if (Model != null)
+            {
+                <table id="remuneracao" class="remuneracao">
+                    <thead>
+                        <tr>
+                            <th class="hidden"></th>
+                            <th>P Nº</th>
+                            <th>Comercial</th>
+                            <th>Cliente</th>
+                            <th>Descrição</th>
+                            <th>R$ Total</th>
+                            <th>R$ Insumos</th>
+                            <th>R$ Liq SI</th>
+                            <th>R$ Liq CI</th>
+                            <th>Fat</th>
+                            <th class="tac">%</th>
+                            <th>R$ Rem.</th>
+                            <th class="noprint">Ações</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.id)</td>
+                                <td>@Html.DisplayFor(modelItem => item.propostaid)</td>
+                                <td>@Html.DisplayFor(modelItem => item.comercial)</td>
+                                <td>@Html.DisplayFor(modelItem => item.cliente)</td>
+                                <td>@Html.DisplayFor(modelItem => item.descricao)</td>
+                                <td>@Html.DisplayFor(modelItem => item.valor)</td>
+                                <td>@Html.DisplayFor(modelItem => item.insumos)</td>
+                                <td>@Html.DisplayFor(modelItem => item.liqsi)</td>
+                                <td>@Html.DisplayFor(modelItem => item.liqci)</td>
+                                <td>
+                                    <i class="fa fa-circle noprint" style="color:@item.cor;" title="@Html.DisplayFor(modelItem => item.situacaonome)"></i>
+                                    <span class="statusdesc">@Html.DisplayFor(modelItem => item.situacaonome)</span>
+                                </td>
+                                <td class="tac">@Html.DisplayFor(modelItem => item.percentual)%</td>
+                                <td>@Html.DisplayFor(modelItem => item.remuneracao)</td>
+                                <td class="noprint">
+                                    <a id="alticon_@item.id" class="actionicon" href="/Remuneracao/AlterarRemuneracao/@item.id" title="Alterar renumeracao"><i class="fa fa-pen"></i></a>
+                                    <a id="excicon_@item.id" class="actionicon" href="#" onclick="ExcluirConfirm('remuneracao',@item.id,'@item.descricao');" title="Excluir remuneracao"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="naocadastrado"><span>Nenhum comercial cadastrado</span></div>
+            }
+        </div>
+        <div class="panel-body-custom titleshadow" style="background-color:#0d5182;margin-top:5px;border-radius:3px;border:solid 0.3px #3766ac;overflow-x:hidden;overflow-y:hidden;">
+            <div id="totalrem" class="fs12" style="color:white;float:right;width:20%;text-align:right;padding-right:85px;"></div>
+        </div>
+
+    </div>
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+         GlobalSettings("#remuneracao","435px", 1, false, true,true, "", "",false,false,true);
+            var d = new Date(), m = d.getMonth(), y = d.getFullYear();
+
+            var mes = '@Html.Raw(ViewBag.messelected)';
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (mes != "") { SetDropDownValue(mes, "meses"); } else { $('#meses option:eq(' + m + ')').prop('selected', true) }
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (ano != "") { SetDropDownValue(ano, "anos"); } else { $('#anos option:eq(' + y + ')').prop('selected', true) }
+        });
+        function Pre_Print(tabela) {
+            var table = $(tabela).DataTable();
+            table.destroy();
+            Imprime();
+            SetDataTable();
+
+        }
+        function Download() {
+            $("#download").val("true");
+            submitform("ListaRemuneracao");
+        }
+        function DownloadFalse() {
+            $("#download").val("false");
+        }
+        function UpdateTotal() {
+            var table = $("#remuneracao table tbody");
+            var total = 0.00;
+            $("#remuneracao").find('tr').each(function (i) {
+                var $tds = $(this).find('td'), valor = $tds.eq(11).text().replace("R$", "").replace(".", "").replace(",", "");
+
+                var numero = Number(valor) / 100;
+                total = total + numero;
+
+            });
+            var valor = parseFloat(total).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+            valor = valor.replace(".", "#");
+            valor = valor.replace(",", ".");
+            valor = valor.replace("#", ",");
+            $("#totalrem").text("Total R$ "+valor.toLocaleString());
+        }
+
+    </script>
+}
+

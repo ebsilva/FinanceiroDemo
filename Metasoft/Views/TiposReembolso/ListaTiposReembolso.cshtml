@@ -1,0 +1,77 @@
+﻿@model IEnumerable<Metasoft.Models.TiposReembolso>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Lista Tipos Reembolso";
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0) { count = Model.Count(); }
+    }
+}
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Tipos Reembolso" })
+<div class="panel panel-default  mgauto" style="display:none;padding-left:80px;padding-right:80px">
+
+    <div style="display:grid;grid-template-columns: 90% 10%;height:28px;grid-column-gap:2px;margin-top:10px;">
+        @Html.Partial("_Title", new TitleViewModel { title = "Tipos Reembolso cadastrados (" + (count) + ")", classe = "title" })
+        @Html.Partial("_ActionsPanelShort", new ActionsPanelViewModel
+        {
+            DivClass = "inputdiv",
+            Mtop = "4px",
+            Height = "28px",
+            Id = "actions",
+            InputClass = "custom-dropdown",
+           AddNewLink = "/TiposReembolso/NovoTipoReembolso",
+            AddNewTitle = "Cadastrar produto",
+           Tabela = "#tiposreembolso",
+            ReportTitle = "DNK - Lista de Tipos Reembolso cadastrados",
+           CanEdit = true
+           });
+    </div>
+
+    <div class="panel-body-custom">
+        @if (Model.Count() > 0)
+        {
+            <table id="tiposreembolso" class="tiposreembolso" style="clear:both;">
+                <thead>
+                    <tr>
+                        <th class="hidden"></th>
+                        <th class="thbkg">&nbsp;Descrição</th>
+                        <th class="noprint">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="hidden">@Html.DisplayFor(model => item.tiporeembolsoid)</td>
+                            <td>@Html.DisplayFor(modelItem => item.nome)</td>
+                            <td class="noprint" style="text-align:center">
+                                <a id="alterarlink" class="actionicon" href="/TiposReembolso/AlterarTipoReembolso/@item.tiporeembolsoid" title="Alterar tipo reembolso"><i class="fa fa-pen"></i></a>
+                                <a id="excluiricon_@item.tiporeembolsoid" class="actionicon" href="#" onclick="ExcluirConfirm('tiporeembolso','@item.tiporeembolsoid','@item.nome');" title="Excluir tipo reembolso"><i class="fa fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhum item cadastrado", width = "30%;" })
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+         GlobalSettings("#tiposreembolso", "435px", 1, false, false, "", "", false,false, true);
+         if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+         if ('@Html.Raw(ViewBag.deletefailed)' != "") { msg('@Html.Raw(ViewBag.deletefailed)'); }
+      });
+
+    </script>
+}
+
+
+

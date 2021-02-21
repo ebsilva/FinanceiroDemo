@@ -1,0 +1,9 @@
+1) Objetivo
+   Definir um saldo inicial para Contas Pagar/Receber
+   A fazer o relatorio para o mês exibir o saldo atual calculado a partir
+   deste saldo inicial
+   
+   A tabela tera
+     Saldo Inicial a receber para  mes/ano
+     Saldo Iniciar a pagar para o mes/ano
+     Opção para editar o menu de

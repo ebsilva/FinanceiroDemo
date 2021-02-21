@@ -1,0 +1,10 @@
+﻿      @using Metasoft.Models
+    <div style="display:grid;grid-template-columns: 20%  70% 10%;margin-top:5px; ">
+        @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "datanegacao", Title = "Data" })
+        @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "0px", Id = "motivo", InputClass = "custom-dropdown_noarrow", Title = "Motivo" })
+        <div style="margin-top:0px;margin-top:22px;">
+            <button type="button" class="btn btn-success float-right" onclick="CallNegarProposta()"><i class="fas fa-save" style="font-size:18px;"></i></button>
+        </div>
+    </div>
+   
+

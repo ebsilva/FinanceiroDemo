@@ -1,0 +1,454 @@
+﻿@model IEnumerable<Metasoft.Models.ContaPrViewModel>
+@using Metasoft.ViewModels;
+@using Microsoft.AspNet.Identity
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Contas A Pagar";
+    string cor = "red";
+    int registros = Model.Count(), counter = 0;
+    Permissao permissoes = (Permissao)Session["permissoes"];
+    if (permissoes == null)
+    {
+        permissoes = new Permissao
+        {
+            cad_edit = false,
+            pag_edit = false,
+            cad_view = false,
+            pag_view = false,
+            pro_edit = false,
+            pro_view = false,
+            rec_edit = false,
+            rec_view = false,
+            ree_edit = false,
+            ree_view = false,
+            rep_edit = false,
+            rep_view = false
+        };
+    }
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0)
+        {
+            count = Model.Count();
+        }
+    }
+
+}
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Contas a Pagar" })
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ApagarAnalitico" })))
+{
+
+    <div class="panel panel-default  mgauto" style="display:none;">
+        <!--  Heading-->
+        <div style="display:grid;grid-template-columns: 30% 23% 25% 20%;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "A Pagar cadastradas (" + (count) + ")", width = "50%", classe = "title" })
+            <div id="saldoplaceholder">
+                @Html.Partial("_SaldoMensal", new SaldoMensalViewModel())
+            </div>
+            <div></div>
+
+            @Html.Partial("_Search", new SearchViewModel { DivClass = "search", Tabela = "contaprs", StarCol = 2, EndCol = 9 })
+        </div>
+
+        <div class="filterWrap noprint" style="display:grid;grid-template-columns: 8.5% 10% 10%  6% 22%  22% 8%  10% ;margin-top:5px; grid-column-gap:3px;">
+            <!-- Filters-->
+            @Html.Partial("_Filters", new FiltersViewModel { ClienteFornecedorLabel = "Fornecedores", ElementName = "fornecedores" })
+            <!-- Actions Panel-->
+            @Html.Partial("_ActionsPanel", new ActionsPanelViewModel
+            {
+               DivClass = "inputdiv",
+               Mtop = "25px",
+               Height = "31px",
+               Id = "actions",
+               InputClass = "custom-dropdown",
+               AddNewLink = "/ContaPrs/NovaContaApagar",
+               AddNewTitle = "Cadastrar conta a pagar",
+               RevoveFilterUrl = "/ContaPrs/ApagarAnalitico",
+               Tabela = "#contaprs",
+               ReportTitle = "DNK - Relação de Contas a Pagar cadastradas",
+               CanEdit = permissoes.pag_edit
+           })
+        </div>
+
+        <!-- Table Contaprs -->
+        <div style="clear:both;height:5px;"></div>
+        <div>
+            <table id="contaprs" class="contaprs">
+                <thead>
+                    <tr>
+                        <th class="hidden">@Html.DisplayNameFor(model => model.propostaid)</th>
+                        <th class="hidden">@Html.DisplayNameFor(model => model.cliforid)</th>
+                        <th class="thbkg">&nbsp;<a href="#" style="color:white;">Fornecedor</a></th>
+                        <th class="thbkg">&nbsp;<a href="#" style="color:white;">Categoria</a></th>
+                        <th class="thbkg">&nbsp;<a href="#" style="color:white;">Descrição</a></th>
+                        <th class="thbkg">&nbsp;<a href="#" style="color:white;">Valor R$</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">Vencto</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">Pagto</a></th>
+                        <th class="thbkg">Nº Ord</th>
+                        <th class="thbkg hidden"></th>
+                        <th class="thbkg noprint">Status</th>
+                        <th class="thbkg noprint">Ações</th>
+                        <td class="hidden">situacao</td>
+                        <td class="hidden">atrasado</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+
+                        counter += 1;
+                        <tr>
+                            <td class="hidden">@Html.DisplayFor(modelItem => item.propostaid)</td>
+                            <td class="hidden">@Html.DisplayFor(modelItem => item.cliforid)</td>
+                            <td>@Tools.ShortText(item.clifornome, 43)</td>
+                            <td>@Html.DisplayFor(modelItem => item.categorianome)</td>
+                            <td>@Html.DisplayFor(modelItem => item.descricao)</td>
+                            <td>R$&nbsp;@Html.DisplayFor(modelItem => item.valor)</td>
+                            <td>@Html.DisplayFor(modelItem => item.vencimento)</td>
+                            <td>@Html.DisplayFor(modelItem => item.dtpagto)</td>
+                            <td>@Html.DisplayFor(modelItem => item.noordem)</td>
+                            <td class="hidden">fake</td>
+                            <td class="noprint">
+                                @if (item.situacao == "P") { cor = "green"; }
+                                else
+                                {
+                                    if (item.atrasado == "N") { cor = "white"; }
+                                    else { cor = "red"; }
+                                }
+                                <i class="fa fa-circle" style="color:@cor"></i>
+                            </td>
+                            <!-- Ações -->
+                            <td class="noprint">
+
+                                @if (item.archive == false)
+                                {
+                                    if (item.situacao.Equals("A"))
+                                    {
+
+                                        if (permissoes.pag_edit)
+                                        {
+                                            <a id="confpagicon_@item.contaprid" class="actionicon" href='#' data-toggle="modal" data-target="#ConfirmarPagamentoModal" title='Confirmar Pagamento' onclick="saveid('A',@item.contaprid)"><i id='aceitarico' class='fa fa-thumbs-up'></i></a>
+                                            if (item.nfid == 0)
+                                            {
+                                                <a id="alteraricon_@item.contaprid" class="actionicon" href="/ContaPrs/AlterarContaApagar/@item.contaprid" title="Alterar Pagamento"><i class="fas fa-pen"></i></a>
+                                                <a id="excluiricon_@item.contaprid" class="actionicon" href="#" onclick="ExcluirConfirm('contaareceber',@item.contaprid,'@item.descricao');" title="Excluir Conta a Receber"><i class="fas fa-trash"></i></a>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (User.Identity.GetUserName() == "" || User.Identity.GetUserName() == "")
+                                        {
+                                            <a id="alteraricon_@item.contaprid" class="actionicon" href="/ContaPrs/AlterarContaApagar/@item.contaprid" title="Alterar Pagamento"><i class="fas fa-pen"></i></a>
+                                            <a id="excluiricon_@item.contaprid" class="actionicon" href="#" onclick="ExcluirConfirm('contaareceber',@item.contaprid,'@item.descricao');" title="Excluir Conta a Receber"><i class="fas fa-trash"></i></a>
+                                            if (item.dtpagto != null)
+                                            {
+                                                if (DateTime.Parse(item.dtpagto) < DateTime.Now.AddDays(-60))
+                                                {
+                                                    @*<a id="archiveicon_@item.contaprid" class="actionicon" href="#" onclick="ArquivarPagamento(@item.contaprid);" title="Arquivar Conta "><i class="fa fa-archive"></i></a>*@
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (item.dtpagto != null)
+                                            {
+                                                if (DateTime.Parse(item.dtpagto) < DateTime.Now.AddDays(-60))
+                                                {
+                                                    @*<a id="archiveicon_@item.contaprid" class="actionicon" href="#" onclick="ArquivarPagamento(@item.contaprid);" title="Arquivar Conta"><i class="fa fa-archive"></i></a>*@
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (item.allowpar == 1)
+                                    {
+                                        if (permissoes.pag_edit)
+                                        {
+                                            <a id="addnf_@item.contaprid" class="actionicon" href="/ContaPrs/NovaParcelaApagar/@item.contaprid" onclick="" title="Adicionar parcela a pagar"><i class="fa fa-plus"></i></a>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <span style="color:firebrick">Arquivada</span>
+                                }
+
+
+                            </td>
+                            <td class="hidden">@item.situacao</td>
+                            <td class="hidden">@item.atrasado</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-body-custom titleshadow" style="background-color:#0d5182;margin-top:5px;border-radius:3px;border:solid 0.3px #3766ac;overflow-x:hidden;overflow-y:hidden;">
+            <div class="dspib" style="width:14.20%"></div>
+            <div class="dspib" style="width:14.20%" title="Em atraso">
+                <div class="dspib"><i class="fa fa-circle" style="color:red"></i></div>
+                <div id="atrasados" style="color:white;" class="dspib fs12"><i class="fa fa-circle" style="color:red;"></i></div>
+            </div>
+            <div class="dspib" style="width:14.20%"></div>
+            <div class="dspib" style="width:14.20%" title="Pagos">
+                <div class="dspib"><i class="fa fa-circle" style="color:green"></i></div>
+                <div id="pagos" style="color:white;" class="dspib fs12"><i class="fa fa-circle" style="color:green;"></i></div>
+            </div>
+            <div class="dspib" style="width:14.20%"></div>
+            <div class="dspib" style="width:14.20%" title="A pagar">
+                <div class="dspib"><i class="fa fa-circle" style="color:yellow"></i></div>
+                <div id="apagar" style="color:white;" class="dspib fs12"><i class="fa fa-circle" style="color:yellow;"></i></div>
+            </div>
+            <div class="dspib" style="width:10%"></div>
+        </div>
+    </div>
+
+    <!-- Confirmar Pagamento Modal -->
+
+    <div class="modal fade" id="ConfirmarPagamentoModal" tabindex="-1" role="dialog" aria-labelledby="ConfirmarPagamentoModal-label">
+        <div class="modal-dialog" role="document" style="width:40%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="ConfirmarPagamentoModal-label">Data pagamento</h5>
+                </div>
+                <div class="modal-body" style="height:90px;">
+
+                    <div class="mgauto" style="width:55%;">
+                        <div class="col-md-8">
+                            <div class="input-group date" id="aceitecalendar">
+                                @Html.TextBox("datapagamento", null, htmlAttributes: new { @class = "form-control" })
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-pull-1">
+                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close" style="font-size:20px;"></i></button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" onclick="CallConfirmarPagamento()"><i class="fa fa-save" style="font-size:20px;"></i></button>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Historico Modal -->
+
+    <div class="modal fade" id="addhistory" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+        <div class="modal-dialog" role="document">
+
+            <div class="modal-content">
+                <div class="modal-header modalheader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                    <h4 class="modal-title" id="novocontatoheadear">Novo Historico</h4>
+                </div>
+                <div class="modal-body">
+                    <span>Conta a pagar Nº&nbsp;</span><span id="contaprid"></span>
+                    <div>
+                        <span class="lbtexto" style="width:10%;">Texto histórico</span>
+                        @Html.TextArea("historico", null, new { @class = "form-control", style = "width:90%;height:100px;" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    <button id="savenewhistory" type="button" class="btn btn-primary" onclick="CallAddNewHistory();" data-dismiss="modal">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+        GlobalSettings("#contaprs", "400px", [2,'asc'],true,false,true,"F","P",false,true,true);
+        var contaprid = 0
+        $('#isaldo').keypress(function (e) {
+            var ivalue = this.value;
+            ivalue = ivalue.replaceAll('.', '')
+            ivalue = ivalue.replace(',', '.')
+            var editfield = "#dsaldo"
+            var tecla = e.keyCode;
+        /* verifica se a tecla pressionada foi o ENTER */
+            if (e.keyCode == 13 || e.keyCode == 9) {
+                e.preventDefault(e);
+                 campo = $('#isaldo');
+                /*  Salva no banco */
+                if (!isNaN(ivalue)) {
+                    console.log(ivalue)
+                    var dbid = $('#lsaldo').data('id');
+                    var lb = document.getElementById("#lsaldo");
+                    var valor = Nfmt.ToMoney(ivalue);
+                    $('#lsaldo').html(valor);
+                    $('#lsaldo').show();
+                    $('#dsaldo').hide();
+                    var v = ivalue;
+                    var placeholder = "#saldoplaceholder"
+                    try {
+                        $(placeholder).load("/ContaPrs/ContasUpdateSaldoMes", {
+                            id: parseInt(dbid),
+                            valor: ivalue,
+                            viewName: "_SaldoMensal"
+                        });
+                    }
+                    catch (e) {
+                        alert(e)
+                    }
+                }
+            }
+        });
+
+
+        var categoria = '@Html.Raw(ViewBag.categoriaselected)'; if (categoria != "") { SetDropDownValue(categoria, "categorias"); } else {categoria = "0";}
+        var fornecedor = '@Html.Raw(ViewBag.fornecedorselected)'; if (fornecedor != "") { SetDropDownValue(fornecedor, "fornecedores"); } else { fornecedor = "0";}
+        var situacao = '@Html.Raw(ViewBag.situacaoselected)'; if (situacao != "") { SetDropDownValue(situacao, "situacao"); }
+        var de = '@Html.Raw(ViewBag.deselected)'; if (de != "") { $("#de").val(de); }
+        var ate = '@Html.Raw(ViewBag.ateselected)'; if (ate != "") { $("#ate").val(ate); }
+         var ano = '@Html.Raw(ViewBag.anoselected)'; if (ano != "") {SetDropDownValue(ano, "anos"); }
+         $("#contaprs_filter").addClass("noprint");
+
+        });
+    ClearDeAte = () =>{
+           $("#de").val("");
+            $("#ate").val("");
+    }
+
+    Download = () => {
+            $("#download").val("true");
+            submitform("ApagarAnalitico");
+        }
+    DownloadFalse=()=> {
+       $("#download").val("false");
+    }
+    saveid =(tipo, id)=> {
+       contaprid = id;
+    }
+    CallConfirmarPagamento = ()  =>{
+       var dtpagto = $("#datapagamento").val()
+       PagamentoConfirm(contaprid,dtpagto)
+    }
+    PagamentoConfirm = (id, dtpagto) =>{
+
+            bootbox.confirm({
+                message: "Confirma pagamento desta conta ?",
+                buttons: {
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result === true) {
+                        ConfirmaPagamento(id, dtpagto);
+                    }
+
+                }
+            });
+        }
+    ConfirmaPagamento = (id, dtpagto) => {
+      $.ajax({
+                cache: false,
+                type: "POST",
+                url: '/ContaPrs/ConfirmaPagamento',
+                data: {
+                    "id": id,
+                    "dataquitacao": dtpagto
+                },
+                success: function (data) {
+                    /* Update clientList*/
+
+                    msg("Confirmação de pagamento feita com sucesso");
+                    window.setTimeout('location.reload()', 2000);
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    msg('Falha ao confirmar pagamento');
+                }
+            });
+    }
+
+    RemoveFiltersAndSubmit =() => {
+       RemoveFilters();
+       submitform("ApagarAnalitico");
+    }
+    OpenModal = (contaprid, tipo) => {
+       $("#contaprid").text('');
+       $("#historico").text('');
+       $("#contaprid").text(contaprid);
+    }
+    CallAddNewHistory = () => {
+       var contaprid = $("#contaprid").text();
+       var historicotexto = $("#historico").val();
+       AddNewHistory(contaprid,'P',historicotexto);
+    }
+    ShowHistory =(contaprid, tipo) => {
+
+       var element = "#div_" + contaprid;
+       if (!$(element).is(":visible")) {
+           var container = $('#div_' + contaprid);
+           $(container).load("/ContaPrs/ShowHistory", {
+                    "fid": contaprid,
+                    "tipo": tipo,
+                    viewName: "_Historico"
+           });
+           $("#row_" + contaprid).slideDown(500);
+       }
+       else {
+          $("#row_" + contaprid).hide();
+       }
+    }
+    UpdateTotal = ()  =>{
+
+            var tatraso = 0.00; var tpago = 0.00; var tapagar =  0.00;
+            $("#contaprs").find('tr').each(function (i) {
+
+                var $tds = $(this).find('td'),
+                    situacao = $tds.eq(12).text(),
+                    atrasado = $tds.eq(13).text(),
+                    valor = $tds.eq(5).text().replace("R$", "").replace(".", "").replace(",", "");
+                var numero = Number(valor) / 100;
+                if (situacao == "P") {
+                    tpago += numero;
+                }
+                else {
+                    if (atrasado == "N") {
+                        tapagar += numero;
+                    }
+                    else {
+                        tatraso += numero;
+                    }
+                }
+
+            });
+            $("#atrasados").text("R$ " + InvertComa(tatraso.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')));
+            $("#pagos").text("R$ " + InvertComa(tpago.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')));
+            $("#apagar").text("R$ " + InvertComa(tapagar.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')));
+     }
+    EditSaldo = () => {
+            $('#lsaldo').hide();
+            $('#dsaldo').show();
+            $('#isaldo').focus();
+     }
+
+    </script>
+    @Scripts.Render("~/Scripts/ApagarAnalitico.js")
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+    @*@Scripts.Render("~/Scripts/jquery.dataTables.min.js")*@
+
+}
+

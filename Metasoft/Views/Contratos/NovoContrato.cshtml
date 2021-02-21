@@ -1,0 +1,88 @@
+﻿@model Metasoft.Models.ContratoViewModel
+@using Metasoft.Models
+@{
+    ViewBag.Title = "Novo Contrato";
+}
+
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovoContrato" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel panel-default novaproposta">
+
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+
+        <div class="panel-body panel-body-crud">
+            <div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;">
+                @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "clienteid", InputClass = "custom-dropdown", Title = "Cliente" })
+                @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "tipocontrato", InputClass = "custom-dropdown", Title = "Categoria" })
+            </div>
+
+            <!-- Descricao  -->
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "50px", Id = "descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição" })
+            <div>@Html.ValidationMessageFor(model => model.descricao, "", new { @class = "text-danger text-danger-custom" })</div>
+
+            <!-- Observação  -->
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "observacao", InputClass = "custom-dropdown_noarrow", Title = "Observação" })
+
+        <div style="display:grid;grid-template-columns: 12% 12% 12%15% 20% 15%;grid-column-gap:25px;">
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "20px", Id = "dtinicio", Title = "Início" })
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "20px", Id = "dttermino", Title = "Término" })
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "20px", Id = "iniciosv", Title = "Início Serviços" })
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "22px", Id = "indice", InputClass = "custom-dropdown", Title = "Índice" })
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "valor", InputClass = "custom-dropdown_noarrow", Title = "R$ Valor" })
+            <div class="selectdiv" style="margin-top:20px">
+                <label>Prazo</label>
+                <div class="custom-dropdown">
+                    <select id="prazo" name="prazo" class="form-control" data-val="true" data-val-required="Campo é obrigatório">
+                        <option value="12">12</option>
+                        <option value="18">18</option>
+                        <option value="24">24</option>
+                        <option value="30">30</option>
+                        <option value="36">36</option>
+                        <option value="42">42</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+            <div class="row">
+                <a id="saveico" href="#" onclick="submitform('NovoContrato');" title="Salvar dados" class="actionicon savenew" style="font-size:26px;"><i id="saveimg" class="fas fa-save"></i></a>
+                <a id="alterarico" href="/Contratos/ListaContratos" title="Voltar para lista" class="actionicon savenew" style="font-size:26px;"><i id="alcliimg" class="fas fa-arrow-left"></i></a>
+            </div>
+
+        </div>
+    </div>
+
+
+  
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            UpdateCategorias("tipocontrato", "R", 0);
+            ebs.PopDropDown("indice",'');
+            ebs.PopDropDown("clienteid",'');
+            ebs.SetValorMask("#valor");
+            ebs.SetValorMask("#valor");
+            ebs.SetDateMask("#dtinicio");
+            ebs.SetDateMask("#dttermino")
+            //$("#dtinicio").mask("00/00/0000");
+            //$("#dttermino").mask("00/00/0000");
+            //$("#proxreajuste").mask("00/00/0000");
+            ebs.Set_DatePicker();
+
+        });
+
+    </script>
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}
+
+

@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Metasoft.Models.NfForCrViewModel>
+
+<div style="overflow-y:auto;">
+
+@if (Model != null)
+{
+    if (Model.Count() > 0)
+    {
+        <div>
+            <br />
+            <h6> Notas Fiscais lançadas para esta proposta</h6>
+        </div>
+        <table class="detalhesenfsproposta">
+            <thead>
+                <tr>
+                    <th>Nº NF</th>
+                    <th>Emissão</th>
+                    <th>Vencto</th>
+                    <th>Recbto</th>
+                    <th>R$ Valor</th>
+                    <th>Descrição</th>
+                    <th>Nº Ord</th>
+               </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    //var svalor = String.Format("{0:C}", item.valor);
+                    <tr style="background-color:transparent">
+                        <td>@Html.DisplayFor(modelItem => item.nf)</td>
+                        <td>@Html.DisplayFor(modelItem => item.emissao)</td>
+                        <td>@Html.DisplayFor(modelItem => item.vencimento)</td>
+                        <td>@Html.DisplayFor(modelItem => item.dtpagto)</td>
+                        <td>@Html.DisplayFor(modelItem => item.valor)</td>
+                        <td>@Html.DisplayFor(modelItem => item.descricao)</td>
+                        <td>@Html.DisplayFor(modelItem => item.noordem)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+          <div></div>
+    }
+}
+else
+{
+    <br />
+    <h6>Não há notas fiscais para esta proposta</h6>
+}
+
+</div>

@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="~/img/favico.ico" />
+    <title>DNK</title>
+
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="@Url.Content("~/Css/fontawesome.min.css")" rel="stylesheet" type="text/css" />
+
+</head>
+<body class="openpage">
+    <div style="width :9.5%;margin:0 auto;">
+        <img src="/img/companylogo.jpg" title="Versão 8.0"/>
+    </div>
+    <div class="container body-content" style="height:500px;">
+        @RenderBody()
+    </div>
+
+   
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/tools")
+    <script src="~/Scripts/jquery.mask.plugin.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

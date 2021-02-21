@@ -1,0 +1,56 @@
+﻿@model Metasoft.Models.Visita
+@using Metasoft.Models
+@{
+    ViewBag.Title = "Nova Visita";
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovaVisita" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="hidden"> @Html.TextBoxFor(model => model.propostaid, htmlAttributes: new { @class = "form-control form-control-custom" })</div>
+    <div class="panel panel-default"  style="padding:50px 200px 50px 200px;">
+
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud">
+            <div style="display:grid;grid-template-columns: 15% 75%;grid-column-gap:10px; ">
+                @Html.Partial("_Dpicker", new DpickerViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "VisitaEm", InputClass = "custom-dropdown", Title = "Data" })
+            </div>
+            <div style="display:grid;grid-template-columns: 100%;margin-top:20px ">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "Descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição" })
+            </div>
+            <div>
+                @Html.ValidationMessageFor(model => model.Descricao, "", new { @class = "text-danger" })
+            </div>
+            <div style="display:grid;grid-template-columns: 100%;margin-top:20px ">
+                <div style="display:grid;grid-template-columns: 40% 20% 20%;grid-column-gap:20px; margin-top:20px">
+                    @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "Contato", InputClass = "custom-dropdown_noarrow", Title = "Contato" })
+                    @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "Fone", InputClass = "custom-dropdown_noarrow", Title = "Fone" })
+                    @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "Celular", InputClass = "custom-dropdown_noarrow", Title = "Celular" })
+                </div>
+            </div>
+            @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "'NovaVisita", BackToUrl = "/Propostas/ListaPropostas" })
+
+        </div>
+       </div>
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ebs.SetFoneMask("#Fone");
+            ebs.SetCelFoneMask("#Celular");
+            ebs.SetDateMask("#VisitaEm");
+            ebs.Set_DatePicker();
+         });
+
+    </script>
+
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+}
+
+

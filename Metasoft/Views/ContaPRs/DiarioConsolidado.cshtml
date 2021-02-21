@@ -1,0 +1,124 @@
+﻿@model IEnumerable<Metasoft.Models.DiarioConsolidadoViewModel>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Diário Consolidado";
+
+    int registros = Model.Count(), counter = 0; decimal ttreceber = 0; decimal ttpagar = 0;
+}
+
+
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "DiarioConsolidado" })))
+{
+    <div class="panel panel-default dspnone" style="padding-right:150px;padding-left:150px;">
+
+        <div style="display:grid;grid-template-columns: 73% 10% 10% 2% ;height:50px;grid-column-gap:10px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Diário Consolidado", width = "30%", classe = "title" })
+            <!-- Meses-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "meses", InputClass = "custom-dropdown", Title = "Mês", StaticOptions = "_OptionsMeses", NoLabel = true })
+            <!-- Ano-->
+            @Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017, NoLabel = true })
+            <div style="margin-top:7px;">
+                <a id="printicon" title="Imprimir" onclick="Imprime();"><i class="fas fa-print fs24"></i></a>
+            </div>
+        </div>
+ 
+        <div>
+            <table class="tableconsolidado">
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.dia)</th>
+                    <th>A receber</th>
+                    <th>A pagar</th>
+                    <th>Saldo</th>
+                    <th class="noprint " >Ações</th>
+                </tr>
+            </table>
+        </div>
+
+        <div class="panel-body panel-body-custom" style="clear:both;overflow-y:auto;">
+            <table class="table tableconsolidado table-bordered" style="clear:both;">
+                @foreach (var item in Model)
+                {
+                    ttreceber += item.receber;
+                    ttpagar += item.pagar;
+                    counter += 1;
+                    string cor = item.receber > item.pagar ? "white" : "red";
+                    string sreceber = item.receber > 0 ? String.Format("{0:C}", item.receber) : "";
+                    string spagar = item.pagar > 0 ? String.Format("{0:C}", item.pagar) : "";
+                    string ssaldo = (item.receber - item.pagar) != 0 ? String.Format("{0:C}", item.receber - item.pagar) : "";
+                    <tr>
+                        <td>@Html.DisplayFor(model => item.dia)</td>
+                        <td>@sreceber</td>
+                        <td>@spagar</td>
+                        <td style="color:@cor">@ssaldo</td>
+                        <td class="noprint">
+                            <a id="rec_@item.dia" class="actionicon" href="#" onclick="ShowLancamentos(@item.dia,'R');" title="Exibir lançamentos a receber"><span class="badge cprbadge" style="font-size:10px;">R</span></a>
+                            <a id="pag_@item.dia" class="actionicon" href="#" onclick="ShowLancamentos(@item.dia,'P');" title="Exibir lançamentos a apagar"><span class="badge cprredbadge" style="font-size:10px;">P</span></a>
+                        </td>
+                    </tr>
+                    <tr id="row_@item.dia" style="display:none;">
+                        <td colspan="5">
+                            <div id="lancamentos_@item.dia" class="accordion" style="max-width:98%;">
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div class="divtotais mgauto">
+            <span style="margin-left:12%;color:#c4ebb3;">Total Receber&nbsp;@String.Format("{0:C}", ttreceber)</span>
+            <span style="margin-left:12%;color:#c89169;">Total pagar&nbsp;@String.Format("{0:C}", ttpagar)</span>
+            <span style="margin-left:12%;color:white;">Saldo&nbsp;@String.Format("{0:C}", ttreceber - ttpagar)</span>
+        </div>
+
+    </div>
+
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ebs.AnimateIcons();
+            var d = new Date(), m = d.getMonth()+1, y = d.getFullYear();
+            $('#meses option:eq(' + m + ')').prop('selected', true);
+            $('#anos option[value="' + y + '"]').prop('selected', true);
+
+
+            $(function () { $('#meses').change(function () { this.form.submit(); }); });
+            $(function () { $('#anos').change(function () { this.form.submit(); }); });
+
+            var mes = '@Html.Raw(ViewBag.messelected)';
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (mes != "") { SetDropDownValue(mes, "meses");} else { $('#meses option:eq(' + m + ')').prop('selected', true) }
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (ano != "") { SetDropDownValue(ano, "anos"); } else { $('#anos option:eq(' + y + ')').prop('selected', true) }
+
+        });
+        function ShowLancamentos(dia, tipo) {
+            var targetrow = "#row_" + dia;
+            var placeholder = "#lancamentos_" + dia;
+
+            if (!$(targetrow).is(":visible")) {
+
+                var mes = $("#meses").val();
+                var ano = $("#anos").val();
+
+                $(placeholder).load("/ContaPRs/ShowLancamentos", {
+                    dia: dia,
+                    mes: mes,
+                    ano: ano,
+                    tipo: tipo,
+                    viewName: "_Lancamentos"
+                });
+                $(targetrow).show();
+            }
+            else {
+                $(targetrow).hide();
+            }
+        }
+
+
+    </script>
+    @Scripts.Render("~/Scripts/jquery.floatThead.min.js")
+}
+

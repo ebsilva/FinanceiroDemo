@@ -1,0 +1,90 @@
+﻿@model Metasoft.Models.ContaPR
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>ContaPR</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.dtcad)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dtcad)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.npar)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.npar)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.cliforid)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.cliforid)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.propostaid)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.propostaid)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.valor)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.valor)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.vencimento)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.vencimento)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.tipo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tipo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.dtpagto)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.dtpagto)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.situacao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.situacao)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.contaprid }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

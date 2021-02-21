@@ -1,0 +1,91 @@
+﻿@model Metasoft.Models.ContaPR
+@using Metasoft.Models
+@{ ViewBag.Title = "Nova Conta a Pagar";}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovaContaApagar" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="panel panel-default newitem">
+        <div class="panel-heading-crud" style="margin-top:40px;">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;margin-top:20px;">
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "cliforid", InputClass = "custom-dropdown", Title = "Fornecedor" })
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "categoriaid", InputClass = "custom-dropdown", Title = "Categoria" })
+        </div>
+        <div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;">
+            @Html.ValidationMessageFor(model => model.cliforid, "", new { @class = "text-danger" })
+            @Html.ValidationMessageFor(model => model.categoriaid, "", new { @class = "text-danger" })
+        </div>
+        <div style="display:grid;grid-template-columns: 10% 10% 78%;grid-column-gap:5px;">
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "noordem", InputClass = "custom-dropdown_noarrow", Title = "Nº Ordem" })
+            @Html.Partial("_Checkbox", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "recorrente", InputClass = "custom-dropdown_noarrow", Title = "Recorrente" })
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição" })
+        </div>
+        <div style="display:grid;grid-template-columns: 10% 5% 85%;grid-column-gap:5px;">
+            <div></div>
+            <div>@Html.ValidationMessageFor(model => model.recorrente, "", new { @class = "text-danger" })</div>
+            <div> @Html.ValidationMessageFor(model => model.descricao, "", new { @class = "text-danger" })</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns: 70% 15% 15%;grid-column-gap:5px;">
+            <div></div>
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "valor", InputClass = "custom-dropdown_noarrow", Title = "R$ Valor" })
+            @{ Html.EnableClientValidation(false); }
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "23px", Id = "vencimento", Title = "Vencimento" })
+        </div>
+        <div style="display:grid;grid-template-columns: 70% 15% 15%;grid-column-gap:5px;">
+            <div></div>
+            <div>
+                @Html.ValidationMessageFor(model => model.vencimento, "", new { @class = "text-danger" })
+            </div>
+
+        </div>
+        @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "NovaContaApagar", BackToUrl = "/ContaPRs/ApagarAnalitico" })
+
+    </div>
+
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+           $(document).ready(function () {
+               $('.datepicker').datepicker();
+               ebs.PopDropDown("cliforid", [{ "tipo": 'F' }]);
+               ebs.PopDropDown("categoriaid", [{ "tipo": 'P' }]);
+               ebs.Mask('valor','vencimento','noordem','npar');
+               $("#npar").val("1");
+               //$("#noordem").mask("00/00");
+               $("#noordem").val("01/01");
+               ebs.Set_DatePicker();
+               $("#recorrente").change(function(){
+                   n = $("#noordem").val();
+                   var o = n.split("/");
+                   var parcela = parseInt(o[0]);
+                   var qtparcelas = parseInt(o[1]);
+                   if (parcela == qtparcelas) {
+                      $('#recorrente').prop('checked', false);
+                      $('#recorrente').val(false);
+                       event.stopPropagation();
+                   }
+                   if ($('#recorrente').prop('checked') == true) {
+                       $('#recorrente').val(true);
+                       event.stopPropagation();
+                    }
+
+
+               });
+
+               var cliforselected = '@Html.Raw(ViewBag.cliforselected)'; if (cliforselected != "") { SetDropDownValue(cliforselected, "cliforid"); } else { cliforselected = "0"; }
+               var categoriaselected = '@Html.Raw(ViewBag.categoriaselected)'; if (categoriaselected != "") { SetDropDownValue(categoriaselected, "categoriaid"); } else { categoriaselected = "0"; }
+               var valor = '@Html.Raw(ViewBag.valor)'; if (valor != "") { $("#valor").val(valor) } else { valor = "0"; }
+               var vencimento = '@Html.Raw(ViewBag.vencimento)'; if (vencimento != "") { S("#vencimento").val(vencimento) } else { vencimento = "0"; }
+        });
+    </script>
+
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}
+

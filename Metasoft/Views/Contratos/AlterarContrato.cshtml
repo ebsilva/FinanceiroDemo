@@ -1,0 +1,97 @@
+﻿@model Metasoft.Models.ContratoViewModel
+@using Metasoft.Models
+@{
+    ViewBag.Title = "Alterar Contrato Nº " + Model.id;
+}
+
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "AlterarContrato" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="hidden">@Html.TextBoxFor(model => model.id)</div>
+    <div class="hidden">@Html.TextBoxFor(model => model.renovacaoid)</div>
+    <div class="hidden">@Html.TextBoxFor(model => model.situacaoid)</div>
+    <div class="hidden">@Html.TextBoxFor(model => model.situacaorenovacaoid)</div>
+    <div class="panel panel-default " style="padding-right:200px;padding-left:200px;margin-top:30px;">
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud">
+            <div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;">
+                @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "clienteid", InputClass = "custom-dropdown", Title = "Cliente" })
+                @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "0px", Id = "tipocontrato", InputClass = "custom-dropdown", Title = "Categoria" })
+            </div>
+            <div style="display:grid;grid-template-columns: 50% 50%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.clienteid, "", new { @class = "text-danger text-danger-custom" })
+                @Html.ValidationMessageFor(model => model.tipocontrato, "", new { @class = "text-danger text-danger-custom" })
+            </div>
+
+            <!-- Descricao  -->
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição" ,Value = Model.descricao})
+            <div>@Html.ValidationMessageFor(model => model.descricao, "", new { @class = "text-danger text-danger-custom" })</div>
+
+            <!-- Observação  -->
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "observacao", InputClass = "custom-dropdown_noarrow", Title = "Observação" , Value = Model.observacao})
+        </div>
+
+        <div style="display:grid;grid-template-columns: 14% 14% 14%15% 20% 15%;grid-column-gap:25px;">
+            @{ 
+                string iniciosv = "";
+                if ( Model.iniciosv == null) { iniciosv = ""; } else { iniciosv = Model.iniciosv.ToString().Substring(0,10); };
+            }
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "20px", Id = "dtinicio", Title = "Início", Value =Model.dtinicio.ToShortDateString() })
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "20px", Id = "dttermino", Title = "Término" , Value = Model.dttermino.ToShortDateString() })
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "20px", Id = "iniciosv", Title = "Início Serviços" , Value= iniciosv})
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "22px", Id = "indice", InputClass = "custom-dropdown", Title = "Índice",  })
+            @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "20px", Id = "valor", InputClass = "custom-dropdown_noarrow", Title = "R$ Valor", Value=Model.valor.ToString() })
+            <div class="selectdiv" style="margin-top:20px">
+                <label>Prazo</label>
+                <div class="custom-dropdown">
+                    <select id="prazo" name="prazo" class="form-control" data-val="true" data-val-required="Campo é obrigatório">
+                        <option value="12">12</option>
+                        <option value="18">18</option>
+                        <option value="24">24</option>
+                        <option value="30">30</option>
+                        <option value="36">36</option>
+                        <option value="42">42</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:20px;">
+            <a id="saveico" href="#" onclick="submitform('AlterarContrato');" title="Salvar dados" class="actionicon savenew" style="font-size:26px;"><i id="saveimg" class="fa fa-save"></i></a>
+            <a id="alterarico" href="/Contratos/ListaContratos" title="Voltar para lista" class="actionicon savenew" style="font-size:26px;"><i id="alcliimg" class="fa fa-arrow-left"></i></a>
+        </div>
+
+    </div>
+
+   }
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            UpdateCategorias("tipocontrato", "R", 0);
+            ebs.PopDropDown("clienteid",'');
+            ebs.PopDropDown("indice",'');
+            UpdateCategorias("categoriaid", "R", 0);
+
+            ebs.SetValorMask("#valor");
+            ebs.SetDateMask("#dtinicio");
+            ebs.SetDateMask("#dttermino")
+             ebs.SetDateMask("#proxreajuste")
+            ebs.Set_DatePicker();
+            SetDropDownValue('@Html.Raw(ViewBag.clienteid)', "clienteid");
+            SetDropDownValue('@Html.Raw(ViewBag.tipocontrato)', "tipocontrato");
+            SetDropDownValue('@Html.Raw(ViewBag.indice)', "indice");
+            SetDropDownValue('@Html.Raw(ViewBag.prazo)', "prazo");
+
+      });
+
+    </script>
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}
+
+

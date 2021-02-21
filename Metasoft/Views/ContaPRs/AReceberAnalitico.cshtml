@@ -1,0 +1,433 @@
+﻿@model IEnumerable<Metasoft.Models.ContaPrViewModel>
+@using Metasoft.ViewModels;
+@using Microsoft.AspNet.Identity
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Contas A Receber";
+    string cor = "red";
+    int registros = Model.Count(), counter = 0;
+    Permissao permissoes = (Permissao)Session["permissoes"];
+    if (permissoes == null)
+    {
+        permissoes = new Permissao
+        {
+            cad_edit = false,
+            pag_edit = false,
+            cad_view = false,
+            pag_view = false,
+            pro_edit = false,
+            pro_view = false,
+            rec_edit = false,
+            rec_view = false,
+            ree_edit = false,
+            ree_view = false,
+            rep_edit = false,
+            rep_view = false
+        };
+    }
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0)
+        {
+            count = Model.Count();
+        }
+    }
+    
+}
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Contas a Receber" })
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "AreceberAnalitico" })))
+{
+    <div class="panel panel-default mgauto" style="display:none;">
+        <!--  Heading-->
+        <div style="display:grid;grid-template-columns: 30% 23% 25% 20%;height:28px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "A Receber cadastradas (" + (count) + ")", width = "50%", classe = "title" })
+            <div id="saldoplaceholder">
+                @Html.Partial("_SaldoMensal", new SaldoMensalViewModel())
+            </div>
+            <div></div>
+            
+            @Html.Partial("_Search", new SearchViewModel { DivClass = "search", Tabela = "contaprs", StarCol = 2, EndCol = 9 })
+
+        </div>
+        <div class="filterWrap" style="display:grid;grid-template-columns: 8.5% 10% 10%  6%  9%  32% 12%  10%  ;margin-top:5px; grid-column-gap:3px;">
+            <!-- Filters-->
+            @Html.Partial("_Filters", new FiltersViewModel { ClienteFornecedorLabel = "Clientes", ElementName = "clientes" })
+
+            <!-- Actions Panel-->
+            @Html.Partial("_ActionsPanel", new ActionsPanelViewModel
+            {
+               DivClass = "inputdiv",
+                Mtop = "25px",
+                Height = "31px",
+                Id = "actions",
+                InputClass = "custom-dropdown",
+               AddNewLink = "/ContaPrs/NovaContaAreceber",
+               AddNewTitle = "Cadastrar conta a receber",
+               RevoveFilterUrl = "/ContaPrs/AreceberAnalitico",
+               Tabela = "#contaprs",
+               ReportTitle = "DNK - Relação de Contas a Receber cadastradas",
+               CanEdit = permissoes.rec_edit
+           })
+        </div>
+        <!-- Table Contaprs -->
+        <div style="clear:both;height:5px;"></div>
+
+        <div>
+            <table id="contaprs" class="contaprs">
+                <thead>
+                    <tr>
+                        <th class="hidden">@Html.DisplayNameFor(model => model.propostaid)</th>
+                        <th class="hidden">@Html.DisplayNameFor(model => model.cliforid)</th>
+                        <th class="thbkg"><a href="#" style="color:white;">Cliente</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">Categoria</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">Descrição</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">Valor R$</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">Vencto</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">Pagto</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">Nº Ord</a></th>
+                        <th class="thbkg"><a href="#" style="color:white;">NF</a></th>
+                        <th class="thbkg noprint">Status</th>
+                        <th class="thbkg noprint">Ações</th>
+                        <td class="thbkg hidden">situacao</td>
+                        <td class="thbkg hidden">atrasado</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        counter += 1;
+                        <tr>
+                            <td class="hidden">@Html.DisplayFor(modelItem => item.propostaid)</td>
+                            <td class="hidden">@Html.DisplayFor(modelItem => item.cliforid)</td>
+                            <td>@Tools.ShortText(item.clifornome, 43)</td>
+                            <td>@Html.DisplayFor(modelItem => item.categorianome)</td>
+                            <td>@Html.DisplayFor(modelItem => item.descricao)</td>
+                            <td>R$&nbsp;@Html.DisplayFor(modelItem => item.valor)</td>
+                            <td>@Html.DisplayFor(modelItem => item.vencimento)</td>
+                            <td>@Html.DisplayFor(modelItem => item.dtpagto)</td>
+                            <td>@Html.DisplayFor(modelItem => item.noordem)</td>
+                            <td>
+                                @if (item.nf.Trim() != "")
+                                {
+                                    @Html.DisplayFor(modelItem => item.nf)
+                                }
+                                else
+                                {
+                                    if (item.nfid != 0)
+                                    {
+                                        <span style="color:lightgreen">@item.nfid</span>
+                                    }
+                                }
+
+                            </td>
+                            <td class="noprint">
+                                @if (item.situacao == "P") { cor = "green"; }
+                                else
+                                {
+                                    if (item.atrasado == "N") { cor = "white"; }
+                                    else { cor = "red"; }
+                                }
+                                <i class="fa fa-circle" style="color:@cor"></i>
+                            </td>
+
+                            <!-- Ações -->
+                            <td class="noprint">
+
+
+                                @if (item.situacao.Equals("A"))
+                                {
+                                    if (permissoes.rec_edit)
+                                    {
+                                        <a id="confpagicon_@item.contaprid" class="actionicon" href='#' data-toggle="modal" data-target="#ConfirmarRecebimentoModal" title='Confirmar Pagamento' onclick="saveid('A',@item.contaprid)"><i id='aceitarico' class='fa fa-thumbs-up'></i></a>
+                                        if (item.nfid == 0)
+                                        {
+                                            @*<a id="alteraricon_@item.contaprid" class="actionicon" href="/ContaPrs/AlterarContaAreceber/@item.contaprid" title="Alterar Pagamento"><i class="fa fa-pen"></i></a>*@
+                                            <a id="excluiricon_@item.contaprid" class="actionicon" href="#" onclick="ExcluirConfirm('contaareceber',@item.contaprid,'@item.descricao');" title="Excluir Conta a Receber"><i class="fa fa-trash"></i></a>
+                                        }
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    /* Quais ações permitidas quando a conta está paga*/
+                                    if (item.archive == false)
+                                    {
+                                        if (User.Identity.GetUserName() == ""
+                                                || User.Identity.GetUserName() == ""
+                                                || User.IsInRole("Administrador"))
+                                        {
+                                            <a id="alteraricon_@item.contaprid" class="actionicon" href="/ContaPrs/AlterarContaAReceber/@item.contaprid" title="Alterar Pagamento"><i class="fa fa-pen"></i></a>
+                                            @*<a id="excluiricon_@item.contaprid" class="actionicon" href="#" onclick="ExcluirConfirm('contaareceber',@item.contaprid,'@item.descricao');" title="Excluir Conta a Receber"><i class="fa fa-trash"></i></a>*@
+
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <span style="color:firebrick">Arquivada</span>
+                                    }
+                                }
+
+
+                                @if (item.categoriaid == 20)
+                                {
+                                    if (item.addressok == 0)
+                                    {
+                                        <a class="actionicon" href="/Clientes/AlterarCliente/@item.cliforid" target="_blank" title="Alterar endereco">
+                                            <i class="fa fa-address-book" style="color:red"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        if (item.nfid != 0)
+                                        {
+                                            //Somente contas que ainda não tenham Nf string
+                                            if (item.nf.Trim() == "")
+                                            {
+                                                <a id="nficon_@item.contaprid" class="actionicon" href="/ContaPrs/NotaFiscalAreceber/@item.contaprid" title="Imprimir Nota Fiscal"><i class="fa fa-file-pdf cg"></i></a>
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            if (item.nf.Trim() == "")
+                                            {
+
+                                                <a id="nficon_@item.contaprid" class="actionicon" href="/ContaPrs/NotaFiscalAreceber/@item.contaprid" title="Gerar Nota Fiscal"><i class="fa fa-file-alt"></i></a>
+                                            }
+
+                                        }
+                                    }
+                                }
+
+
+
+                            </td>
+                            <td class="hidden">@item.situacao</td>
+                            <td class="hidden">@item.atrasado</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-body-custom titleshadow" style="background-color:#0d5182;border-radius:3px;border:solid 0.3px #3766ac;overflow-x:hidden;overflow-y:hidden;">
+            <div class="dspib" style="width:14.20%"></div>
+            <div class="dspib" style="width:14.20%" title="Em atraso">
+                <div class="dspib"><i class="fa fa-circle" style="color:red"></i></div>
+                <div id="atrasados" style="color:white;" class="dspib fs12"><i class="fa fa-circle" style="color:red;"></i></div>
+            </div>
+            <div class="dspib" style="width:14.20%"></div>
+            <div class="dspib" style="width:14.20%" title="Pagos">
+                <div class="dspib"><i class="fa fa-circle" style="color:green"></i></div>
+                <div id="pagos" style="color:white;" class="dspib fs12"><i class="fa fa-circle" style="color:green;"></i></div>
+            </div>
+            <div class="dspib" style="width:14.20%"></div>
+            <div class="dspib" style="width:14.20%" title="A pagar">
+                <div class="dspib"><i class="fa fa-circle" style="color:yellow"></i></div>
+                <div id="apagar" style="color:white;" class="dspib fs12"><i class="fa fa-circle" style="color:yellow;"></i></div>
+            </div>
+            <div class="dspib" style="width:10%"></div>
+        </div>
+
+    </div>
+
+    <!-- Confirmar Recebimento Modal -->
+
+    <div class="modal fade" id="ConfirmarRecebimentoModal" tabindex="-1" role="dialog" aria-labelledby="ConfirmarRecebimento-label">
+        <div class="modal-dialog" role="document" style="width:40%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="ConfirmarRecebimentoModal-label">Data pagamento</h5>
+                </div>
+                <div class="modal-body" style="height:90px;">
+
+                    <div class="mgauto" style="width:55%;">
+                        <div class="col-md-8">
+                            <div class="input-group date" id="aceitecalendar">
+                                @Html.TextBox("datapagamento", null, htmlAttributes: new { @class = "form-control" })
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-pull-1">
+                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close" style="font-size:20px;"></i></button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" onclick="CallConfirmarRecebimento()"><i class="fa fa-save" style="font-size:20px;"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+@section Scripts {
+    <script type="text/javascript">
+      $(document).ready(function () {
+            GlobalSettings("#contaprs", "400px", [2, 'asc'], true, false, true, "C", "R", false, true, true);
+            $('#isaldo').mask("#.##0,00", { reverse: true });
+            
+          var contaprid = 0;
+         
+            $('#isaldo').keypress(function (e) {
+                var ivalue = this.value;
+                ivalue = ivalue.replaceAll('.', '')
+                ivalue =ivalue.replace(',', '.')
+                var editfield = "#dsaldo" 
+                var tecla = e.keyCode;
+            /* verifica se a tecla pressionada foi o ENTER */
+                if (tecla == 13 || tecla == 9) {
+                             e.preventDefault(e);
+                    valorsemponto = $('#isaldo');
+                    /*  Salva no banco */
+                    if (!isNaN(ivalue)) {
+                        
+                        var dbid =$('#lsaldo').data('id');
+                        var lb = document.getElementById("#lsaldo");
+                        var valor = Nfmt.ToMoney(ivalue);
+                       
+                        $('#lsaldo').html(valor);
+                        $('#lsaldo').show();
+                        $('#dsaldo').hide();
+                        var v = ivalue;
+                        var placeholder = "#saldoplaceholder"
+                         try {
+                                $(placeholder).load("/ContaPrs/ContasUpdateSaldoMes", {
+                                id: parseInt(dbid),
+                                valor: ivalue,
+                                viewName: "_SaldoMensal"
+                            });
+                        }
+                        catch (e) {
+                            alert(e)
+                        }
+                    }
+                }
+            });
+            var tipodata = '@Html.Raw(ViewBag.tipodataselected)'; if (categoria != "") { SetDropDownValue(tipodata, "tipodata"); } else { tipodata= "vencimento"; }
+            var categoria = '@Html.Raw(ViewBag.categoriaselected)'; if (categoria != "") { SetDropDownValue(categoria, "categorias"); } else { categoria = "0";}
+            var clientes = '@Html.Raw(ViewBag.cliforselected)'; if ( clientes != "") { SetDropDownValue( clientes, "clientes"); } else { fornecedor = "0";}
+            var situacao = '@Html.Raw(ViewBag.situacaoselected)'; if (situacao != "") { SetDropDownValue(situacao, "situacao"); }
+            var de = '@Html.Raw(ViewBag.deselected)'; if (de != "") { $("#de").val(de); }
+            var ate = '@Html.Raw(ViewBag.ateselected)'; if (ate != "") { $("#ate").val(ate); }
+           var ano = '@Html.Raw(ViewBag.anoselected)'; if (ano != "") {SetDropDownValue(ano, "anos"); }
+
+            /* Verifica se e retorno para nome e cnpj existentes*/
+            if ('@Html.Raw(ViewBag.notfound)' != "") { msg('@Html.Raw(ViewBag.notfound)'); }
+            $("#contaprs_filter").addClass("noprint");
+            $("#download").val("false");
+        });
+        function ClearDeAte() {
+           $("#de").val("");
+        }
+        function DownloadFalse(){
+            $("#download").val("false");
+        }
+
+        function Download() {
+            $("#download").val("true");
+            submitform("AreceberAnalitico");
+
+        }
+        function UpdateTotal() {
+
+            var tatraso = 0.00; var tpago = 0.00; var tapagar = 0.00;
+            $("#contaprs").find('tr').each(function (i) {
+
+                var $tds = $(this).find('td'),
+                    situacao = $tds.eq(12).text(),
+                    atrasado = $tds.eq(13).text(),
+                    valor = $tds.eq(5).text().replace("R$", "").replace(".", "").replace(",", "");
+                var numero = Number(valor) / 100;
+
+                if (situacao == "P") { tpago += numero; }
+                else {
+                    if (atrasado == "N") { tapagar += numero; }
+                    else { tatraso += numero; }
+                }
+
+            });
+            $("#atrasados").text("R$ " + InvertComa(tatraso.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')));
+            $("#pagos").text("R$ " + InvertComa(tpago.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')));
+            $("#apagar").text("R$ " + InvertComa(tapagar.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')));
+        }
+        function saveid(tipo, id) {
+            contaprid = id;
+        }
+        function CallConfirmarRecebimento() {
+            var dtpagto = $("#datapagamento").val();
+            RecebimentoConfirm(contaprid, dtpagto);
+        }
+        function RecebimentoConfirm(id, dtpagto) {
+
+            bootbox.confirm({
+                message: "Confirma recebimento desta conta ?",
+                buttons: {
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result === true) {
+
+                        ConfirmaRecebimento(id, dtpagto);
+                    }
+
+                }
+            });
+        }
+        function ConfirmaRecebimento(id, dtpagto) {
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: '/ContaPrs/ConfirmaRecebimento',
+                data: {
+                    "id": id,
+                    "dataquitacao": dtpagto
+                },
+                success: function (data) {
+                    /* Update clientList*/
+
+                    msg("Confirmação de recebimento feita com sucesso");
+                    window.setTimeout('location.reload()', 2000);
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    msg('Falha ao confirmar pagamento');
+                }
+            });
+        }
+        function RemoveFiltersAndSubmit() {
+            RemoveFiltersCr();
+            submitform("AreceberAnalitico");
+        }
+        function AlteraEndereco(url) {
+            window.open(
+                url, "_blank");
+        }
+        EditSaldo = () => {
+            $('#lsaldo').hide();
+            $('#dsaldo').show();
+            $('#isaldo').focus();
+        }
+
+    </script>
+    @Scripts.Render("~/Scripts/AreceberAnalitico.js")
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}
+

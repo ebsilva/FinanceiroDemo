@@ -1,0 +1,25 @@
+
+/* Table 1 Style */
+table{
+    width:650px;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1.4em;
+    font-style: normal;
+    border-collapse:collapse;
+}
+table  td{
+    padding:5px;
+    margin:0px;
+    text-align:center;
+    color:black;
+    border:solid 0.3px black;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    border-collapse:collapse;
+}
+.tdnobrd{border:none;}
+
+
+
+

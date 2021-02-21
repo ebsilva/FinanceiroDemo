@@ -1,0 +1,59 @@
+﻿@model  Metasoft.Models.ResumoDiarioViewModel
+@{
+
+    string customGreen =
+        @"<Chart BackColor=""#3b79a8"" BackGradientStyle=""TopBottom"" BorderColor=""181, 64, 1"" BorderWidth=""1"" BorderlineDashStyle=""Solid"" Palette=""BrightPastel"">
+        <ChartAreas>
+          <ChartArea Name=""Default"" _Template_=""All"" BackColor=""Transparent"" BackSecondaryColor=""Transparent"" BorderColor=""64, 64, 64, 64"" BorderDashStyle=""Solid"" ShadowColor=""Transparent"">
+            <AxisY LineColor=""64, 64, 64, 64"">
+              <MajorGrid Interval=""Auto"" LineColor=""64, 64, 64, 64"" />
+              <LabelStyle Font=""Lucida Sans, 5pt"" Format=""C"" />
+            </AxisY>
+            <AxisX LineColor=""64, 64, 64, 64"">
+              <MajorGrid LineColor=""64, 64, 64, 64"" />
+              <LabelStyle Font=""Lucida Sans, 5pt"" />
+            </AxisX>
+            <Area3DStyle Inclination=""15"" IsClustered=""False"" IsRightAngleAxes=""False"" Perspective=""10"" Rotation=""10"" WallWidth=""0"" />
+          </ChartArea>
+        </ChartAreas>
+        <Legends>
+           <Legend _Template_=""All"" Alignment=""Center"" BackColor=""Transparent"" Docking=""Bottom"" Font=""Lucida Sans, 9.25pt, style=Bold"" IsTextAutoFit =""False"" LegendStyle=""Row"">
+           </Legend>
+        </Legends>
+       </Chart>";
+    var key = new Chart(width: 990, height: 300, theme: customGreen)
+   .AddTitle("Receitas x Despesas " + DateTime.Now.Year.ToString())
+   .AddSeries(
+   chartType: "column",
+   name: "Receitas",
+   xValue: new[] { "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nob", "Dez" },
+   yValues: new[] { (Decimal.Parse(Model.rjan.ToString())).ToString(),
+                    (Decimal.Parse(Model.rfev.ToString())).ToString(),
+                    (Decimal.Parse( Model.rmar.ToString())).ToString(),
+                    (Decimal.Parse(Model.rabr.ToString())).ToString(),
+                    (Decimal.Parse(Model.rmai.ToString())).ToString(),
+                    (Decimal.Parse(Model.rjun.ToString())).ToString(),
+                    (Decimal.Parse(Model.rjul.ToString())).ToString(),
+                    (Decimal.Parse(Model.rago.ToString())).ToString(),
+                    (Decimal.Parse(Model.rset.ToString())).ToString(),
+                    (Decimal.Parse(Model.rout.ToString())).ToString(),
+                    (Decimal.Parse(Model.rnov.ToString())).ToString(),
+                    (Decimal.Parse(Model.rdez.ToString())).ToString() })
+   .AddSeries(
+   name: "Despesas",
+   yValues: new[] { (Decimal.Parse(Model.pjan.ToString())).ToString(),
+                   (Decimal.Parse(Model.pfev.ToString())).ToString(),
+                   (Decimal.Parse(Model.pmar.ToString())).ToString(),
+                   (Decimal.Parse(Model.pabr.ToString())).ToString(),
+                   (Decimal.Parse(Model.pmai.ToString())).ToString(),
+                   (Decimal.Parse(Model.pjun.ToString())).ToString(),
+                   (Decimal.Parse(Model.pjul.ToString())).ToString(),
+                   (Decimal.Parse(Model.pago.ToString())).ToString(),
+                   (Decimal.Parse(Model.pset.ToString())).ToString(),
+                   (Decimal.Parse(Model.pout.ToString())).ToString(),
+                   (Decimal.Parse(Model.pnov.ToString())).ToString(),
+                   ( Decimal.Parse(Model.pdez.ToString())).ToString() })
+   .AddLegend()
+   .Write();
+
+}

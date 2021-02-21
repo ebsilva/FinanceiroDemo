@@ -1,0 +1,136 @@
+﻿@model Metasoft.Models.Cliente
+@using Metasoft.Models
+@{  ViewBag.Title = "Novo fornecedor";}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovoFornecedor" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-default newitem">
+
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud">
+            <div style="display:grid;grid-template-columns: 17% 16% 66%;grid-column-gap:5px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "cnpj", InputClass = "custom-dropdown_noarrow", Title = "CNPJ" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "ie", InputClass = "custom-dropdown_noarrow", Title = "IE" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "nome", InputClass = "custom-dropdown_noarrow", Title = "Razão Social" })
+            </div>
+            <div style="display:grid;grid-template-columns: 17% 16% 66%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.cnpj, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.ie, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.nome, "", new { @class = "text-danger" })
+            </div>
+            <div style="display:grid;grid-template-columns: 10% 60% 29%;grid-column-gap:5px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "cep", InputClass = "custom-dropdown_noarrow", Title = "Cep" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "endereco", InputClass = "custom-dropdown_noarrow", Title = "Endereço" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "complemento", InputClass = "custom-dropdown_noarrow", Title = "Complemento" })
+            </div>
+            <div style="display:grid;grid-template-columns: 10% 60% 30%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.cep, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.endereco, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.complemento, "", new { @class = "text-danger" })
+            </div>
+
+            <div style="display:grid;grid-template-columns: 50% 5% 44%;grid-column-gap:5px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "bairro", InputClass = "custom-dropdown_noarrow", Title = "Bairro" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "estado", InputClass = "custom-dropdown_noarrow", Title = "UF" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "cidade", InputClass = "custom-dropdown_noarrow", Title = "Cidade" })
+            </div>
+            <div style="display:grid;grid-template-columns: 50% 5% 45%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.bairro, "", new { @class = "text-danger" })
+            </div>
+
+            <div style="display:grid;grid-template-columns: 14% 14% 35% 35%;grid-column-gap:5px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "fone", InputClass = "custom-dropdown_noarrow", Title = "Fone" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "f0800", InputClass = "custom-dropdown_noarrow", Title = "0800" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "email", InputClass = "custom-dropdown_noarrow", Title = "Email" })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "site", InputClass = "custom-dropdown_noarrow", Title = "Site" })
+            </div>
+            <div style="display:grid;grid-template-columns: 14% 14% 35% 35%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.fone, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.f0800, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.email, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.site, "", new { @class = "text-danger" })
+            </div>
+
+        </div>
+        @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "NovoFornecedor", BackToUrl = "/Clientes/ListaFornecedores" })
+    </div>
+
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+      $(document).ready(function () {
+
+          $("#nome").keyup(function () { this.value = this.value.toUpperCase(); });
+          $("#bairro").keyup(function () { this.value = this.value.toUpperCase(); });
+          $("#email").keyup(function () { this.value = this.value.toLowerCase(); });
+          $("#site").keyup(function () { this.value = this.value.toLowerCase(); });
+          $("#fone").mask("(00) 0000-0000");
+          $("#f0800").mask("0000-000000");
+          $("#ie").mask("000000000000000");
+          $("#cep").mask("00000-000");
+          $("#cnpj").mask("00.000.000/0000-00");
+          /* Municipios Endereco */
+            $("#cep").blur(function () {
+              var cep = $(this).val().replace(/\D/g, '');
+              if (cep != "") {
+                  var validacep = /^[0-9]{8}$/;
+                  limpa_endereco();
+                  $.getJSON("//viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
+                      if (!("erro" in dados)) {
+                           $("#endereco").val(dados.logradouro);
+                          $("#bairro").val(dados.bairro);
+                          $("#estado").val(dados.uf);
+                          $("#cidade").val(dados.localidade);
+                      }
+                      else {msg("CEP não encontrado.");}
+                  });
+              }
+              else {limpa_endereco(); }
+
+          });
+          if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+      });
+
+      function limpa_endereco() {
+          // Limpa valores do formulário de cep.
+          $("#endereco").val("");
+          $("#bairro").val("");
+          $("#cidade").val("");
+          $("#estado").val("");
+      }
+          function SetDefaultValueForDropDown(dropdown, selected) {
+          $("#" + dropdown).val(selected).attr("selected", "selected");
+
+      }
+
+
+      function HideElement(element) {
+          $("#" + element).val("")
+          $("#" + element).fadeOut(600);
+      }
+      function ShowElement(element) {
+          $("#" + element).slideDown(1000);
+      }
+      //function SetChosen(placeholtertext) {
+      //    var config = {
+      //        '.chosen-select': {},
+      //        '.chosen-select-deselect': { allow_single_deselect: true },
+      //        '.chosen-select-no-single': { disable_search_threshold: 10 },
+      //        '.chosen-select-no-results': { no_results_text: 'Nada encontrado!' },
+      //        '.chosen-select-width': { width: "95%" }
+      //    }
+      //    for (var selector in config) {
+      //        $(selector).chosen(config[selector]);
+      //    }
+      //}
+
+    </script>
+
+
+    @Scripts.Render("~/bundles/jqueryval")}

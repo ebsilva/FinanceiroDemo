@@ -1,0 +1,138 @@
+﻿@model IEnumerable<Metasoft.Models.ReembolsoViewModel>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+
+@{ViewBag.Title = "Lista Reembolsos";
+    ViewBag.Title = "Lista Reembolsos";
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0)
+        {
+            count = Model.Count();
+        }
+    }
+    decimal total = 0;
+}
+
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ListaReembolso" })))
+{
+    @Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Reembolso" })
+    <div class="panel panel-default mgauto" style="display:none;">
+        <div style="display:grid;grid-template-columns: 40%   30% 10% 10% 10%;height:30px;grid-column-gap:5px;margin-top:10px;">
+
+            @Html.Partial("_Title", new TitleViewModel { title = "Reembolsos cadastrados (" + (count) + ")", width = "20%", classe = "title" })
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "usuarios", InputClass = "custom-dropdown", Title = "Usúarios", NoLabel = true })
+            <!-- Meses-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "meses", InputClass = "custom-dropdown", Title = "Mês", StaticOptions = "_OptionsMeses", NoLabel = true })
+            <!-- Ano-->
+            @Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017, NoLabel = true })
+            <div class="dspib noprint" style="width:5%;position:relative;top:5px;">
+                <a id="printicon" onclick="PrintTable('#tablereembolso','DNK - Lista de Reembolso');" title="Imprimir"><i class="fa fa-print fs24"></i></a>
+            </div>
+        </div>
+        <div style="height:15px;"></div>
+        <div>
+            @if (Model.Count() > 0)
+            {
+                <table id="tablereembolso" class="tablereembolso">
+                    <thead>
+                        <tr>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.reembolsoid)</th>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.tipoid)</th>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.userid)</th>
+                            <th>Referência</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.tiponome)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.usernome)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.descricao)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.valor)</th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.situacao)</th>
+                            <th class="noprint">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            total += item.valor;
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.reembolsoid)</td>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.tipoid)</td>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.userid)</td>
+
+                                @{string referencia = item.vencimento.ToString();}
+                                <td>@referencia</td>
+                                <td>@Html.DisplayFor(modelItem => item.tiponome) </td>
+                                <td>@Html.DisplayFor(modelItem => item.usernome) </td>
+                                <td>@Html.DisplayFor(modelItem => item.descricao) </td>
+                                <td>@String.Format("{0:C}", item.valor)</td>
+                                <td>@Html.DisplayFor(modelItem => item.situacao) </td>
+                                <td class="noprint">
+                                    <a id="alterarlink" class="actionicon" href="/Reembolsoes/AlterarReembolso/@item.reembolsoid" title="Alterar cliente"><i class="fa fa-pen"></i></a>
+                                    <a id="excluirlink" class="actionicon" href="#" title="Excluir reembolso" onclick="ExcluirConfirm('Reembolso',@item.reembolsoid,'@item.descricao');"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+
+                <div class="naocadastrado">Nenhum reembolso cadastrado</div>
+            }
+        </div>
+        <div class="divtotais">
+            <table  style="background-color:transparent;color:white;">
+                <tr >
+                    <td class="hidden"></td>
+                    <td class="hidden"></td>
+                    <td class="hidden"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="tdsubtt" style="color:white;padding-right:20px;font-size:16px;">Total&nbsp;&nbsp;&nbsp;&nbsp;@String.Format("{0:C}", total)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+           GlobalSettings("#tablereembolso","600px", 1, false, true,true, "", "", false,false,false);
+           var usuario = '@Html.Raw(ViewBag.usuarioselected)';
+         
+            var d = new Date(), m = d.getMonth() + 1, y = d.getFullYear();
+     
+            var mes = '@Html.Raw(ViewBag.messelected)'; if (mes == "") { mes = m; }
+            var ano = '@Html.Raw(ViewBag.anoselected)'; if (ano == "") { ano = y; }
+           
+            GetUsuarios("usuarios"); $(function () { $('#usuarios').change(function () { this.form.submit(); }); });
+
+            ebs.SetSelectValue("meses", mes);
+            ebs.SetSelectValue("anos",ano);
+            //document.getElementById("meses").value = mes.toString();
+            // document.getElementById("anos").value = ano.toString();
+        });
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

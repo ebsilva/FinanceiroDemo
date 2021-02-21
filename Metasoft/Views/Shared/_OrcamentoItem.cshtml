@@ -1,0 +1,78 @@
+﻿@model Metasoft.ViewModels.OrcamentoItemVm
+@using Metasoft.Utilities
+
+<div class="@Tools.Status(Model.O, Model.R,Model.Mes)">
+    @if (Model.Mes != 13)
+    {
+        <!-- Valor do mês  -->
+        var sufix = Model.Id.ToString() + Model.Mes.ToString();
+        var aid = "a" + sufix;
+        var eid = "e" + sufix;
+        var iid = "i" + sufix;
+        var lid = "l" + sufix;
+
+        <div id="@eid" class="dspnone">
+            <input id="@iid" type="number" step="0.50" class="caixa" title="Informe o valor para o caixa" style="color:red;height:25px;font-size:12px;" />
+        </div>
+        <div id="@aid" title="Atualizar valor em Caixa" onclick="EditCaixa(@Model.Id,@Model.Mes)" style="background:#16134a;">
+            <label id="@lid" data-ano="@Model.Ano" data-cat="@Model.Id" data-mes="@Model.Mes" class="@Tools.StatusCaixa(Model.Caixa, Model.R, @Model.Mes)" style="font-size:13px;">
+                @if (Model.Caixa > 0)
+                {@Tools.NotNullMoney(Model.Caixa) }
+            else
+            {
+                <label style="opacity:.5">
+                    <i class="fa fa-dollar-sign iconbar"></i>
+                </label>
+            }
+            </label>
+        </div>
+        <div>
+            @if (Model.O > 0)
+            {
+                <a href="#" title="exibir todos lançamentos"
+                   onclick="OrcamentoLancamentosAll(@Model.Id,@Model.Mes)"
+                   data-toggle="modal"
+                   data-target="#ListaContasModal">
+                    <label class="@Tools.Status(Model.O, Model.R,Model.Mes)"> @Tools.NotNullMoney(Model.O)</label>
+                </a>
+            }
+
+        </div>
+    }
+    else
+    {
+        <!-- Total do ano na categoria  -->
+        <label class="@Tools.Status(Model.Tto, Model.Ttr,13)">
+            @Tools.NotNullMoney(Model.Tto)
+        </label>
+
+    }
+
+</div>
+
+@if (Model.Mes != 13)
+{
+    <!-- Difereça do mês  -->
+    if (Tools.TemDiferenca(Model.O, Model.R) && Model.Mes < DateTime.Now.Month)
+    {
+        <div class="noprint" style="text-align:right;">
+            <!-- Exibe lancamento do Categoria/Mes  -->
+            <a href="#" title="exibir lançamentos pendentes"
+               onclick="OrcamentoLancamentos(@Model.Id,@Model.Mes)"
+               data-toggle="modal" data-target="#ListaContasModal">
+                <label class="ored">@Tools.Diferenca(Model.O, Model.R)</label>
+            </a>
+
+        </div>
+    }
+
+}
+else
+{
+    <!-- Diferenca no ano  -->
+    if (Tools.TemDiferenca(Model.Tto, Model.Ttr))
+    {
+        <label style="display:block;margin-top:3px;color:red;">@Tools.Diferenca(Model.Tto, Model.Ttr)</label>
+    }
+}
+

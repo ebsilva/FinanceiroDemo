@@ -1,0 +1,20 @@
+﻿@model Metasoft.Models.FiltersViewModel
+@using Metasoft.Models;
+<!--Tipo data-->
+@Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "tipodata", InputClass = "custom-dropdown", Title = "Tipo Data", StaticOptions = "_OptionsTipoData" })
+
+<!--De -->
+@Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "de", Title = "De" })
+
+<!--Ate -->
+@Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "ate", Title = "Até" })
+
+<!-- Ano-->
+@Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017 })
+
+@Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "categorias", InputClass = "custom-dropdown", Title = "Categorias" })
+
+@Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = @Model.ElementName, InputClass = "custom-dropdown", Title = @Model.ClienteFornecedorLabel })
+
+@Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "situacao", InputClass = "custom-dropdown", Title = "Status", StaticOptions = "_OptionsStatus" })
+

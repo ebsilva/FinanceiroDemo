@@ -1,0 +1,443 @@
+﻿@model IEnumerable<Metasoft.Models.PropostaViewModel>
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Propostas";
+    Permissao permissoes = (Permissao)Session["permissoes"];
+    int count = 0;
+    if (Model != null)
+    {
+        if (Model.Count() > 0)
+        {
+            count = Model.Count();
+        }
+    }
+}
+@Html.Partial("_Loading", new LoadingViewModel { Text = "Carregando Lista de Propostas" })
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "ListaPropostas" })))
+{
+    <div class="panel panel-default mgauto" style="display:none">
+
+        <div style="display:grid;grid-template-columns: 85% 15%;height:28px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Propostas cadastradas (" + (count) + ")", width = "29%", classe = "title" })
+            @Html.Partial("_Search", new SearchViewModel { DivClass = "search", Tabela = "propostas", StarCol = 1, EndCol = 8 })
+        </div>
+
+        <div class="filterWrap noprint" style="display:grid;grid-template-columns: 10%  10% 12%  22%  23% 9%  10%;margin-top:5px; grid-column-gap:4px;">
+            <!-- De -->
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "de", Title = "De" })
+            <!-- Até -->
+            @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "0px", Id = "ate", Title = "Até" })
+
+            <!-- Categorias -->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "categorias", InputClass = "custom-dropdown", Title = "Categorias" })
+
+            <!-- Clientes -->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "clientes", InputClass = "custom-dropdown", Title = "Clientes" })
+
+            <!-- Reponsaveis -->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "responsaveis", InputClass = "custom-dropdown", Title = "Responsaveis" })
+
+            <!-- Status -->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "situacao", InputClass = "custom-dropdown", Title = "Status", StaticOptions = "_OptionsPropostasStatus" })
+
+            <!-- Actions Panel-->
+            @Html.Partial("_ActionsPanel", new ActionsPanelViewModel
+            {
+                DivClass = "inputdiv",
+                Mtop = "25px",
+                Height = "31px",
+                Id = "actions",
+                InputClass = "custom-dropdown",
+                AddNewLink = "/Propostas/NovaProposta",
+                AddNewTitle = "Cadastrar nova proposta",
+                RevoveFilterUrl = "/Propostas/ListaPropostas",
+                Tabela = "#propostas",
+                ReportTitle = "DNK - Relação de Propostas cadastradas",
+                CanEdit = permissoes.pro_edit
+               })
+        </div>
+        <div style="clear:both;height:5px;"></div>
+        <div class="panel-body-custom">
+            @if (Model != null)
+            {
+                <table id="propostas">
+                    <thead>
+                        <tr>
+                            <th class="hidden">@Html.DisplayNameFor(model => model.clienteid)</th>
+                            <th class="thbkg"><a href="#" style="color:white;">Nº</a></th>
+                            <th class="thbkg"><a href="#" style="color:white;">Cliente</a></th>
+                            <th class="thbkg"><a href="#" style="color:white;">Categoria</a></th>
+                            <th class="thbkg">@Html.DisplayNameFor(model => model.descricao)</th>
+                            <th class="thbkg">R$ Valor</th>
+                            <th class="thbkg">R$ Faturado</th>
+                            <th class="thbkg">R$ Saldo</th>
+                            <th class="thbkg">Prev</th>
+                            <th class="thbkg">Sit</th>
+                            <th style="text-align:center;" class="thbkg noprint">A&ccedil;&otilde;es</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string propostaid = DateTime.Parse(item.dtcad).Year.ToString() + "/" + item.propostaid.ToString().PadLeft(3, '0');
+                            <tr>
+                                <td class="hidden">@Html.DisplayFor(modelItem => item.clienteid)</td>
+                                <td style="width:4%">@propostaid</td>
+                                <td>
+                                    <a id="detalheslink"
+                                       href="#"
+                                       title="Exibir Detalhes do cliente"
+                                       data-toggle="modal"
+                                       data-target="#ClienteDetailModal"
+                                       onclick="GetClienteDetails(@item.clienteid)">
+                                        @Tools.ShortText(item.clientenome, 31)
+                                    </a>
+                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.categorianome)</td>
+                                <td>@Tools.ShortText(item.descricao, 50)</td>
+                                <td class="tar">R$&nbsp;@Html.DisplayFor(modelItem => item.valor)</td>
+                                <td class="tar">
+                                    @if (item.faturado > 0)
+                                    {<span class="faturado">R$&nbsp;@Html.DisplayFor(modelItem => item.faturado)</span>}
+                                </td>
+                                <td class="tar">R$&nbsp;@Html.DisplayFor(modelItem => item.saldo)</td>
+                                <td>@Html.DisplayFor(modelItem => item.previsao)</td>
+                                <td>
+                                    <i class="fa fa-circle noprint" style="color:@item.cor;" title="@Html.DisplayFor(modelItem => item.situacao)"></i>
+                                    <span class="statusdesc">@Html.DisplayFor(modelItem => item.situacao)</span>
+                                </td>
+                                <td class="noprint">
+                                    <!--Nao faturada-->
+                                    @if (item.situacaoid != 5)
+                                    {
+                                        <!-- Em analise  -->
+                                        if (item.situacaoid == 1)
+                                        {
+                                            if (permissoes.pro_edit)
+                                            {
+                                                <a id="aceitarlink" class="actionicon" href='#' data-toggle="modal" data-target="#AceiteModal" title='Mover para Aceita' onclick="saveid('A',@item.propostaid)"><i id='aceitarico' class='fas fa-thumbs-up'></i></a>
+                                                <a id="negarlink" class="actionicon" href='#' data-toggle="modal" data-target="#NegarModal" title='Negar proposta' onclick="saveid('N',@item.propostaid)"><i id='negarico' class='fas fa-thumbs-down'></i></a>
+
+                                                <a id="excluirlink" class="actionicon" href='#' title='excluir proposta' onclick="ExcluirConfirm('proposta',@item.propostaid,'Nº ' +'@item.propostaid.ToString()');"><i id='excluirico' class='fas fa-trash'></i></a>
+                                            }
+                                        }
+                                        <!-- Aceita -->
+                                        if (item.situacaoid == 2)
+                                        {
+                                            if (permissoes.pro_edit)
+                                            {
+                                                <a id="apolink" class="actionicon" href='#' title='Mover para Aguardando PO' onclick="CallAvancarFluxo(@item.propostaid,@item.situacaoid,'Aguardando PO')"><i id='aporico' class='fas fa-hand-point-up'></i></a>
+                                            }
+                                        }
+                                        <!-- Aguardando PO -->
+                                        if (item.situacaoid == 7)
+                                        {
+                                            if (permissoes.pro_edit)
+                                            {
+                                                <a id="liberarlink" class="actionicon" href='#' title='Mover para Liberada' onclick="CallLiberarProposta(@item.propostaid)"><i id='liberarico' class='fas fa-hand-point-up'></i></a>
+                                            }
+                                        }
+                                        <!-- Liberada -->
+                                        if (item.situacaoid == 4)
+                                        {
+                                            if (permissoes.pro_edit)
+                                            {
+                                                <a id="faturarlink" class="actionicon" href='#' title='Mover para Faturando' onclick="CallAvancarFluxo(@item.propostaid,@item.situacaoid,'Faturando')"><i id='liberarico' class='fas fa-hand-point-up'></i></a>
+                                            }
+                                        }
+                                    }
+
+                                    <!-- Voltar fluxo -->
+                                    @if (item.situacaoid > 1)
+                                    {
+                                        <a id="voltarfluxolink" class="actionicon" href='#' title='Voltar fluxo' onclick="CallVoltarFluxo(@item.propostaid,@item.situacaoid)"><i id='voltarfluxoico' class='fas fa-undo-alt'></i></a>
+                                    }
+                                    <!-- alterado em 28/06/2018 -->
+                                    @if (item.situacaoid != 5)
+                                    {
+                                        <a id="alterarlink" class="actionicon" href='/Propostas/AlterarProposta/@item.propostaid' title='Alterar proposta' onclick=""><i id='alterarico' class='fas fa-pen'></i></a>
+                                    }
+                                    @if (item.situacaoid > 1)
+                                    {
+                                        <a id="detalheslink"
+                                           class="actionicon"
+                                           href="#"
+                                           title="Exibir Detalhes e Notas Fiscais proposta"
+                                           data-toggle="modal"
+                                           data-target="#DetalhesModal"
+                                           onclick="ShowDetalhes_e_NotasFiscaisProposta(@item.propostaid,@item.envio+'',@item.numpo+'',@item.horasestimadas,@item.horasutilizadas,'@item.dtaceite',@item.situacaoid,'@item.motivo','@item.responsavel')">
+                                            <i class="fas fa-bars"></i>
+                                        </a>
+                                    }
+
+                                    <!-- 23/07/2018-->
+                                    <a class="actionicon"
+                                       href="/Propostas/NovaVisita/@item.propostaid"
+                                       title="Cadastrar visita">
+                                        <i class="fas fa-walking"></i>
+                                    </a>
+                                    <a class="actionicon" href='#' data-toggle="modal" data-target="#VisitasModal"
+                                       title='Consultar visitas'
+                                       onclick="ShowVisitas(@item.propostaid)">
+                                        <i class="fas fa-home" style="color:#ce671d;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                @Html.Partial("_NenhumCadastrado", new NenhumCadastradoModel { title = "Nenhuma proposta cadastrada", width = "30%;" })
+            }
+
+        </div>
+
+        <div class="panel-body-custom titleshadow" style="display:grid; grid-template-columns:25% 18% 12% 18% 25%;background-color:#0d5182;margin-top:5px;border-radius:3px;border:solid 0.3px #3766ac;overflow-x:hidden;overflow-y:hidden;">
+            <div></div>
+            <div>
+                <span style="color:white;">Total R$&nbsp;&nbsp;</span><span id="total" style="color:white;" class="fs12"></span>
+            </div>
+            <div></div>
+            <div>
+                <span style="color:#37ba37;">Faturado R$&nbsp;&nbsp;</span><span id="faturado" style="color:#37ba37;" class="fs12"></span>
+            </div>
+            <div></div>
+        </div>
+    </div>
+
+}
+
+<!-- Aceite modal -->
+
+@Html.Partial("_Modal", new ModalPanelViewModel { Id = "AceiteModal", PartialContent = "_Aceite", Title = "Aceitar  proposta",ModalSize="modal-sm" })
+
+<!-- Negar modal -->
+@Html.Partial("_Modal", new ModalPanelViewModel { Id = "NegarModal", PartialContent = "_Negar", Title = "Negar  proposta",ModalSize="modal-lg" })
+
+<!-- Detalhes modal -->
+<div class="modal fade" id="DetalhesModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modalheader">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true" style="color:white;">&times;</span></button>
+                <h4 class="modal-title" id="detalheheadear"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <span class="lbtexto" style="width:10%;">Responsável</span>
+                        <div><input class="form-control formfont" id="responsavel" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <span class="lbtexto" style="width:10%;">Envio</span>
+                        <div><input class="form-control formfont" id="envio" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="lbtexto" style="width:10%;">Nº PO</span>
+                        <div><input class="form-control formfont" id="numpo" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="lbtexto" style="width:10%;">HE</span>
+                        <div><input class="form-control formfont" id="he" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="lbtexto" style="width:10%;">HU</span>
+                        <div><input class="form-control formfont" id="hu" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                    <div class="col-md-3">
+                        <span id="aceitelabel" class="lbtexto" style="width:10%;"></span>
+                        <div><input class="form-control formfont" id="dtaceite" type="text" style="width:90%;" disabled="disabled" /></div>
+                    </div>
+                </div>
+                <div class="row dspnone" id="divmotivo">
+                    <br />
+                    <div>Motivo para negar proposta</div>
+                    <div><input class="form-control formfont" id="textomotivo" type="text" style="width:90%;" disabled="disabled" /></div>
+                </div>
+                <div id="divdetalhes">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cliente detail Modal -->
+<div class="modal fade" id="ClienteDetailModal" tabindex="-1" role="dialog" aria-labelledby="ClienteDetail-label">
+    <div class="modal-dialog" role="document" style="width:80%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h6 class="modal-title" id="ClienteDetail-label">Detalhes Cliente</h6>
+            </div>
+            <div class="modal-body" style="height:220px;">
+                <div id="divclientedetails">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Visitas -->
+@Html.Partial("_Modal", new ModalPanelViewModel { Id = "VisitasModal", PartialContent = "_Visitas", Title = "Vistas Cadastradas",ModalSize="modal-lg" })
+
+
+@section Scripts {
+    <script type="text/javascript">
+    $(document).ready(function () {
+            GlobalSettings("#propostas","400px", [1, 'desc'], true, false, false, "C", "R", true, true, true);
+            var propostaid = 0;
+            var acao = "";
+
+            $("#fonecontato").mask("(99) 9999-9999");
+            $("#celularcontato").mask("(99) 9-9999-9999");
+            //$("#propostas_filter").addClass("noprint");
+
+            var categoria = '@Html.Raw(ViewBag.categoriaselected)'; if (categoria != "") { SetDropDownValue(categoria, "categorias"); } else { categoria = "0"; }
+            var responsavel = '@Html.Raw(ViewBag.responsavelselected)'; if (responsavel != "") { SetDropDownValue(responsavel, "responsaveis"); } else { responsavel = "0"; }
+            var cliente = '@Html.Raw(ViewBag.clienteselected)'; if (cliente != "") { SetDropDownValue(cliente, "clientes"); } else { cliente = "0"; }
+            var situacao = '@Html.Raw(ViewBag.situacaoselected)'; if (situacao != "") { SetDropDownValue(situacao, "situacao"); }
+            var de = '@Html.Raw(ViewBag.deselected)'; if (de != "") { $("#de").val(de); }
+            var ate = '@Html.Raw(ViewBag.ateselected)'; if (ate != "") { $("#ate").val(ate); }
+
+        });
+
+        function GetClienteDetails(clienteid) {
+            var placeholder = "#divclientedetails";
+            $(placeholder).load("/Propostas/GetClienteDetails", {
+                clienteid: clienteid,
+                viewName: "_DetalhesCliente"
+            });
+        }
+        function Pre_Print(tabela) {
+            var table = $(tabela).DataTable();
+            table.destroy();
+            Imprime();
+            SetDataTable();
+
+        }
+        function UpdateTotal() {
+            var table = $("#propostas table tbody");
+            var total = 0.00; var faturado = 0.00;
+            $("#propostas").find('tr').each(function (i) {
+                var $tds = $(this).find('td'),
+                           valor = $tds.eq(5).text().replace("R$", "").replace(".", "").replace(",", ""),
+                           valorf = $tds.eq(6).text().replace("R$", "").replace(".", "").replace(",", "");
+                var numero = Number(valor) / 100;
+                var numerof = Number(valorf) / 100;
+                total = total + numero;
+                faturado = faturado + numerof;
+            });
+            $("#total").text(InvertComa(total.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')));
+            $("#faturado").text(InvertComa(faturado.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')));
+
+        }
+        function Download() {
+            $("#download").val("true");
+            submitform("ListaPropostas");
+        }
+        function DownloadFalse() {
+            $("#download").val("false");
+        }
+        function ShowLancarPagamentos(id,propid,nome) {
+
+            $("#pagcliid").text(id);
+            $("#pagpropid").text(propid);
+            $("#clientename").text(nome);
+
+        }
+        function ShowDetails(id, propid, nome) {
+
+            $("#pagcliid").text(id);
+            $("#pagpropid").text(propid);
+            $("#clientename").text(nome);
+
+        }
+        function ShowDetalhes_e_NotasFiscaisProposta(propostaid, envio, numpo, he, hu, dtaceite, situacaoid,motivo, responsavel) {
+            $("#divdetalhes").empty();
+            $("#detalheheadear").text("Detalhes proposta Nº " + propostaid)
+            $("#envio").val(envio);
+            $("#numpo").val(numpo);
+            $("#he").val(he);
+            $("#hu").val(hu);
+            $("#dtaceite").val(dtaceite);
+            $("#responsavel").val(responsavel);
+            if(situacaoid==3){
+                $("#aceitelabel").text('Negada em');
+                $("#textomotivo").val(motivo);
+                $("#divmotivo").show();
+
+            } else {
+                $("#aceitelabel").text('Aceita em');
+                var placeholder = "#divdetalhes";
+                $(placeholder).load("/Propostas/ShowDetalhes_e_NotasFiscaisProposta", {
+                    propostaid: propostaid,
+                    viewName: "_DetalhesProposta"
+                });
+            }
+
+        }
+        function RemoveFiltersAndSubmit() {
+
+            $("#de").val("");
+            $("#ate").val("");
+             $("#anos").val("");
+            $("#categorias").val("");
+            $("#clientes").val("");
+            $("#responsaveis").val("");
+            SetDropDownValue("0", "situacao");
+            submitform("ListaPropostas");
+        }
+        function saveid(tipo,id){
+           propostaid = id;
+           acao = tipo;
+        }
+        function CallAceitarProposta() {
+            var aceite = $("#dataaceite").val();
+            AceitarProposta(propostaid, aceite);
+        }
+        function CallNegarProposta(){
+            var aceite = $("#datanegacao").val();
+            var motivo = $("#motivo").val();
+            NegarProposta(propostaid, aceite,motivo);
+        }
+        function CallLiberarProposta(propostaid) {
+           var aceite = $("#dataaceite").val();
+           LiberarProposta(propostaid);
+        }
+        function CallVoltarFluxo(propostaid, currentstatus) {
+           VoltarFluxo(propostaid, currentstatus);
+        }
+        function CallAvancarFluxo(propostaid, currentstatus, novostatus) {
+           AvancarFluxo(propostaid, currentstatus,novostatus);
+        }
+
+        function ShowVisitas(propostaid) {
+            var placeholder = "#divvisitas";
+            $(placeholder).load("/Propostas/ShowVisitas", {
+                propostaid: propostaid,
+                viewName: "_ShowVisitas"
+            });
+        }
+
+    </script>
+    @Scripts.Render("~/Scripts/Propostas.js")
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}
+
+
+
+
+
+

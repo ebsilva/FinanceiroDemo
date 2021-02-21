@@ -1,0 +1,45 @@
+﻿@model Metasoft.Models.ChangePasswordViewModel
+
+@{
+    Layout = "~/Views/Shared/_OpenLayout.cshtml";
+    ViewBag.Title = "Alteração de Senha";
+}
+    
+
+@using (Html.BeginForm("AlteracaoSenha", "Manage", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <br />
+    <br />
+
+    <div class="panel panel-default" style="width:40%;margin:0 auto;">
+        <div class="panel-heading-crud">
+            <div style="float:left;"><i class="fa fa-file-o"></i>&nbsp;@ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud" style="padding:15px">
+            <div class="row">
+                <div>
+                    @Html.Label("Senha atual", new { @class = " control-label", style = "displat:block;" })
+                    @Html.PasswordFor(m => m.OldPassword, new { @class = "form-control" })
+                </div>
+                <div>
+                    @Html.Label("Nova senha", new { @class = "control-label", style = "displat:block;" })
+                    @Html.PasswordFor(m => m.NewPassword, new { @class = "form-control" })
+                </div>
+                <div>
+                    @Html.Label("Confirmação nova senha", new { @class = "control-label", style = "displat:block;" })
+                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+                </div>
+                @Html.ValidationSummary("", new { @class = "text-danger" })
+                <div>
+                    <input type="submit" value="Altera senha" class="btn btn-info" style="margin-top:15px;width:100%" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

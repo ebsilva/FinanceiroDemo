@@ -1,0 +1,54 @@
+﻿@model Metasoft.Models.ContaPR
+@using Metasoft.Models
+@{ ViewBag.Title = "Nova Parcela a Pagar";}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "NovaParcelaApagar" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.contagrupo)
+    @Html.HiddenFor(model => model.cliforid)
+    <div class="panel panel-default" style="padding-top:20px;padding-right:250px;padding-left:250px;">
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud">
+            <div style="display:grid;grid-template-columns:  8% 90%;grid-column-gap:5px;margin-top:10px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "noordem", InputClass = "custom-dropdown_noarrow", Title = "Nº Ordem", Value = Model.noordem })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "descricao", InputClass = "custom-dropdown_noarrow", Title = "Descrição", Value = Model.descricao })
+                @Html.ValidationMessageFor(model => model.descricao, "", new { @class = "text-danger" })
+            </div>
+            <div style="display:grid;grid-template-columns: 68% 15% 15%;grid-column-gap:5px;margin-top:15px;">
+                @Html.HiddenFor(model => model.categoriaid)
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "categoria", InputClass = "custom-dropdown_noarrow readonly", Title = "Categoria", ReadOnly = true })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "valor", InputClass = "custom-dropdown_noarrow", Title = "R$ Valor", Value = Model.valor.ToString() })
+                @{ Html.EnableClientValidation(false); }
+                @Html.Partial("_Data", new DataViewModel { DivClass = "dpickerdiv", Mtop = "14px", Id = "vencimento", Title = "Vencimento" })
+            </div>
+            @Html.Partial("_Save", new SaveViewModel { Mtop = "20px", Submit = "NovaParcelaApagar", BackToUrl = "/ContaPRs/ApagarAnalitico" })
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+           $(document).ready(function () {
+               ebs.PopDropDown("cliforid", [{ "tipo": 'C' }]);
+               ebs.Mask("valor","vencimento", "npar");
+               ebs.Set_DatePicker()
+
+               $('#noordem').css('outline-width', 'thin');
+               $('#noordem').css('outline-color', 'blue');
+               $("#categoria").val('@Html.Raw(ViewBag.categorianome)')
+               $("#clifornome").val('@Html.Raw(ViewBag.clifornome)')
+               $("#npar").val("1");
+               $("#vencimento").val('');
+
+               SetDropDownValue('@Html.Raw(ViewBag.cliforid)', "cliforid")
+        });
+    </script>
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.min.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}
+

@@ -1,0 +1,148 @@
+﻿@model Metasoft.Models.Cliente
+@using Metasoft.Models
+@{
+    ViewBag.Title = "Alterar Cliente";
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "AlterarCliente" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-default newitem">
+
+        <div class="panel-heading-crud">
+            <div><i class="fas fa-file-alt"></i>@ViewBag.Title</div>
+        </div>
+        <div class="panel-body panel-body-crud">
+            @Html.HiddenFor(model => model.clienteid)
+            @Html.HiddenFor(model => model.tipo)
+            <div style="display:grid;grid-template-columns: 33% 33% 33%;grid-column-gap:5px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "cnpj", InputClass = "custom-dropdown_noarrow", Title = "CNPJ", Value = Model.cnpj })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "ie", InputClass = "custom-dropdown_noarrow", Title = "IE", Value = Model.ie })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "nome", InputClass = "custom-dropdown_noarrow", Title = "Razão Social", Value = Model.nome })
+            </div>
+            <div style="display:grid;grid-template-columns: 33% 33% 33%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.cnpj, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.ie, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.nome, "", new { @class = "text-danger" })
+            </div>
+            <div style="display:grid;grid-template-columns: 10% 60% 30%;grid-column-gap:5px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "cep", InputClass = "custom-dropdown_noarrow", Title = "Cep", Value = Model.cep })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "endereco", InputClass = "custom-dropdown_noarrow", Title = "Endereço", Value = Model.endereco })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "complemento", InputClass = "custom-dropdown_noarrow", Title = "Complemento" ,Value = Model.complemento})
+            </div>
+            <div style="display:grid;grid-template-columns: 10% 60% 30%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.cep, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.endereco, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.complemento, "", new { @class = "text-danger" })
+            </div>
+
+            <div style="display:grid;grid-template-columns: 50% 5% 45%;grid-column-gap:5px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "bairro", InputClass = "custom-dropdown_noarrow", Title = "Bairro", Value = Model.bairro })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "estado", InputClass = "custom-dropdown_noarrow", Title = "UF", Value = Model.estado })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "cidade", InputClass = "custom-dropdown_noarrow", Title = "Cidade", Value = Model.cidade })
+            </div>
+            <div style="display:grid;grid-template-columns: 50% 5% 45%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.bairro, "", new { @class = "text-danger" })
+            </div>
+
+            <div style="display:grid;grid-template-columns: 14% 14% 35% 35%;grid-column-gap:5px;">
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "fone", InputClass = "custom-dropdown_noarrow", Title = "Fone", Value = Model.fone })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "f0800", InputClass = "custom-dropdown_noarrow", Title = "0800", Value = Model.f0800 })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "email", InputClass = "custom-dropdown_noarrow", Title = "Email", Value = Model.email })
+                @Html.Partial("_Input", new InputViewModel { DivClass = "inputdiv", Mtop = "10px", Id = "site", InputClass = "custom-dropdown_noarrow", Title = "Site", Value = Model.site })
+            </div>
+            <div style="display:grid;grid-template-columns: 14% 14% 35% 35%;grid-column-gap:5px;">
+                @Html.ValidationMessageFor(model => model.fone, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.f0800, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.email, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.site, "", new { @class = "text-danger" })
+            </div>
+
+        </div>
+        @Html.Partial("_Save", new SaveViewModel {  Mtop = "10px", Submit="AlterarCliente", BackToUrl="/Clientes/ListaClientes" })
+
+    </div>
+
+
+
+
+
+
+
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+      $(document).ready(function () {
+
+          //$("#cep").mask("99999999");
+          $("#nome").keyup(function () { this.value = this.value.toUpperCase(); });
+          $("#bairro").keyup(function () { this.value = this.value.toUpperCase(); });
+          $("#estado").keyup(function () { this.value = this.value.toUpperCase(); });
+          $("#fone").mask("(00) 0000-0000");
+          $("#cnpj").mask("00.000.000/0000-00");
+          $("#f0800").mask("0000-000000");
+          $("#cep").mask("00000-000");
+          $("#ie").mask("0000000000");
+          $("#email").keyup(function () { this.value = this.value.toLowerCase(); });
+               /* Municipios Endereco */
+          $("#cep").blur(function () {
+
+              /*Nova variável "cep" somente com dígitos.*/
+              var cep = $(this).val().replace(/\D/g, '');
+
+              /*Verifica se campo cep possui valor informado.*/
+              if (cep != "") {
+                  var validacep = /^[0-9]{8}$/;
+                  limpa_endereco();
+                  $.getJSON("//viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
+                      if (!("erro" in dados)) {
+                          $("#endereco").val(dados.logradouro);
+                          $("#bairro").val(dados.bairro);
+                          $("#estado").val(dados.uf);
+                          $("#cidade").val(dados.localidade);
+                       }
+                      else { msg("CEP não encontrado."); }
+                  });
+              }
+              else {limpa_endereco();}
+          });
+          if ('@Html.Raw(ViewBag.jaexiste)' != "") { msg('@Html.Raw(ViewBag.jaexiste)'); }
+      });
+
+      function limpa_endereco() {
+          // Limpa valores do formulário de cep.
+          //$("#endereco").val("");
+          $("#bairro").val("");
+          $("#cidade").val("");
+          $("#estado").val("");
+      }
+
+      function SetDefaultValueForDropDown(dropdown, selected) {
+             $("#" + dropdown).val(selected).attr("selected", "selected");
+      }
+       function HideElement(element) {
+          $("#" + element).val("")
+          $("#" + element).fadeOut(600);
+      }
+      function ShowElement(element) {
+          $("#" + element).slideDown(1000);
+      }
+      //function SetChosen(placeholtertext) {
+      //    var config = {
+      //        '.chosen-select': {},
+      //        '.chosen-select-deselect': { allow_single_deselect: true },
+      //        '.chosen-select-no-single': { disable_search_threshold: 10 },
+      //        '.chosen-select-no-results': { no_results_text: 'Nada encontrado!' },
+      //        '.chosen-select-width': { width: "95%" }
+      //    }
+      //    for (var selector in config) {
+      //        $(selector).chosen(config[selector]);
+      //    }
+      //}
+
+    </script>
+
+
+    @Scripts.Render("~/bundles/jqueryval")}

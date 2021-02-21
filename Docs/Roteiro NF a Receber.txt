@@ -1,0 +1,2 @@
+1) Icone para NF 
+	Abre tela ( ou modal)

@@ -1,0 +1,15 @@
+﻿@model Metasoft.Models.InputViewModel
+<div class="@Model.DivClass" style="margin-top:@Model.Mtop;">
+    <label>@Model.Title</label>
+    <div class="@Model.InputClass">
+        @if (Model.ReadOnly)
+        {
+            <input id="@Model.Id" name="@Model.Id" type="text"  class="form-control" readonly="readonly"  style="border:none;border-radius:0;color:#5a6af0;  border-bottom: solid 1px #0d1f87;" />
+        }
+        else
+        {
+            <input id="@Model.Id" name="@Model.Id" type="text" value="@Model.Value" class="form-control"  style="border:none;border-radius:0;  border-bottom: solid 1px #d3b07f;" />
+        }
+
+    </div>
+</div>

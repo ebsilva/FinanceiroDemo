@@ -1,0 +1,181 @@
+﻿@model Metasoft.Models.ExtratoViewModel
+@using Metasoft.Utilities;
+@using Metasoft.Models;
+@{
+    ViewBag.Title = "Extrato ";
+}
+<style>
+    table.extrato th:nth-child(1),table.extrato td:nth-child(1){width:100px;min-width:100px;}
+table.extrato th:nth-child(2),table.extrato td:nth-child(2){width:100px;min-width:100px;}
+table.extrato th:nth-child(3),table.extrato td:nth-child(3){width:100px;min-width:100px;}
+
+table.extrato th:nth-child(4),table.extrato td:nth-child(4){width:350px;min-width:350px;}
+table.extrato th:nth-child(5),table.extrato td:nth-child(5){width:100px;min-width:100px;}
+table.extrato th:nth-child(6),table.extrato td:nth-child(6){width:100px;min-width:100px;}
+table.extrato th:nth-child(7),table.extrato td:nth-child(7){width:100px;min-width:100px;}
+</style>
+
+@using (Html.BeginForm(Html.BeginForm(null, null, FormMethod.Post, new { id = "Extrato" })))
+{
+    <div class="panel panel-default dspnone mgauto" style="padding-right:150px;padding-left:150px;">
+
+        <div style="display:grid;grid-template-columns: 20% 45% 10% 10% 4% 3% ;height:50px;grid-column-gap:10px;margin-top:10px;">
+            @Html.Partial("_Title", new TitleViewModel { title = "Extrato", width = "30%", classe = "title" })
+
+            <div class="cw">
+                <div> Saldo inicial&nbsp;&nbsp;&nbsp;&nbsp;@Model.SaldoInicial.ToString("C")</div>
+                <div> Saldo atual&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:darkorange">@Model.SaldoDia.ToString("C")</span></div>
+               
+            </div>
+            <!-- Meses-->
+            @Html.Partial("_Select", new InputViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "meses", InputClass = "custom-dropdown", Title = "Mês", StaticOptions = "_OptionsMeses", NoLabel = true })
+            <!-- Ano-->
+            @Html.Partial("_Anos", new AnosViewModel { DivClass = "selectdiv", Mtop = "2px", Height = "31px", Id = "anos", InputClass = "custom-dropdown", Title = "Anos", CurrentYear = DateTime.Now.Year, End = 2017, NoLabel = true })
+            <div style="margin-top:7px;margin-left:10px">
+                <a id="printicon" title="Imprimir" onclick="Imprime();"><i class="fas fa-print fs24"></i></a>
+            </div>
+            <div style="margin-top:7px;">
+
+                <a id="inicioicon"
+                   class="actionicon" href='#'
+                   data-toggle="modal"
+                   data-target="#EditDataInicioModal"
+                   title='Definir Data Inicio'>
+                    <i class='fa fa-calendar fs24'></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body panel-body-custom" style="clear:both;overflow-y:auto;">
+
+            <table id="extrato" class="extrato">
+
+                @{
+                    //var count = Model.Count();
+
+                }
+                <thead>
+                    <tr>
+                        <th>Nº Conta</th>
+                        <th>Vencimento</th>
+                        <th>Pagamento</th>
+                        <th>Descrição</th>
+                        <th class="tac">Tipo</th>
+                        <th class="tac">Valor</th>
+                        <th class="tac">Saldo</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ string tipo = ""; string cor = "white";
+
+                    }
+                    @foreach (var item in Model.Linhas)
+                    {
+                        tipo = item.Tipo == "R" ? "+" : "-";
+                        cor = item.Tipo == "R" ? "lightgreen" : "red";
+                        <tr>
+                            <td>@item.ContaId</td>
+                            <td>@item.Vencimento.ToShortDateString()</td>
+                            <td>@item.Pagamento.ToShortDateString()</td>
+                            <td>@item.Descricao</td>
+                            <td class="tac">@tipo</td>
+                            <td class="tar" style="color:@cor">R$&nbsp;@Html.DisplayFor(modelItem => item.Valor)</td>
+                            <td class="tar">R$&nbsp;@Html.DisplayFor(modelItem => item.Saldo)</td>
+                        </tr>
+
+                    }
+                </tbody>
+
+
+            </table>
+        </div>
+    </div>
+
+    <!-- Definir Data Inicio -->
+
+    <div class="modal fade" id="EditDataInicioModal" tabindex="-1" role="dialog" aria-labelledby="EditDataInicioModal-label">
+        <div class="modal-dialog" role="document" style="width:40%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="EditDataInicioModal-label">Data de Inicio</h5>
+                </div>
+                <div class="modal-body" style="height:90px;">
+
+                    <div class="mgauto" style="width:55%;">
+                        <div class="col-md-8">
+                            <div class="input-group date" id="aceitecalendar">
+                                <input id="Inicio_@Model.Id" type="number" value="@Model.Id" class="hidden" />
+                                @Html.TextBox("datainicio", null, htmlAttributes: new { @class = "form-control" })
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-pull-1">
+                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close" style="font-size:20px;"></i></button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" onclick="CallSaveNewDataInicio(@Model.Id)"><i class="fa fa-save" style="font-size:20px;"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ebs.SetDateMask('#datainicio');
+            ebs.AnimateIcons();
+            var d = new Date(), m = d.getMonth()+1, y = d.getFullYear();
+
+            $(function () { $('#meses').change(function () { this.form.submit(); }); });
+            $(function () { $('#anos').change(function () { this.form.submit(); }); });
+
+            var mes = '@Html.Raw(ViewBag.messelected)';
+            if (mes != "") { SetDropDownValue(mes, "meses"); } else { $('#meses option:eq(' + y + ')').prop('selected', true) }
+
+            var ano = '@Html.Raw(ViewBag.anoselected)';
+            if (ano != "") { SetDropDownValue(ano, "anos"); } else { $('#anos option[value="' + y + '"]').prop('selected', true); }
+            ebs.Set_DatePicker();
+        });
+
+        CallSaveNewDataInicio =(id)  => {
+
+            var dtinicio = $("#datainicio").val();
+            
+            SaveNewDataInicio(id, dtinicio);
+        }
+        function SaveNewDataInicio(id, dtinicio) {
+            //var d =  dtinicio.substring(3, 5) + "/" + dtinicio.substring(0, 2) + "/" + dtinicio.substring(6, 10)
+            var ano = parseInt(dtinicio.substring(6, 10));
+
+             $.ajax({
+                cache: false,
+                type: "POST",
+                url: '/ContaPrs/SaveNewDataInicio',
+                data: {
+                    "ano": ano,
+                    "id": id,
+                    "datainicio": dtinicio
+                },
+                success: function (data) {
+                    msg("Data Inicio salva com sucesso");
+                    window.setTimeout('location.reload()', 2000);
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    msg('Falha ao salvar data inicio');
+                }
+            });
+        }
+
+    </script>
+    @Scripts.Render("~/Scripts/bootstrap-datepicker.js")
+    @Scripts.Render("~/Scripts/locales/bootstrap-datepicker.pt-BR.min.js")
+}
+

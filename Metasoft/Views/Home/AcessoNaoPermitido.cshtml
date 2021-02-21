@@ -1,0 +1,39 @@
+﻿@{
+    Layout = "~/Views/Shared/_OpenLayout.cshtml";
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron mainpage homeindex" style="height:520px;background-color:transparent;">
+    <h1 ID="title" style="color:#459ddc;opacity:0">DNK Controle Financeiro</h1>
+    <br />
+    <br />
+    <br />
+    <h3 style="color:white;font-size:14px;">Você não tem acesso a este módulo ou sua sessão expirou</h3>
+
+    <br />
+    <h4 style="color:white;font-size:12px;">Caso necessite acesso a este módulo informe o administrar do aplicativo</h4>
+    <br />
+    <div>
+       @*<a href="#" class="btn btn-success" onclick="history.back(1);" style="color:white;font-size:14px">Voltar</a>*@
+       <a href="~/Account/Login" class="btn btn-success"  style="color:white;font-size:14px">Login</a>
+    </div>
+    <div id="metasoft" class="noprint" style="width:90%;margin:0 auto;opacity:0;">
+        <div class="divfooter noprint"><span style="color:#cf4141">&copy; @DateTime.Now.Year - powered by &nbsp;Metasoft Solutions</span></div>
+    </div>
+  
+  
+    
+</div>
+@section Scripts {
+    <script type="text/javascript">
+         $(document).ready(function () {
+             TweenMax.to("#title", 2, { css: { scaleX: 0.8, scaleY: 0.8, opacity: 0.7 } });
+             TweenMax.to("#message", 2, { css: { scaleX: 0.8, scaleY: 0.8, opacity: 0.7 } });
+             TweenMax.to("#metasoft", 2, { css: { scaleX: 0.8, scaleY: 0.8, opacity: 0.7, delay: 2 } });
+             if ('@Html.Raw(ViewBag.bloqueado)' != "") { msg('@Html.Raw(ViewBag.bloqueado)'); }
+          });
+
+    </script>
+    @Scripts.Render()
+}
+

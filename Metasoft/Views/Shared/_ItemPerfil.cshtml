@@ -1,0 +1,17 @@
+﻿@model Metasoft.Models.ItemPerfil
+<div class="divpermissao pdnone">
+    <div class="divpermissaotitle pdnone">&nbsp;@Model.titulo</div>
+    <div style="width:99%;margin:0 auto">
+        <div class="cbdiv">
+            <span style="width:30%;display:inline-block;">
+                <input id="@Model.id" name="@Model.id" type="radio" value="1" /><span class="cblabel">@Model.item1</span>
+            </span>
+            <span style="width:30%;display:inline-block;">
+                <input id="@Model.id" name="@Model.id" type="radio" value="2" /><span class="cblabel">@Model.item2</span>
+            </span>
+            <span style="width:35%;display:inline-block;">
+                <input id="@Model.id" name="@Model.id" type="radio" value="3" checked="checked" /><span class="cblabel">@Model.item3</span>
+            </span>
+        </div>
+    </div>
+</div>

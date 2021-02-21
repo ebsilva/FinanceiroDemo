@@ -1,0 +1,82 @@
+﻿@model Metasoft.Models.ClienteViewModel
+
+@{
+    ViewBag.Title = "Excluir";
+}
+
+<div class="panel panel-default" style="margin-top:15px;margin-left:5px;width:70%;margin:0 auto;overflow:hidden;">
+
+    <div class="panel-heading">
+        <div style="float:left;">Novo Cliente/Fornecedor</div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-3" style="padding-right:0px;padding-left:0px;">
+                @Html.LabelFor(model => model.cnpj, htmlAttributes: new { @class = "control-label" })
+                @Html.DisplayFor(model => model.cnpj, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+            <div class="col-md-7">
+                @Html.Label("Razão Social", htmlAttributes: new { @class = "control-label" })
+                @Html.DisplayFor(model => model.nome, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+        <!--Cep, endereco,complemento -->
+        <div class="row">
+            <div class="col-md-2">
+                @Html.LabelFor(model => model.cep, htmlAttributes: new { @class = "control-label" })
+                @Html.DisplayFor(model => model.cep, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+
+            <div class="col-md-7">
+                @Html.LabelFor(model => model.endereco, htmlAttributes: new { @class = "control-label" })
+                @Html.DisplayFor(model => model.endereco, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+            <div class="col-md-3">
+                @Html.LabelFor(model => model.complemento, htmlAttributes: new { @class = "control-label" })
+                @Html.DisplayFor(model => model.complemento, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+
+        </div>
+        <!-- Bairro , uf, cidade-->
+        <div class="row">
+
+            <div class="col-md-4">
+                <label class="control-label" for="bairro">Bairro</label>
+                @Html.DisplayFor(model => model.bairro, new { htmlAttributes = new { @class = "form-control" } })
+
+            </div>
+            <div class="col-md-4">
+                <label class="control-label" for="uf">UF</label>
+                @Html.DisplayFor(model => model.cidade, new { htmlAttributes = new { @class = "form-control" } })
+                <label class="control-label" for="uf">UF</label>
+                @Html.DisplayFor(model => model.estado, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+            <!-- fone , emailf, site -->
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.LabelFor(model => model.fone, htmlAttributes: new { @class = "control-label" })
+                    @Html.DisplayFor(model => model.fone, new { htmlAttributes = new { @class = "form-control " } })
+                </div>
+
+                <div class="col-md-5">
+                    @Html.LabelFor(model => model.email, htmlAttributes: new { @class = "control-label" })
+                    @Html.DisplayFor(model => model.email, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.site, htmlAttributes: new { @class = "control-label" })
+                    @Html.DisplayFor(model => model.site, new { htmlAttributes = new { @class = "form-control", style = "width:97%" } })
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-2 col-md-offset-10">
+                    <input type="submit" title="Excluir" class="btn btn-success" style="float:right;margin-right:20px;" />
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

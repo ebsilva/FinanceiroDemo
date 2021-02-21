@@ -1,0 +1,29 @@
+﻿@model Metasoft.Models.DpickerViewModel
+@*<div class="@Model.DivClass" style="margin-top:@Model.Mtop;border: 0px 0px 0px 1px">
+        <label>@Model.Title</label>
+        <div class="@Model.InputClass">
+            <input id="@Model.Id" name="@Model.Id" />
+        </div>
+    </div>*@
+
+@*<div class="@Model.DivClass" style="margin-top:@Model.Mtop;border: none">
+    <div>@Model.Title</div>
+    <div class="input-group date">
+        <input id="@Model.Id" name="@Model.Id" class="form-control" />
+        <div class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+        </div>
+    </div>
+</div>*@
+
+<div class="@Model.DivClass" style="margin-top:@Model.Mtop;border: none">
+    <div>@Model.Title</div>
+    <div class="custom-dropdown_noarrow">
+        <span class="input-group date">
+            @Html.Editor(Model.Id, new { htmlAttributes = new { @class = "form-control  noprint", style = "border:none;" } })
+            <span class="input-group-addon" style="border:none; background-color: #1b0b5c;">
+                <i class="fas fa-calendar" style="color:white"></i>
+            </span>
+        </span>
+    </div>
+</div>

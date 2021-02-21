@@ -1,0 +1,15 @@
+﻿@model Metasoft.Models.InputViewModel
+@using Metasoft.Models;
+<div class="@Model.DivClass" style="height:@Model.Height;margin-top:@Model.Mtop;border:none;">
+    @if (!Model.NoLabel) {
+         <label>@Model.Title</label>
+    }
+    <div class="@Model.InputClass">
+        <select id="@Model.Id" name="@Model.Id" class="form-control f-12">
+            @if (!String.IsNullOrEmpty(Model.StaticOptions))
+            {
+                @Html.Partial(Model.StaticOptions, new InputViewModel { StaticOptions = Model.StaticOptions })
+            }
+        </select>
+        </div>
+ </div>

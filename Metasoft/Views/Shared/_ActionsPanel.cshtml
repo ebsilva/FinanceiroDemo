@@ -1,0 +1,18 @@
+﻿@model Metasoft.Models.ActionsPanelViewModel
+@using Metasoft.Models;
+<div class="@Model.DivClass" style="height:@Model.Height;margin-top:@Model.Mtop;">
+    <div class="custom-dropdown-noarrow">
+        <a href="@Model.RevoveFilterUrl" title="Remover filtros"><i class="fa fa-filter fs22"></i></a>
+        <a id="downloadbuttom" href="#" title="Donwload Excel file" onclick="Download();"><i class="fa fa-download fs22"></i></a>
+        <span class="hidden">@Html.Editor("download", new { htmlAttributes = new { @class = "form-control noprint " } })</span>
+        <a id="printicon" onclick="PrintTable('@Model.Tabela','@Model.ReportTitle');" title="Imprimir"><i class="fa fa-print fs22"></i></a>
+
+        @if (Model.CanEdit)
+        {
+            @Html.Partial("_LinkIcon", new LinkIconViewModel { link = Model.AddNewLink, title = Model.AddNewTitle, icon = "fas fa-plus fs22" })
+
+        }
+    </div>
+</div>
+
+
